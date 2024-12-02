@@ -1,6 +1,0 @@
-@GetTeacherServer_HostAddress = http://localhost:5205
-
-GET {{GetTeacherServer_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
