@@ -1,3 +1,6 @@
+using GetTeacherServer.BuilderExtensions;
+using Microsoft.EntityFrameworkCore;
+
 namespace GetTeacherServer;
 
 public class Program
@@ -6,10 +9,14 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
         builder.Services.AddControllers();
+        builder.UseGetTeacherDb();
 
         var app = builder.Build();
+
+        app.UseAuthentication();
         app.UseAuthorization();
         app.MapControllers();
+
         app.Run();
     }
 }
