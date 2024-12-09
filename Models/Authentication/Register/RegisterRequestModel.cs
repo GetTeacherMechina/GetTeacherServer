@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace GetTeacherServer.Models.Authentication;
+namespace GetTeacherServer.Models.Authentication.Register;
 
-public class RegisterModel
+public class RegisterRequestModel
 {
     [EmailAddress]
     public string Email { get; set; } = string.Empty;
@@ -12,10 +12,4 @@ public class RegisterModel
 
     [Required]
     public string Password { get; set; } = string.Empty;
-
-    [Required]
-    public string ConfirmPassword { get; set; } = string.Empty;
-
-    [Required]
-    public bool RememberMe { get; set; }
 }

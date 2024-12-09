@@ -8,6 +8,6 @@ public class DefaultController : ControllerBase
     [HttpGet]
     public IActionResult Get()
     {
-        return Redirect("auth/login");
+        return Ok();
     }
 }
