@@ -6,36 +6,32 @@ public class MeetingMatcher : IMeetingMatcher
 {
     public readonly int NO_TEACHER = -1;
 
-    private IDb DbM;
+    private IDbManager dbManager;
     private IUserStateChecker userStateChecker;
     private IFavoriteManager favoriteManager;
     private IRankSystem rankSystem;
-    public MeetingMatcher(IDb DbM, IUserStateChecker userStateChecker, IFavoriteManager favoriteManager, IRankSystem rankSystem)
+
+    public MeetingMatcher(IDbManager dbManager, IUserStateChecker userStateChecker, IFavoriteManager favoriteManager, IRankSystem rankSystem)
     {
-        this.DbM = DbM;
+        this.dbManager = dbManager;
         this.userStateChecker = userStateChecker;
         this.favoriteManager = favoriteManager;
         this.rankSystem = rankSystem;
     }
+
     public int GetTeacherID(int studentID, int subjectID)
     {
         int[] favoriteTeachers = favoriteManager.GetFavoriteTeacherIDsBySubject(studentID, subjectID);
-        int[] bestTeachersBySubject = rankSystem.GetRankedTeachersBySubject(subjectID, DbM.GetStudentStudyingLevelByID(studentID));
+        int[] bestTeachersBySubject = rankSystem.GetRankedTeachersBySubject(subjectID, dbManager.GetStudentStudyingLevelByID(studentID));
 
         for (int i = 0; i < favoriteTeachers.Length; i++)
-        {
             if (userStateChecker.IsTeacherOnline(favoriteTeachers[i]))
-            {
                 return favoriteTeachers[i];
-            }
-        }
+
         for (int i = 0; i < bestTeachersBySubject.Length; i++)
-        {
             if (userStateChecker.IsTeacherOnline(bestTeachersBySubject[i]))
-            {
                 return bestTeachersBySubject[i];
-            }
-        }
+
         NotifyOnlineTeachers(bestTeachersBySubject);
         return NO_TEACHER;
     }

@@ -4,15 +4,16 @@ namespace GetTeacherServer.Services.Managers.Implementation;
 
 public class FavoriteManager : IFavoriteManager
 {
-    private IDb DbM;
-    public FavoriteManager(IDb DBM)
+    private readonly IDbManager dbManager;
+
+    public FavoriteManager(IDbManager dbManager)
     {
-        this.DbM = DBM;
+        this.dbManager = dbManager;
     }
 
     public int[] GetFavoriteTeacherIDs(int studentID)
     {
-        return DbM.GetStudentFavoriteTeachers(studentID);
+        return dbManager.GetStudentFavoriteTeachers(studentID);
     }
 
     /**
@@ -20,9 +21,9 @@ public class FavoriteManager : IFavoriteManager
     */
     public int[] GetFavoriteTeacherIDsBySubject(int studentID, int subjectID)
     {
-        int[] favoriteTeachers = DbM.GetStudentFavoriteTeachers(studentID);
-        int[] subjectTeachers = DbM.GetAllTeacherIDsBySubjectAndStudingLevel(
-            DbM.GetStudentStudyingLevelByID(studentID), subjectID);
+        int[] favoriteTeachers = dbManager.GetStudentFavoriteTeachers(studentID);
+        int[] subjectTeachers = dbManager.GetAllTeacherIDsBySubjectAndStudingLevel(
+            dbManager.GetStudentStudyingLevelByID(studentID), subjectID);
 
         int[] favoriteTeacherIDsBySubjectTemp = new int[favoriteTeachers.Length];
         int favoriteTeacherIndex = 0;
@@ -30,7 +31,6 @@ public class FavoriteManager : IFavoriteManager
         {
             for (int j = 0; j < subjectTeachers.Length; j++)
             {
-
                 if (favoriteTeachers[i] == subjectTeachers[j])
                 {
                     favoriteTeacherIDsBySubjectTemp[favoriteTeacherIndex] = favoriteTeachers[i];
@@ -42,9 +42,7 @@ public class FavoriteManager : IFavoriteManager
 
         int[] favoriteTeacherIDsBySubject = new int[favoriteTeacherIndex];
         for (int i = 0; i < favoriteTeacherIndex; i++)
-        {
             favoriteTeacherIDsBySubject[i] = favoriteTeacherIDsBySubjectTemp[i];
-        }
 
         return favoriteTeacherIDsBySubject;
     }

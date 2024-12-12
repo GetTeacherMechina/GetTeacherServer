@@ -4,8 +4,8 @@ namespace GetTeacherServer.Services.Managers.Implementation;
 
 public class RankSystem : IRankSystem
 {
-    private IDb DbM;
-    public RankSystem(IDb DBM)
+    private IDbManager DbM;
+    public RankSystem(IDbManager DBM)
     {
         this.DbM = DBM;
     }
@@ -34,6 +34,6 @@ public class RankSystem : IRankSystem
         int numOfRankers = DbM.GetNumOfTeacherRankers(teacherID);
         double newRank = ((currentRank * numOfRankers) + stars) / (numOfRankers + 1);
         DbM.UpdateTeacherRank(teacherID, newRank);
-        DbM.UpdatetNumOfTeacherRankers(teacherID);
+        DbM.UpdateNumOfTeacherRankers(teacherID);
     }
 }

@@ -5,30 +5,30 @@ namespace GetTeacherServer.Services.Managers.Implementation;
 public class AuthManager : IAuthManager
 {
     public readonly int NO_ID = -1;
-    private IDb DbM;
-    private IUserStateChecker userStateChecker;
-    public AuthManager(IDb DBM, IUserStateChecker userStateChecker)
+    private readonly IDbManager dbManager;
+    private readonly IUserStateChecker userStateChecker;
+
+    public AuthManager(IDbManager dbManager, IUserStateChecker userStateChecker)
     {
-        this.DbM = DBM;
+        this.dbManager = dbManager;
         this.userStateChecker = userStateChecker;
     }
 
     private int Register(string name, string email, string password)
     {
-        DbM.AddUser(name, email, password);
-        int userID = DbM.GetUserID(name, email, password);
+        dbManager.AddUser(name, email, password);
+        int userID = dbManager.GetUserID(name, email, password);
         userStateChecker.AddUser(userID, DateTime.Now.Ticks);
-        return DbM.GetUserID(name, email, password);
+        return dbManager.GetUserID(name, email, password);
     }
 
     public bool RegisterStudent(string name, string email, string password, int studyingLevel)
     {
         int userID = Register(name, email, password);
         if (userID == NO_ID)
-        {
             return false;
-        }
-        DbM.AddStudent(userID, studyingLevel);
+
+        dbManager.AddStudent(userID, studyingLevel);
         return true;
     }
 
@@ -36,15 +36,14 @@ public class AuthManager : IAuthManager
     {
         int userID = Register(name, email, password);
         if (userID == NO_ID)
-        {
             return false;
-        }
-        DbM.AddTeacher(userID, subjectIDs, teachingLevel);
+
+        dbManager.AddTeacher(userID, subjectIDs, teachingLevel);
         return true;
     }
 
     public int Login(string name, string email, string password)
     {
-        return DbM.GetUserID(name, email, password);
+        return dbManager.GetUserID(name, email, password);
     }
 }

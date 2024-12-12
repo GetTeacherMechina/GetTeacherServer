@@ -6,9 +6,9 @@ public class UserStateChecker : IUserStateChecker
 {
     private static Dictionary<int, long> onlineUsers = new Dictionary<int, long>();
     private static readonly double delta = 7e+7; // seven sec
-    private IDb DbM;
+    private IDbManager DbM;
 
-    public UserStateChecker(IDb dbM)
+    public UserStateChecker(IDbManager dbM)
     {
         this.DbM = dbM;
     }
@@ -24,12 +24,12 @@ public class UserStateChecker : IUserStateChecker
                 i++;
             }
         }
+
         onlineTeachersTemp[i] = -1;
         int[] onlineTeachers = new int[i];
         for (int j = 0; onlineTeachersTemp[j] != -1; j++)
-        {
             onlineTeachers[j] = onlineTeachersTemp[j];
-        }
+
         return onlineTeachers;
     }
 
