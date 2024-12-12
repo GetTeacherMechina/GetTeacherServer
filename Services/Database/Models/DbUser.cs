@@ -2,7 +2,7 @@
 
 namespace GetTeacherServer.Services.Database.Models;
 
-public class DbIdentityUser : IdentityUser
+public class DbUser : IdentityUser
 {
 
 }

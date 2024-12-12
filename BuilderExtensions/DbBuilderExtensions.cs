@@ -17,7 +17,7 @@ public static class DbBuilderExtensions
 
         // Add identity services
         builder.Services
-            .AddIdentityCore<DbIdentityUser>()
+            .AddIdentityCore<DbUser>()
             .AddEntityFrameworkStores<GetTeacherDbContext>();
 
         // Add DbContext based on environment

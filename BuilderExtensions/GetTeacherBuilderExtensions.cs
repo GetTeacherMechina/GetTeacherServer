@@ -3,10 +3,10 @@
 namespace GetTeacherServer.BuilderExtensions;
 
 public static class GetTeacherBuilderExtensions
-{ 
+{
     public static void UseGetTeacherServices(this WebApplicationBuilder builder)
     {
-        builder.UseGetTeacherDb(); 
+        builder.UseGetTeacherDb();
         builder.Services.AddScoped<JwtTokenGenerator>();
     }
 }

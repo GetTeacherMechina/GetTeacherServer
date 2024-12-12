@@ -10,9 +10,9 @@ namespace GetTeacherServer.Controllers.Profile;
 [Route("api/v1/profile")]
 public class ProfileController : ControllerBase
 {
-    private readonly UserManager<DbIdentityUser> userManager;
+    private readonly UserManager<DbUser> userManager;
 
-    public ProfileController(UserManager<DbIdentityUser> userManager)
+    public ProfileController(UserManager<DbUser> userManager)
     {
         this.userManager = userManager;
     }
@@ -21,7 +21,7 @@ public class ProfileController : ControllerBase
     [Authorize]
     public async Task<IActionResult> Profile()
     {
-        DbIdentityUser? userResult = await userManager.FindByNameAsync(User.Identity!.Name!);
+        DbUser? userResult = await userManager.FindByNameAsync(User.Identity!.Name!);
         if (userResult == null)
             return BadRequest(new ProfileResponseModel { Result = "No such username - wtf authenticated but not found?" });
 

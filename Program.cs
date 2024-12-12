@@ -1,7 +1,6 @@
 using GetTeacherServer.BuilderExtensions;
 using GetTeacherServer.Services.Database.Models;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace GetTeacherServer;
 
@@ -9,7 +8,6 @@ public class Program
 {
     public static void Main(string[] args)
     {
-        Console.WriteLine("Test");
         var builder = WebApplication.CreateBuilder(args);
         builder.Services.AddControllers();
 
@@ -19,7 +17,7 @@ public class Program
         builder.AddJwtAuthentication();
 
         // Adds the identity services
-        builder.Services.AddIdentityCore<DbIdentityUser>()
+        builder.Services.AddIdentityCore<DbUser>()
             .AddEntityFrameworkStores<GetTeacherDbContext>()
             .AddDefaultTokenProviders();
 

@@ -9,9 +9,9 @@ namespace GetTeacherServer.Controllers.Authentication;
 [Route("api/v1/auth/[controller]")]
 public class RegisterController : ControllerBase
 {
-    private readonly UserManager<DbIdentityUser> userManager;
+    private readonly UserManager<DbUser> userManager;
 
-    public RegisterController(UserManager<DbIdentityUser> userManager)
+    public RegisterController(UserManager<DbUser> userManager)
     {
         this.userManager = userManager;
     }
@@ -19,7 +19,7 @@ public class RegisterController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Register([FromBody] RegisterRequestModel registerModel)
     {
-        var user = new DbIdentityUser
+        var user = new DbUser
         {
             UserName = registerModel.Username,
             Email = registerModel.Email

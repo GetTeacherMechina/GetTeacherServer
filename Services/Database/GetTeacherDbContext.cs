@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-public class GetTeacherDbContext : IdentityDbContext<DbIdentityUser>
+public class GetTeacherDbContext : IdentityDbContext<DbUser>
 {
     public DbSet<DbStudent> Students { get; set; }
     public DbSet<DbTeacher> Teachers { get; set; }
@@ -14,6 +14,6 @@ public class GetTeacherDbContext : IdentityDbContext<DbIdentityUser>
     public GetTeacherDbContext(DbContextOptions<GetTeacherDbContext> options)
         : base(options)
     {
-        
+
     }
 }

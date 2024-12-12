@@ -13,10 +13,11 @@ public class DbStudent
 
     public virtual DbGrade Grade { get; set; }
 
-    public int DbUserId { get; set; }
 
-    [ForeignKey(nameof(DbUserId))]
-    public virtual DbIdentityUser DbUser { get; set; }
+    [ForeignKey(nameof(DbUser))]
+    public string DbUserId { get; set; } // Foreign key to IdentityUser.Id
+
+    public virtual DbUser DbUser { get; set; } // Navigation property
 
     public virtual ICollection<DbTeacher> PrefferedTeachers { get; set; } = new List<DbTeacher>();
     public virtual ICollection<DbLessonSummary> DbLessonSummaries { get; set; } = new List<DbLessonSummary>();

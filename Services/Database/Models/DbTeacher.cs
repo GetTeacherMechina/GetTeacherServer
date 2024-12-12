@@ -11,9 +11,8 @@ public class DbTeacher
     public string Bio { get; set; }
 
     [ForeignKey(nameof(DbUser))]
-    public int DbUserId { get; set; }
-
-    public virtual DbIdentityUser DbUser { get; set; }
+    public string DbUserId { get; set; }
+    public virtual DbUser DbUser { get; set; }
 
     public virtual ICollection<DbTeacherSubject> TeacherSubjects { get; set; } = new List<DbTeacherSubject>();
 }
