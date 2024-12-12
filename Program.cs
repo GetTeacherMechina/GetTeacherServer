@@ -19,7 +19,7 @@ public class Program
         builder.AddJwtAuthentication();
 
         // Adds the identity services
-        builder.Services.AddIdentityCore<GetTeacherUserIdentity>()
+        builder.Services.AddIdentityCore<DbIdentityUser>()
             .AddEntityFrameworkStores<GetTeacherDbContext>()
             .AddDefaultTokenProviders();
 

@@ -10,10 +10,10 @@ namespace GetTeacherServer.Controllers.Authentication;
 [Route("api/v1/auth/[controller]")]
 public class LoginController : ControllerBase
 {
-    private readonly UserManager<GetTeacherUserIdentity> userManager;
+    private readonly UserManager<DbIdentityUser> userManager;
     private readonly JwtTokenGenerator jwtTokenGenerator;
 
-    public LoginController(UserManager<GetTeacherUserIdentity> signInManager, JwtTokenGenerator jwtTokenGenerator)
+    public LoginController(UserManager<DbIdentityUser> signInManager, JwtTokenGenerator jwtTokenGenerator)
     {
         this.userManager = signInManager;
         this.jwtTokenGenerator = jwtTokenGenerator;
@@ -22,7 +22,7 @@ public class LoginController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Login([FromBody] LoginRequestModel loginModel)
     {
-        GetTeacherUserIdentity? userResult = await userManager.FindByEmailAsync(loginModel.Email);
+        DbIdentityUser? userResult = await userManager.FindByEmailAsync(loginModel.Email);
         if (userResult == null)
             return Unauthorized(new LoginResponseModel{ Result = "Invalid email or password" });
 

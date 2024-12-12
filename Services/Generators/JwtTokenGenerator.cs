@@ -10,9 +10,9 @@ namespace GetTeacherServer.Services.Generators;
 public class JwtTokenGenerator
 {
     private readonly IConfiguration configuration;
-    private readonly UserManager<GetTeacherUserIdentity> userManager;
+    private readonly UserManager<DbIdentityUser> userManager;
 
-    public JwtTokenGenerator(IConfiguration configuration, UserManager<GetTeacherUserIdentity> userManager)
+    public JwtTokenGenerator(IConfiguration configuration, UserManager<DbIdentityUser> userManager)
     {
         this.configuration = configuration;
         this.userManager = userManager;
@@ -30,7 +30,7 @@ public class JwtTokenGenerator
         }
     }
 
-    public async Task<string> GenerateUserToken(GetTeacherUserIdentity user)
+    public async Task<string> GenerateUserToken(DbIdentityUser user)
     {
         // Add basic email username and JwtId claims
         List<Claim> claims = new List<Claim>
