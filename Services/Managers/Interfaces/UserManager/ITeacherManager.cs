@@ -4,25 +4,25 @@ namespace GetTeacherServer.Services.Managers.Interfaces.UserManager;
 
 public interface ITeacherManager
 {
-    public int[] GetAllTeacherIDs();
+    public Task<bool> TeacherExists(DbUser user);
 
-    public int[] GetAllTeacherIDsBySubject(int subjectID);
+    public Task<DbTeacher?> GetFromUser(DbUser user);
 
-    public int[] GetAllTeacherIDsBySubjectAndStudingLevel(int subjectID, int studyingLevel);
+    public Task<ICollection<DbTeacher>> GetAllTeacher();
 
-    public void AddTeacher(int userID, int[] subjectIDs, int[] teachingLevel);
+    public Task<ICollection<DbTeacher>> GetAllTeacherBySubjectAndGrade(DbSubject subject, DbGrade garde);
 
-    public void RemoveTeacher(int teacherID);
+    public Task AddTeacher(DbUser user, DbTeacher teacher);
 
-    public int GetTeacherIDByUserID(int userID);
+    public Task RemoveTeacher(DbTeacher teacher);
 
-    public double GetTeacherRank(int teacherID);
+    public Task<double> GetTeacherRank(DbTeacher teacher);
 
-    public int GetNumOfTeacherRankers(int teacherID);
+    public Task<int> GetNumOfTeacherRankers(DbTeacher teacher);
 
-    public void UpdateTeacherRank(int teacherID, double newRank);
+    public Task UpdateTeacherRank(DbTeacher teacher, double newRank);
 
-    public void UpdateNumOfTeacherRankers(int teacherID);
+    public Task UpdateNumOfTeacherRankers(DbTeacher teacher);
 
-    public DbSubject[] GetAllSubjectIDs();
+    public Task<ICollection<DbSubject>> GetAllSubjects();
 }
