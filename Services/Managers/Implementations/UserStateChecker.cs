@@ -1,6 +1,5 @@
 ﻿using GetTeacherServer.Services.Database.Models;
 using GetTeacherServer.Services.Managers.Interfaces;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
 namespace GetTeacherServer.Services.Managers.Implementation;

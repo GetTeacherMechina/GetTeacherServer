@@ -17,6 +17,6 @@ public class DbStudent
     public int DbUserId { get; set; }
     public virtual DbUser DbUser { get; set; }
 
-    public virtual ICollection<DbTeacher> PrefferedTeachers { get; set; } = new List<DbTeacher>();
+    public virtual ICollection<DbTeacher> FavoriteTeachers { get; set; } = new List<DbTeacher>();
     public virtual ICollection<DbLessonSummary> DbLessonSummaries { get; set; } = new List<DbLessonSummary>();
 }

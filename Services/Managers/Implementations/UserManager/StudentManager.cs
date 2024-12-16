@@ -7,15 +7,13 @@ namespace GetTeacherServer.Services.Managers.Implementations.UserManager;
 public class StudentManager : IStudentManager
 {
     private readonly GetTeacherDbContext getTeacherDbContext;
-    private readonly ITeacherManager teacherManager;
 
-    public StudentManager(GetTeacherDbContext getTeacherDbContext, ITeacherManager teacherManager)
+    public StudentManager(GetTeacherDbContext getTeacherDbContext)
     {
         this.getTeacherDbContext = getTeacherDbContext;
-        this.teacherManager = teacherManager;
     }
 
-    private async Task<DbStudent?> GetFromUser(DbUser studentUser)
+    public async Task<DbStudent?> GetFromUser(DbUser studentUser)
     {
         return await getTeacherDbContext.Students.Where(u => u.DbUser.Id == studentUser.Id).FirstOrDefaultAsync();
     }
@@ -44,47 +42,15 @@ public class StudentManager : IStudentManager
         await getTeacherDbContext.SaveChangesAsync();
     }
 
-    public async Task AddFavoriteTeacher(DbUser studentUser, DbUser teacherUser)
+    public async Task AddFavoriteTeacher(DbStudent student, DbTeacher teacher)
     {
-        DbStudent? student = await GetFromUser(studentUser);
-        if (student is null)
-            return;
-
-        DbTeacher? teacher = await teacherManager.GetFromUser(teacherUser);
-        if (teacher is null)
-            return;
-
-        student.PrefferedTeachers.Add(teacher);
+        student.FavoriteTeachers.Add(teacher);
         await getTeacherDbContext.SaveChangesAsync();
     }
 
-    public async Task RemoveFavoriteTeacher(DbUser studentUser, DbUser teacherUser)
+    public async Task RemoveFavoriteTeacher(DbStudent student, DbTeacher teacher)
     {
-        DbStudent? student = await GetFromUser(studentUser);
-        if (student is null)
-            return;
-
-        DbTeacher? teacher = await teacherManager.GetFromUser(teacherUser);
-        if (teacher is null)
-            return;
-
-        student.PrefferedTeachers.Remove(teacher);
+        student.FavoriteTeachers.Remove(teacher);
         await getTeacherDbContext.SaveChangesAsync();
-    }
-
-    public async Task<ICollection<DbTeacher>> GetFavoriteTeachers(DbUser user)
-    {
-        DbStudent? student = await GetFromUser(user);
-        if (student is null)
-            return Array.Empty<DbTeacher>();
-        
-        return student.PrefferedTeachers;
-    }
-
-    public async Task GetGrade(DbUser user)
-    {
-        DbStudent? student = await GetFromUser(user);
-        if (student is null)
-            return;
     }
 }

@@ -4,17 +4,15 @@ namespace GetTeacherServer.Services.Managers.Interfaces.UserManager;
 
 public interface IStudentManager
 {
+    public Task<DbStudent?> GetFromUser(DbUser studentUser);
+
     public Task<bool> StudentExists(DbUser studentUser);
 
     public Task AddStudent(DbUser studentUser, DbStudent student);
 
     public Task RemoveStudent(DbUser studentUser);
 
-    public Task AddFavoriteTeacher(DbUser studentUser, DbUser teacherUser);
+    public Task AddFavoriteTeacher(DbStudent student, DbTeacher teacher);
 
-    public Task RemoveFavoriteTeacher(DbUser studentUser, DbUser teacherUser);
-
-    public Task<ICollection<DbTeacher>> GetFavoriteTeachers(DbUser studentUser);
-
-    public Task GetGrade(DbUser studentUser);
+    public Task RemoveFavoriteTeacher(DbStudent student, DbTeacher teacher);
 }
