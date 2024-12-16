@@ -1,14 +1,16 @@
-﻿namespace GetTeacherServer.Services.Managers.Interfaces;
+﻿using GetTeacherServer.Services.Database.Models;
+
+namespace GetTeacherServer.Services.Managers.Interfaces;
 
 public interface IUserStateChecker
 {
-    public bool IsTeacherOnline(int teacherID);
+    public bool IsUserOnline(DbUser user);
 
-    public int[] GetAllOnlineTeachersBySubject(int studentID, int subjectID);
+    public void UpdateUserLastSeen(DbUser user, DateTime time);
 
-    public int[] GetAllOnlineTeachers();
+    public Task<ICollection<DbUser>> GetOnlineUsers();
 
-    public void UpdateOnlineUsers(int userID, long time);
+    public Task<ICollection<DbTeacher>> GetOnlineTeachers();
 
-    public void AddUser(int userID, long time);
+    public Task<ICollection<DbStudent>> GetOnlineStudents();
 }
