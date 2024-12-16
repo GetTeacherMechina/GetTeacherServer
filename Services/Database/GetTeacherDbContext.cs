@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 
 public class GetTeacherDbContext : IdentityDbContext<DbUser>
 {
+
+
     public DbSet<DbStudent> Students { get; set; }
     public DbSet<DbTeacher> Teachers { get; set; }
     public DbSet<DbLessonSummary> LessonSummaries { get; set; }
@@ -14,6 +16,7 @@ public class GetTeacherDbContext : IdentityDbContext<DbUser>
     public GetTeacherDbContext(DbContextOptions<GetTeacherDbContext> options)
         : base(options)
     {
+
 
     }
 }
