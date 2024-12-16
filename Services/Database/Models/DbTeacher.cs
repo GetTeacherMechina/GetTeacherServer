@@ -14,5 +14,9 @@ public class DbTeacher
     public string DbUserId { get; set; }
     public virtual DbUser DbUser { get; set; }
 
+    public double Rank { get; set; }
+
+    public int NumOfLessons { get; set; }
+
     public virtual ICollection<DbTeacherSubject> TeacherSubjects { get; set; } = new List<DbTeacherSubject>();
 }
