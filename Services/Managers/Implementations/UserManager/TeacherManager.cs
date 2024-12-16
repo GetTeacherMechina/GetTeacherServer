@@ -53,16 +53,24 @@ namespace GetTeacherServer.Services.Managers.Implementations.UserManager
         public async Task<DbTeacher?> GetFromUser(DbUser user)
         {
             return await getTeacherDbContext.Teachers.Where(t =>
-                t.DbUser == user).FirstAsync();
+                t.DbUser == user).FirstOrDefaultAsync();
         }
 
         public async Task<int> GetNumOfTeacherRankers(DbTeacher teacher)
         {
+            if (!(await TeacherExists(teacher.DbUser)))
+            {
+                return 0;
+            }
             return (await getTeacherDbContext.Teachers.Where(t =>
                 t.Id == teacher.Id).FirstAsync()).NumOfLessons;
         }
         public async Task<double> GetTeacherRank(DbTeacher teacher)
         {
+            if (!(await TeacherExists(teacher.DbUser)))
+            {
+                return 0;
+            }
             return (await getTeacherDbContext.Teachers.Where(t =>
                 t.Id == teacher.Id).FirstAsync()).Rank;
         }
@@ -70,12 +78,16 @@ namespace GetTeacherServer.Services.Managers.Implementations.UserManager
         public async Task<bool> TeacherExists(DbUser user)
         {
             return await getTeacherDbContext.Teachers.Where(t =>
-                t.DbUser.Id == user.Id).FirstAsync() is not null;
+                t.DbUser.Id == user.Id).FirstOrDefaultAsync() is not null;
                 
         }
 
         public async Task UpdateNumOfTeacherRankers(DbTeacher teacher)
         {
+            if (!(await TeacherExists(teacher.DbUser)))
+            {
+                return;
+            }
             (await getTeacherDbContext.Teachers.Where(t =>
                 t.Id == teacher.Id).FirstAsync()).NumOfLessons++;
             await getTeacherDbContext.SaveChangesAsync();
@@ -83,6 +95,10 @@ namespace GetTeacherServer.Services.Managers.Implementations.UserManager
 
         public async Task UpdateTeacherRank(DbTeacher teacher, double newRank)
         {
+            if (!(await TeacherExists(teacher.DbUser)))
+            {
+                return;
+            }
             (await getTeacherDbContext.Teachers.Where(t =>
                 t.Id == teacher.Id).FirstAsync()).Rank = newRank;
             await getTeacherDbContext.SaveChangesAsync();
