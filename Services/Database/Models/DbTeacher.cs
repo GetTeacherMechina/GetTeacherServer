@@ -8,11 +8,11 @@ public class DbTeacher
     [Key]
     public int Id { get; set; }
 
-    public string Bio { get; set; }
+    public string Bio { get; set; } = string.Empty;
 
     [ForeignKey(nameof(DbUser))]
-    public string DbUserId { get; set; }
-    public virtual DbUser DbUser { get; set; }
+    public int DbUserId { get; set; }
+    public virtual DbUser DbUser { get; set; } = null!;
 
     public double Rank { get; set; }
 

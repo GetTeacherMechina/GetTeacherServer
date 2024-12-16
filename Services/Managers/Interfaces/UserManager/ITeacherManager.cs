@@ -10,7 +10,7 @@ public interface ITeacherManager
 
     public Task<ICollection<DbTeacher>> GetAllTeacher();
 
-    public Task<ICollection<DbTeacher>> GetAllTeacherBySubjectAndGrade(DbSubject subject, DbGrade garde);
+    public Task<ICollection<DbTeacher>> GetTeachersBySubjectAndGrade(DbSubject subject, DbGrade garde);
 
     public Task AddTeacher(DbUser user, DbTeacher teacher);
 
@@ -22,7 +22,7 @@ public interface ITeacherManager
 
     public Task UpdateTeacherRank(DbTeacher teacher, double newRank);
 
-    public Task UpdateNumOfTeacherRankers(DbTeacher teacher);
+    public Task IncrementNumOfLessons(DbTeacher teacher);
 
     public Task<ICollection<DbSubject>> GetAllSubjects();
 }

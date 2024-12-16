@@ -21,8 +21,8 @@ public class MeetingMatcher : IMeetingMatcher
 
     public async Task<DbTeacher?> MatchStudentTeacher(DbStudent student, DbSubject subject)
     {
-        ICollection<DbTeacher> favoriteTeachers = await studentManager.GetFavoriteTeachers(student.DbUser);
-        ICollection<DbTeacher> bestTeachersBySubject = await teacherManager.GetRankedTeachersBySubjectAndGrade(subject, student.Grade);
+        ICollection<DbTeacher> favoriteTeachers = student.FavoriteTeachers;
+        ICollection<DbTeacher> bestTeachersBySubject = await teacherManager.GetTeachersBySubjectAndGrade(subject, student.Grade);
 
         foreach (DbTeacher currentTeacher in favoriteTeachers)
             if (userStateChecker.IsUserOnline(currentTeacher.DbUser))

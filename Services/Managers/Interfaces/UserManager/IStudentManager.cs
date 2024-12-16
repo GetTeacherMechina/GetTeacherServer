@@ -10,7 +10,7 @@ public interface IStudentManager
 
     public Task AddStudent(DbUser studentUser, DbStudent student);
 
-    public Task RemoveStudent(DbUser studentUser);
+    public Task RemoveStudent(DbStudent student);
 
     public Task AddFavoriteTeacher(DbStudent student, DbTeacher teacher);
 

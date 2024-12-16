@@ -32,12 +32,8 @@ public class StudentManager : IStudentManager
         await getTeacherDbContext.SaveChangesAsync();
     }
 
-    public async Task RemoveStudent(DbUser user)
+    public async Task RemoveStudent(DbStudent student)
     {
-        DbStudent? student = await GetFromUser(user);
-        if (student is null)
-            return;
-
         getTeacherDbContext.Students.Remove(student);
         await getTeacherDbContext.SaveChangesAsync();
     }

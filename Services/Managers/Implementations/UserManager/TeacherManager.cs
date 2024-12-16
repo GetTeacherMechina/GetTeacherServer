@@ -15,7 +15,7 @@ namespace GetTeacherServer.Services.Managers.Implementations.UserManager
 
         public async Task AddTeacher(DbUser user, DbTeacher teacher)
         {
-            
+
             if (await GetFromUser(user) is not null)
             {
                 return;
@@ -43,10 +43,10 @@ namespace GetTeacherServer.Services.Managers.Implementations.UserManager
             return await getTeacherDbContext.Teachers.ToListAsync();
         }
 
-        public async Task<ICollection<DbTeacher>> GetAllTeacherBySubjectAndGrade(DbSubject subject, DbGrade garde)
+        public async Task<ICollection<DbTeacher>> GetTeachersBySubjectAndGrade(DbSubject subject, DbGrade garde)
         {
             return await getTeacherDbContext.Teachers.Where(
-                t => t.TeacherSubjects.Where(sub => sub.Subject.Id == subject.Id && 
+                t => t.TeacherSubjects.Where(sub => sub.Subject.Id == subject.Id &&
                 sub.Grade.Id == garde.Id).Count() != 0).ToListAsync();
         }
 
@@ -79,10 +79,10 @@ namespace GetTeacherServer.Services.Managers.Implementations.UserManager
         {
             return await getTeacherDbContext.Teachers.Where(t =>
                 t.DbUser.Id == user.Id).FirstOrDefaultAsync() is not null;
-                
+
         }
 
-        public async Task UpdateNumOfTeacherRankers(DbTeacher teacher)
+        public async Task IncrementNumOfLessons(DbTeacher teacher)
         {
             if (!(await TeacherExists(teacher.DbUser)))
             {
