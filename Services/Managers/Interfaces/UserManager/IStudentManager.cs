@@ -1,18 +1,20 @@
-﻿namespace GetTeacherServer.Services.Managers.Interfaces.UserManager;
+﻿using GetTeacherServer.Services.Database.Models;
+
+namespace GetTeacherServer.Services.Managers.Interfaces.UserManager;
 
 public interface IStudentManager
 {
-    public void AddStudent(int userID, int studyingLevel);
+    public Task<bool> StudentExists(DbUser studentUser);
 
-    public int GetStudentIDByUserID(int userID);
+    public Task AddStudent(DbUser studentUser, DbStudent student);
 
-    public void RemoveStudent(int studentID);
+    public Task RemoveStudent(DbUser studentUser);
 
-    public int[] GetStudentFavoriteTeachers(int studentID);
+    public Task AddFavoriteTeacher(DbUser studentUser, DbUser teacherUser);
 
-    public void AddStudentFavoriteTeacher(int studentID, int teacherID);
+    public Task RemoveFavoriteTeacher(DbUser studentUser, DbUser teacherUser);
 
-    public void RemoveStudentFavoriteTeacher(int studentID, int teacherID);
+    public Task<ICollection<DbTeacher>> GetFavoriteTeachers(DbUser studentUser);
 
-    public int GetStudentStudyingLevelByID(int studentID);
+    public Task GetGrade(DbUser studentUser);
 }

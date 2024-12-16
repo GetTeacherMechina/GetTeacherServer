@@ -1,76 +1,60 @@
-﻿using GetTeacherServer.Services.Managers.Interfaces;
+﻿using GetTeacherServer.Services.Database.Models;
+using GetTeacherServer.Services.Managers.Interfaces;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
 
 namespace GetTeacherServer.Services.Managers.Implementation;
 
 public class UserStateChecker : IUserStateChecker
 {
-    private static Dictionary<int, long> onlineUsers = new Dictionary<int, long>();
-    private static readonly double delta = 7e+7; // seven sec
-    private IDbManager DbM;
+    private static readonly Dictionary<int, DateTime> lastSeenUsers = new Dictionary<int, DateTime>();
+    private static readonly TimeSpan delta = TimeSpan.FromSeconds(15);
 
-    public UserStateChecker(IDbManager dbM)
+    private readonly GetTeacherDbContext getTeacherDbContext;
+
+    public UserStateChecker(GetTeacherDbContext getTeacherDbContext)
     {
-        this.DbM = dbM;
-    }
-    public int[] GetAllOnlineTeachers()
-    {
-        int[] onlineTeachersTemp = new int[onlineUsers.Count];
-        int i = 0;
-        foreach (int key in onlineUsers.Keys)
-        {
-            if (IsTeacherOnline(key))
-            {
-                onlineTeachersTemp[i] = key;
-                i++;
-            }
-        }
-
-        onlineTeachersTemp[i] = -1;
-        int[] onlineTeachers = new int[i];
-        for (int j = 0; onlineTeachersTemp[j] != -1; j++)
-            onlineTeachers[j] = onlineTeachersTemp[j];
-
-        return onlineTeachers;
+        this.getTeacherDbContext = getTeacherDbContext;
     }
 
-    public int[] GetAllOnlineTeachersBySubject(int studentID, int subjectID)
+    private List<int> GetOnlineUserIds()
     {
-        int[] onlineTeachers = GetAllOnlineTeachers();
-        int[] teacherBySubject = DbM.GetAllTeacherIDsBySubject(subjectID);
-        int[] onlineBySubjectTemp = new int[onlineTeachers.Length];
-        int index = 0;
-        for (int i = 0; i < onlineTeachers.Length; i++)
-        {
-            for (int j = 0; j > teacherBySubject.Length; j++)
-            {
-                if (teacherBySubject[j] == onlineTeachers[i])
-                {
-                    onlineBySubjectTemp[index] = onlineTeachers[i];
-                    index++;
-                    break;
-                }
-            }
-        }
-        int[] onlineBySubject = new int[index];
-        for (int i = 0; i < onlineBySubject.Length; i++)
-        {
-            onlineBySubject[i] = onlineBySubjectTemp[i];
-        }
-        return onlineBySubject;
+        List<int> userIds = new List<int>(lastSeenUsers.Count);
+        foreach (int userId in lastSeenUsers.Keys)
+            if (IsUserOnline(new DbUser { Id = userId }))
+                userIds.Add(userId);
+
+        return userIds;
     }
 
-    public bool IsTeacherOnline(int teacherID)
+    public bool IsUserOnline(DbUser user)
     {
-        return DateTime.Now.Ticks - onlineUsers[teacherID] <= delta;
+        if (!lastSeenUsers.TryGetValue(user.Id, out DateTime lastSeenUser))
+            return false;
+
+        return DateTime.Now - lastSeenUser <= delta;
     }
 
-    public void AddUser(int userID, long time)
+    public async Task<ICollection<DbUser>> GetOnlineUsers()
     {
-        onlineUsers.Add(userID, time);
+        List<int> onlineUserIds = GetOnlineUserIds();
+        return await getTeacherDbContext.Users.Where(u => onlineUserIds.Contains(u.Id)).ToListAsync();
     }
 
-    public void UpdateOnlineUsers(int userID, long time)
+    public async Task<ICollection<DbTeacher>> GetOnlineTeachers()
     {
-        onlineUsers[userID] = time;
+        List<int> onlineUserIds = GetOnlineUserIds();
+        return await getTeacherDbContext.Teachers.Where(t => onlineUserIds.Contains(t.Id)).ToListAsync();
+    }
+
+    public async Task<ICollection<DbStudent>> GetOnlineStudents()
+    {
+        List<int> onlineUserIds = GetOnlineUserIds();
+        return await getTeacherDbContext.Students.Where(s => onlineUserIds.Contains(s.Id)).ToListAsync();
+    }
+
+    public void UpdateUserLastSeen(DbUser user, DateTime time)
+    {
+        lastSeenUsers[user.Id] = time;
     }
 }

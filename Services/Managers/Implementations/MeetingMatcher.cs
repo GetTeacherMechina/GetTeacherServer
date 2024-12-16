@@ -1,48 +1,39 @@
-﻿using GetTeacherServer.Services.Managers.Interfaces;
+﻿using GetTeacherServer.Services.Database.Models;
+using GetTeacherServer.Services.Managers.Interfaces;
+using GetTeacherServer.Services.Managers.Interfaces.UserManager;
 
 namespace GetTeacherServer.Services.Managers.Implementation;
 
 public class MeetingMatcher : IMeetingMatcher
 {
-    public readonly int NO_TEACHER = -1;
+    private readonly IUserStateChecker userStateChecker;
+    private readonly IStudentManager studentManager;
+    private readonly ITeacherManager teacherManager;
+    private readonly ITeacherRankManager rankSystem;
 
-    private IDbManager dbManager;
-    private IUserStateChecker userStateChecker;
-    private IFavoriteManager favoriteManager;
-    private IRankSystem rankSystem;
-
-    public MeetingMatcher(IDbManager dbManager, IUserStateChecker userStateChecker, IFavoriteManager favoriteManager, IRankSystem rankSystem)
+    public MeetingMatcher(IUserStateChecker userStateChecker, IStudentManager studentManager, ITeacherManager teacherManager, ITeacherRankManager rankSystem)
     {
-        this.dbManager = dbManager;
         this.userStateChecker = userStateChecker;
-        this.favoriteManager = favoriteManager;
+        this.studentManager = studentManager;
+        this.teacherManager = teacherManager;
         this.rankSystem = rankSystem;
     }
 
-    public int GetTeacherID(int studentID, int subjectID)
+    public async Task<DbTeacher?> MatchStudentTeacher(DbStudent student, DbSubject subject)
     {
-        int[] favoriteTeachers = favoriteManager.GetFavoriteTeacherIDsBySubject(studentID, subjectID);
-        int[] bestTeachersBySubject = rankSystem.GetRankedTeachersBySubject(subjectID, dbManager.GetStudentStudyingLevelByID(studentID));
+        ICollection<DbTeacher> favoriteTeachers = await studentManager.GetFavoriteTeachers(student.DbUser);
+        ICollection<DbTeacher> bestTeachersBySubject = await teacherManager.GetRankedTeachersBySubjectAndGrade(subject, student.Grade);
 
-        for (int i = 0; i < favoriteTeachers.Length; i++)
-            if (userStateChecker.IsTeacherOnline(favoriteTeachers[i]))
-                return favoriteTeachers[i];
+        foreach (DbTeacher currentTeacher in favoriteTeachers)
+            if (userStateChecker.IsUserOnline(currentTeacher.DbUser))
+                return currentTeacher;
 
-        for (int i = 0; i < bestTeachersBySubject.Length; i++)
-            if (userStateChecker.IsTeacherOnline(bestTeachersBySubject[i]))
-                return bestTeachersBySubject[i];
+        foreach (DbTeacher currentTeacher in bestTeachersBySubject)
+            if (userStateChecker.IsUserOnline(currentTeacher.DbUser))
+                return currentTeacher;
 
-        NotifyOnlineTeachers(bestTeachersBySubject);
-        return NO_TEACHER;
-    }
-
-    /*
-     Notifies online teachers that a student is looking for a lesson in a subject they teach.
-     Input student id, subject id.
-     Output None.
-    */
-    private void NotifyOnlineTeachers(int[] teachersID)
-    {
-        /*TODO*/
+        // TODO
+        // NotifyOnlineTeachers(bestTeachersBySubject);
+        return null;
     }
 }

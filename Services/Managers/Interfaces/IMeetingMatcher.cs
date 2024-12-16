@@ -1,4 +1,6 @@
-﻿namespace GetTeacherServer.Services.Managers.Interfaces;
+﻿using GetTeacherServer.Services.Database.Models;
+
+namespace GetTeacherServer.Services.Managers.Interfaces;
 
 public interface IMeetingMatcher
 {
@@ -8,6 +10,5 @@ public interface IMeetingMatcher
      Input student id, subject id.
      Output selected teacher id.
     */
-    public int GetTeacherID(int studentID, int subjectID);
-
+    public Task<DbTeacher?> MatchStudentTeacher(DbStudent student, DbSubject subject);
 }
