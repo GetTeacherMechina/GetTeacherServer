@@ -14,6 +14,6 @@ public class GetTeacherDbContext : IdentityDbContext<DbUser>
     public GetTeacherDbContext(DbContextOptions<GetTeacherDbContext> options)
         : base(options)
     {
-
+        
     }
 }
