@@ -20,9 +20,21 @@ public class Program
         builder.Services.AddIdentityCore<DbUser>()
             .AddEntityFrameworkStores<GetTeacherDbContext>()
             .AddDefaultTokenProviders();
+        // Add CORS policy
+        builder.Services.AddCors(options =>
+        {
+            //TODO: actually manage cors
+            options.AddDefaultPolicy(policy =>
+            {
+                policy.AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader();
+            });
+        });
 
         var app = builder.Build();
 
+        app.UseCors();
         // Redirects http requests to https
         app.UseHttpsRedirection();
 

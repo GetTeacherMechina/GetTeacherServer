@@ -25,6 +25,6 @@ public class ProfileController : ControllerBase
         if (userResult == null)
             return BadRequest(new ProfileResponseModel { Result = "No such username - wtf authenticated but not found?" });
 
-        return Ok(new ProfileResponseModel { Result = "Success", Email = userResult.Email!, Username = userResult.UserName! });
+        return Ok(new ProfileResponseModel { Result = "Success", Email = userResult.Email!, FullName = userResult.UserName! });
     }
 }
