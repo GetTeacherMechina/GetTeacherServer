@@ -7,17 +7,15 @@ namespace GetTeacherServer.Services.Managers.Implementations;
 public class TeacherRankManager : ITeacherRankManager
 {
     private readonly ITeacherManager teacherManager;
-    private readonly IStudentManager studentManager;
 
-    public TeacherRankManager(ITeacherManager teacherManager, IStudentManager studentManager)
+    public TeacherRankManager(ITeacherManager teacherManager)
     {
         this.teacherManager = teacherManager;
-        this.studentManager = studentManager;
     }
 
-    public async Task<ICollection<DbTeacher>> GetRankedTeachersBySubjectAndGradeAndFavorite(DbStudent student, DbSubject subject, DbGrade grade)
+    public async Task<ICollection<DbTeacher>> GetRankedTeachersBySubjectAndGradeAndFavorite(DbStudent student, DbSubject subject)
     {
-        ICollection<DbTeacher> teachers = await teacherManager.GetTeachersBySubjectAndGrade(subject, grade);
+        ICollection<DbTeacher> teachers = await teacherManager.GetTeachersBySubjectAndGrade(subject, student.Grade);
         ICollection<DbTeacher> favoriteTeachers = student.FavoriteTeachers;
 
         teachers.OrderByDescending(t => t.Rank);
