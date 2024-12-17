@@ -23,6 +23,7 @@ public class Program
         // Add CORS policy
         builder.Services.AddCors(options =>
         {
+            //TODO: actually manage cors
             options.AddDefaultPolicy(policy =>
             {
                 policy.AllowAnyOrigin()
