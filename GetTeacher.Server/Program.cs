@@ -1,4 +1,6 @@
-using GetTeacherServer.BuilderExtensions;
+using GetTeacher.Server.Services.Managers.Interfaces.Networking;
+using GetTeacherServer.Extensions;
+using GetTeacherServer.Extensions.App;
 using GetTeacherServer.Services.Database.Models;
 using Microsoft.AspNetCore.Identity;
 
@@ -20,27 +22,22 @@ public class Program
         builder.Services.AddIdentityCore<DbUser>()
             .AddEntityFrameworkStores<GetTeacherDbContext>()
             .AddDefaultTokenProviders();
-        // Add CORS policy
-        builder.Services.AddCors(options =>
-        {
-            //TODO: actually manage cors
-            options.AddDefaultPolicy(policy =>
-            {
-                policy.AllowAnyOrigin()
-                    .AllowAnyMethod()
-                    .AllowAnyHeader();
-            });
-        });
+
+        builder.AddCorsPolicy();
 
         var app = builder.Build();
 
         app.UseCors();
+
         // Redirects http requests to https
         app.UseHttpsRedirection();
 
         // Authentication pipeline stage happens before the authorization
         app.UseAuthentication();
         app.UseAuthorization();
+
+        // Add the WebSocket pipeline stage AFTER authentication
+        app.UseGetTeacherWebSockets(app.Services.GetRequiredService<IWebSockerManager>());
 
         app.MapControllers();
 
