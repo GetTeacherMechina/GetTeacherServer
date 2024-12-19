@@ -2,10 +2,25 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 
-namespace GetTeacherServer.BuilderExtensions;
+namespace GetTeacherServer.Extensions;
 
 public static class AuthenticationBuilderExtensions
 {
+    public static void AddCorsPolicy(this WebApplicationBuilder builder)
+    {
+        // Add CORS policy
+        builder.Services.AddCors(options =>
+        {
+            //TODO: actually manage CORS
+            options.AddDefaultPolicy(policy =>
+            {
+                policy.AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader();
+            });
+        });
+    }
+
     public static void AddJwtAuthentication(this WebApplicationBuilder builder)
     {
         // Add JWT authentication scheme

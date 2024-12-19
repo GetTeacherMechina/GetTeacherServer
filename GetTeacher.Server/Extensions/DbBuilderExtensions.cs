@@ -1,7 +1,7 @@
 ﻿using GetTeacherServer.Services.Database.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace GetTeacherServer.BuilderExtensions;
+namespace GetTeacherServer.Extensions;
 
 public static class DbBuilderExtensions
 {

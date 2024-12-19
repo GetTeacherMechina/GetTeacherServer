@@ -35,9 +35,8 @@ public class JwtTokenGenerator
         // Add basic email username and JwtId claims
         List<Claim> claims = new List<Claim>
         {
-            new Claim(ClaimTypes.Name, user.UserName!),
             new Claim(JwtRegisteredClaimNames.Email, user.Email!),
-            new Claim(JwtRegisteredClaimNames.Sub, user.UserName!),
+            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 
