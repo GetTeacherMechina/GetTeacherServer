@@ -1,7 +1,8 @@
-﻿using GetTeacherServer.Services.Database.Models;
+﻿using GetTeacher.Server.Services.Database;
+using GetTeacher.Server.Services.Database.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace GetTeacherServer.Extensions;
+namespace GetTeacher.Server.Extensions.Builder;
 
 public static class DbBuilderExtensions
 {

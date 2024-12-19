@@ -1,20 +1,16 @@
-﻿using GetTeacherServer.Services.Database.Models;
-using GetTeacherServer.Services.Managers.Interfaces;
+﻿using GetTeacher.Server.Services.Database;
+using GetTeacher.Server.Services.Database.Models;
+using GetTeacher.Server.Services.Managers.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace GetTeacherServer.Services.Managers.Implementation;
+namespace GetTeacher.Server.Services.Managers.Implementations;
 
-public class UserStateChecker : IUserStateChecker
+public class UserStateChecker(GetTeacherDbContext getTeacherDbContext) : IUserStateChecker
 {
-    private static readonly Dictionary<int, DateTime> lastSeenUsers = new Dictionary<int, DateTime>();
+    private static readonly IDictionary<int, DateTime> lastSeenUsers = new Dictionary<int, DateTime>();
     private static readonly TimeSpan delta = TimeSpan.FromSeconds(15);
 
-    private readonly GetTeacherDbContext getTeacherDbContext;
-
-    public UserStateChecker(GetTeacherDbContext getTeacherDbContext)
-    {
-        this.getTeacherDbContext = getTeacherDbContext;
-    }
+    private readonly GetTeacherDbContext getTeacherDbContext = getTeacherDbContext;
 
     private List<int> GetOnlineUserIds()
     {

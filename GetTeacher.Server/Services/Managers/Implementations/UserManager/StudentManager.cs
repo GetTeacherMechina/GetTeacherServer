@@ -1,17 +1,13 @@
-﻿using GetTeacherServer.Services.Database.Models;
-using GetTeacherServer.Services.Managers.Interfaces.UserManager;
+﻿using GetTeacher.Server.Services.Database;
+using GetTeacher.Server.Services.Database.Models;
+using GetTeacher.Server.Services.Managers.Interfaces.UserManager;
 using Microsoft.EntityFrameworkCore;
 
-namespace GetTeacherServer.Services.Managers.Implementations.UserManager;
+namespace GetTeacher.Server.Services.Managers.Implementations.UserManager;
 
-public class StudentManager : IStudentManager
+public class StudentManager(GetTeacherDbContext getTeacherDbContext) : IStudentManager
 {
-    private readonly GetTeacherDbContext getTeacherDbContext;
-
-    public StudentManager(GetTeacherDbContext getTeacherDbContext)
-    {
-        this.getTeacherDbContext = getTeacherDbContext;
-    }
+    private readonly GetTeacherDbContext getTeacherDbContext = getTeacherDbContext;
 
     public async Task<DbStudent?> GetFromUser(DbUser studentUser)
     {

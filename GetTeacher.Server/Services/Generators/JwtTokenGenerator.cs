@@ -1,11 +1,12 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using GetTeacherServer.Services.Database.Models;
+using GetTeacher.Server.Extensions.Collection;
+using GetTeacher.Server.Services.Database.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 
-namespace GetTeacherServer.Services.Generators;
+namespace GetTeacher.Server.Services.Generators;
 
 public class JwtTokenGenerator
 {
@@ -33,14 +34,14 @@ public class JwtTokenGenerator
     public async Task<string> GenerateUserToken(DbUser user)
     {
         // Add basic email username and JwtId claims
-        List<Claim> claims = new List<Claim>
-        {
+        ICollection<Claim> claims =
+        [
             new Claim(JwtRegisteredClaimNames.Email, user.Email!),
             new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-        };
+        ];
 
-        claims.AddRange(await userManager.GetClaimsAsync(user));
+        claims.AddRange((await userManager.GetClaimsAsync(user)).AsQueryable());
         // TODO: Add ClaimTypes.Role for roles
 
         return GenerateToken(claims, TimeSpan.FromMinutes(60));

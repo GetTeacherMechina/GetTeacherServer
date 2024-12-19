@@ -1,10 +1,11 @@
+using GetTeacher.Server.Extensions.App;
+using GetTeacher.Server.Extensions.Builder;
+using GetTeacher.Server.Services.Database;
+using GetTeacher.Server.Services.Database.Models;
 using GetTeacher.Server.Services.Managers.Interfaces.Networking;
-using GetTeacherServer.Extensions;
-using GetTeacherServer.Extensions.App;
-using GetTeacherServer.Services.Database.Models;
 using Microsoft.AspNetCore.Identity;
 
-namespace GetTeacherServer;
+namespace GetTeacher.Server;
 
 public class Program
 {

@@ -1,12 +1,11 @@
-﻿using GetTeacher.Server.Services.Managers.Interfaces.Networking;
-using GetTeacherServer.Services.Generators;
-using GetTeacherServer.Services.Managers.Implementation;
-using GetTeacherServer.Services.Managers.Implementations;
-using GetTeacherServer.Services.Managers.Implementations.UserManager;
-using GetTeacherServer.Services.Managers.Interfaces;
-using GetTeacherServer.Services.Managers.Interfaces.UserManager;
+﻿using GetTeacher.Server.Services.Generators;
+using GetTeacher.Server.Services.Managers.Implementations;
+using GetTeacher.Server.Services.Managers.Implementations.UserManager;
+using GetTeacher.Server.Services.Managers.Interfaces;
+using GetTeacher.Server.Services.Managers.Interfaces.Networking;
+using GetTeacher.Server.Services.Managers.Interfaces.UserManager;
 
-namespace GetTeacherServer.Extensions;
+namespace GetTeacher.Server.Extensions.Builder;
 
 public static class GetTeacherBuilderExtensions
 {
@@ -21,7 +20,7 @@ public static class GetTeacherBuilderExtensions
         builder.Services.AddScoped<IMeetingMatcher, MeetingMatcher>();
         builder.Services.AddScoped<ITeacherRankManager, TeacherRankManager>();
         builder.Services.AddScoped<IUserStateChecker, UserStateChecker>();
-        builder.Services.AddSingleton<IWebSockerManager, GetTeacher.Server.Services.Managers.Implementations.Networking.WebSocketManager>();
+        builder.Services.AddSingleton<IWebSockerManager, Services.Managers.Implementations.Networking.WebSocketManager>();
 
         // builder.Services.AddSingleton<IMeetingHandler, ?>();
     }

@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace GetTeacherServer.Services.Database.Models;
+namespace GetTeacher.Server.Services.Database.Models;
 
 public class DbStudent
 {
@@ -17,6 +17,6 @@ public class DbStudent
     public int DbUserId { get; set; }
     public virtual DbUser DbUser { get; set; } = null!;
 
-    public virtual ICollection<DbTeacher> FavoriteTeachers { get; set; } = new List<DbTeacher>();
-    public virtual ICollection<DbLessonSummary> DbLessonSummaries { get; set; } = new List<DbLessonSummary>();
+    public virtual ICollection<DbTeacher> FavoriteTeachers { get; set; } = [];
+    public virtual ICollection<DbLessonSummary> DbLessonSummaries { get; set; } = [];
 }

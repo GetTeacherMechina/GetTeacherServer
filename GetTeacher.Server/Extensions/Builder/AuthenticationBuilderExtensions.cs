@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 
-namespace GetTeacherServer.Extensions;
+namespace GetTeacher.Server.Extensions.Builder;
 
 public static class AuthenticationBuilderExtensions
 {

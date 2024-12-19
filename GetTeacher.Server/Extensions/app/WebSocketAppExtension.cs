@@ -1,8 +1,7 @@
-﻿using GetTeacher.Server.Services.Managers.Interfaces.Networking;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
+﻿using System.Security.Claims;
+using GetTeacher.Server.Services.Managers.Interfaces.Networking;
 
-namespace GetTeacherServer.Extensions.App;
+namespace GetTeacher.Server.Extensions.App;
 
 public static class WebSocketAppExtension
 {

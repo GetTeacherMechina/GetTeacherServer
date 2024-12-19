@@ -1,8 +1,8 @@
-﻿using GetTeacherServer.Services.Database.Models;
-using GetTeacherServer.Services.Managers.Interfaces;
-using GetTeacherServer.Services.Managers.Interfaces.UserManager;
+﻿using GetTeacher.Server.Services.Database.Models;
+using GetTeacher.Server.Services.Managers.Interfaces;
+using GetTeacher.Server.Services.Managers.Interfaces.UserManager;
 
-namespace GetTeacherServer.Services.Managers.Implementations;
+namespace GetTeacher.Server.Services.Managers.Implementations;
 
 public class TeacherRankManager : ITeacherRankManager
 {

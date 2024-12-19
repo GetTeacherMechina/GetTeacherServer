@@ -1,6 +1,6 @@
-﻿using GetTeacherServer.Services.Database.Models;
+﻿using GetTeacher.Server.Services.Database.Models;
 
-namespace GetTeacherServer.Services.Managers.Interfaces.UserManager;
+namespace GetTeacher.Server.Services.Managers.Interfaces.UserManager;
 
 public interface ITeacherManager
 {

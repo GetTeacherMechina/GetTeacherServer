@@ -1,24 +1,15 @@
-﻿using GetTeacherServer.Models.Authentication.Login;
-using GetTeacherServer.Services.Database.Models;
-using GetTeacherServer.Services.Generators;
+﻿using GetTeacher.Server.Models.Authentication.Login;
+using GetTeacher.Server.Services.Database.Models;
+using GetTeacher.Server.Services.Generators;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
-namespace GetTeacherServer.Controllers.Authentication;
+namespace GetTeacher.Server.Controllers.Authentication;
 
 [ApiController]
 [Route("api/v1/auth/[controller]")]
-public class LoginController : ControllerBase
+public class LoginController(UserManager<DbUser> userManager, JwtTokenGenerator jwtTokenGenerator) : ControllerBase
 {
-    private readonly UserManager<DbUser> userManager;
-    private readonly JwtTokenGenerator jwtTokenGenerator;
-
-    public LoginController(UserManager<DbUser> signInManager, JwtTokenGenerator jwtTokenGenerator)
-    {
-        this.userManager = signInManager;
-        this.jwtTokenGenerator = jwtTokenGenerator;
-    }
-
     [HttpPost]
     public async Task<IActionResult> Login([FromBody] LoginRequestModel loginModel)
     {

@@ -1,28 +1,19 @@
-﻿using GetTeacher.Server.Services.Managers.Interfaces.Networking;
-using GetTeacherServer.Models.Profile;
-using GetTeacherServer.Services.Database.Models;
-using GetTeacherServer.Services.Managers.Implementations.UserManager;
-using GetTeacherServer.Services.Managers.Interfaces.UserManager;
+﻿using GetTeacher.Server.Models.Profile;
+using GetTeacher.Server.Services.Database.Models;
+using GetTeacher.Server.Services.Managers.Interfaces.UserManager;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
-namespace GetTeacherServer.Controllers.Profile;
+namespace GetTeacher.Server.Controllers.Profile;
 
 [ApiController]
 [Route("api/v1/profile")]
-public class ProfileController : ControllerBase
+public class ProfileController(UserManager<DbUser> userManager, ITeacherManager teacherManager, IStudentManager studentManager) : ControllerBase
 {
-    private readonly UserManager<DbUser> userManager;
-    private readonly ITeacherManager iTeacherManager;
-    private readonly IStudentManager iStudentManager;
-
-    public ProfileController(UserManager<DbUser> userManager, GetTeacherDbContext context)
-    {
-        this.userManager = userManager;
-        iTeacherManager = new TeacherManager(context);
-        iStudentManager = new StudentManager(context);
-    }
+    private readonly UserManager<DbUser> userManager = userManager;
+    private readonly ITeacherManager teacherManager = teacherManager;
+    private readonly IStudentManager studentManager = studentManager;
 
     [HttpGet]
     [Authorize]
@@ -31,8 +22,8 @@ public class ProfileController : ControllerBase
         DbUser? userResult = await userManager.FindByNameAsync(User.Identity!.Name!);
         if (userResult == null)
             return BadRequest(new ProfileResponseModel { Result = "No such username - wtf authenticated but not found?" });
-        DbTeacher? teacher = await iTeacherManager.GetFromUser(userResult);
-        DbStudent? student = await iStudentManager.GetFromUser(userResult);
+        DbTeacher? teacher = await teacherManager.GetFromUser(userResult);
+        DbStudent? student = await studentManager.GetFromUser(userResult);
 
         return Ok(new ProfileResponseModel
         {

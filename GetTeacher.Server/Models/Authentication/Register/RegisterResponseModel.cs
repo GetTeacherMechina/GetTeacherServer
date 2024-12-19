@@ -1,4 +1,4 @@
-﻿namespace GetTeacherServer.Models.Authentication.Register;
+﻿namespace GetTeacher.Server.Models.Authentication.Register;
 
 public class RegisterResponseModel
 {

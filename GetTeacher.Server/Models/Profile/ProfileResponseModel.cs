@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace GetTeacherServer.Models.Profile;
+﻿namespace GetTeacher.Server.Models.Profile;
 
 public class ProfileResponseModel
 {

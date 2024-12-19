@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace GetTeacherServer.Models.Authentication.Login;
+namespace GetTeacher.Server.Models.Authentication.Login;
 
 public class LoginRequestModel()
 {

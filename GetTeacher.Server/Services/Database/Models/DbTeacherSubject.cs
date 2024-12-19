@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace GetTeacherServer.Services.Database.Models;
+namespace GetTeacher.Server.Services.Database.Models;
 
 public class DbTeacherSubject
 {

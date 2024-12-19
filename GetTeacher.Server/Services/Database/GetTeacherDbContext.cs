@@ -1,20 +1,16 @@
-﻿using GetTeacherServer.Services.Database.Models;
+﻿using GetTeacher.Server.Services.Database.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-public class GetTeacherDbContext : IdentityDbContext<DbUser, IdentityRole<int>, int>
-{
-    public DbSet<DbStudent> Students { get; set; }
-    public DbSet<DbTeacher> Teachers { get; set; }
-    public DbSet<DbLessonSummary> LessonSummaries { get; set; }
-    public DbSet<DbGrade> Grades { get; set; }
-    public DbSet<DbSubject> Subjects { get; set; }
-    public DbSet<DbTeacherSubject> TeacherSubjects { get; set; }
+namespace GetTeacher.Server.Services.Database;
 
-    public GetTeacherDbContext(DbContextOptions<GetTeacherDbContext> options)
-        : base(options)
-    {
-        
-    }
+public class GetTeacherDbContext(DbContextOptions<GetTeacherDbContext> options) : IdentityDbContext<DbUser, IdentityRole<int>, int>(options)
+{
+    public required DbSet<DbStudent> Students { get; set; }
+    public required DbSet<DbTeacher> Teachers { get; set; }
+    public required DbSet<DbLessonSummary> LessonSummaries { get; set; }
+    public required DbSet<DbGrade> Grades { get; set; }
+    public required DbSet<DbSubject> Subjects { get; set; }
+    public required DbSet<DbTeacherSubject> TeacherSubjects { get; set; }
 }

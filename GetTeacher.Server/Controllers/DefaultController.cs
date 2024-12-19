@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace GetTeacherServer.Controllers;
+namespace GetTeacher.Server.Controllers;
 
 [Route("")]
 public class DefaultController : ControllerBase
