@@ -1,6 +1,6 @@
-﻿namespace GetTeacherServer.Models.Authentication.Register;
+﻿namespace GetTeacher.Server.Models.Authentication.Register;
 
 public class RegisterResponseModel
 {
-    public string Result { get; set; } = string.Empty;
+	public string Result { get; set; } = string.Empty;
 }

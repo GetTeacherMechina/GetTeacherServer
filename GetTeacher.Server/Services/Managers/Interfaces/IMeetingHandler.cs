@@ -1,12 +1,12 @@
-﻿using GetTeacherServer.Services.Database.Models;
+﻿using GetTeacher.Server.Services.Database.Models;
 
-namespace GetTeacherServer.Services.Managers.Interfaces;
+namespace GetTeacher.Server.Services.Managers.Interfaces;
 
 public interface IMeetingHandler
 {
-    public Task<int> StartMeeting(DbTeacher teacher, DbStudent student);
+	public Task<int> StartMeeting(DbTeacher teacher, DbStudent student);
 
-    public void EndMeeting(int meetingID);
+	public void EndMeeting(int meetingID);
 
-    public Task<int> GetTeacherIdByMeeting(int meetingID);
+	public Task<int> GetTeacherIdByMeeting(int meetingID);
 }

@@ -1,12 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace GetTeacherServer.Services.Database.Models;
+namespace GetTeacher.Server.Services.Database.Models;
 
 public class DbSubject
 {
-    [Key]
-    public int Id { get; set; }
+	[Key]
+	public int Id { get; set; }
 
-    [Required]
-    public string Name { get; set; } = string.Empty;
+	[Required]
+	public string Name { get; set; } = string.Empty;
 }

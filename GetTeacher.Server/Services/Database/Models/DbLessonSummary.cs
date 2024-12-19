@@ -1,21 +1,21 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace GetTeacherServer.Services.Database.Models;
+namespace GetTeacher.Server.Services.Database.Models;
 
 public class DbLessonSummary
 {
-    public int Id { get; set; }
+	public int Id { get; set; }
 
-    [ForeignKey(nameof(Teacher))]
-    public int TeacherId { get; set; }
+	[ForeignKey(nameof(Teacher))]
+	public int TeacherId { get; set; }
 
-    public virtual DbTeacher Teacher { get; set; } = null!;
+	public virtual DbTeacher Teacher { get; set; } = null!;
 
-    [ForeignKey(nameof(Student))]
-    public int StudentId { get; set; }
+	[ForeignKey(nameof(Student))]
+	public int StudentId { get; set; }
 
-    public virtual DbStudent Student { get; set; } = null!;
+	public virtual DbStudent Student { get; set; } = null!;
 
-    public int Rating { get; set; }
-    public DateTime CreatedAt { get; set; }
+	public int Rating { get; set; }
+	public DateTime CreatedAt { get; set; }
 }

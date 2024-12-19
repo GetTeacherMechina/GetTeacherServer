@@ -1,7 +1,7 @@
-﻿namespace GetTeacherServer.Services.Database.Models;
+﻿namespace GetTeacher.Server.Services.Database.Models;
 
 public class DbGrade
 {
-    public int Id { get; set; }
-    public string Name { get; set; } = string.Empty;
+	public int Id { get; set; }
+	public string Name { get; set; } = string.Empty;
 }

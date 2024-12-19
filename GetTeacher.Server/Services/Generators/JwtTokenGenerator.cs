@@ -1,63 +1,57 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using GetTeacherServer.Services.Database.Models;
+using GetTeacher.Server.Extensions.Collection;
+using GetTeacher.Server.Services.Database.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 
-namespace GetTeacherServer.Services.Generators;
+namespace GetTeacher.Server.Services.Generators;
 
-public class JwtTokenGenerator
+public class JwtTokenGenerator(IConfiguration configuration, UserManager<DbUser> userManager)
 {
-    private readonly IConfiguration configuration;
-    private readonly UserManager<DbUser> userManager;
+	private readonly IConfiguration configuration = configuration;
+	private readonly UserManager<DbUser> userManager = userManager;
 
-    public JwtTokenGenerator(IConfiguration configuration, UserManager<DbUser> userManager)
-    {
-        this.configuration = configuration;
-        this.userManager = userManager;
+	public async Task<string> GenerateUserToken(DbUser user)
+	{
+		// Add basic email username and JwtId claims
+		ICollection<Claim> claims =
+		[
+			new Claim(JwtRegisteredClaimNames.Email, user.Email!),
+			new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+			new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+		];
 
-        // Check if the required configuration is set
-        string? key = configuration["JwtSettings:Key"];
-        string? issuer = configuration["JwtSettings:Issuer"];
-        string? audience = configuration["JwtSettings:Audience"];
+		claims.AddRange((await userManager.GetClaimsAsync(user)).AsQueryable());
+		// TODO: Add ClaimTypes.Role for roles
 
-        if (key == null || issuer == null || audience == null)
-        {
-            // Something wrong in the configuration, JwtSettings is not set up correctly
-            // TODO: Change to a [critical] using logger
-            Console.WriteLine("JwtSettings is not set up correctly");
-        }
-    }
+		return GenerateToken(claims, TimeSpan.FromMinutes(60));
+	}
 
-    public async Task<string> GenerateUserToken(DbUser user)
-    {
-        // Add basic email username and JwtId claims
-        List<Claim> claims = new List<Claim>
-        {
-            new Claim(JwtRegisteredClaimNames.Email, user.Email!),
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-        };
+	private string GenerateToken(IEnumerable<Claim> claims, TimeSpan tokenLifetime)
+	{
+		string? key = configuration["JwtSettings:Key"];
+		string? issuer = configuration["JwtSettings:Issuer"];
+		string? audience = configuration["JwtSettings:Audience"];
+		if (key == null || issuer == null || audience == null)
+		{
+			// Something wrong in the configuration, JwtSettings is not set up correctly
+			// TODO: Change to a [critical] using logger
+			Console.WriteLine("JwtSettings is not set up correctly");
+			return string.Empty;
+		}
 
-        claims.AddRange(await userManager.GetClaimsAsync(user));
-        // TODO: Add ClaimTypes.Role for roles
+		var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
+		SigningCredentials signingCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-        return GenerateToken(claims, TimeSpan.FromMinutes(60));
-    }
+		var token = new JwtSecurityToken(
+			issuer: issuer,
+			audience: audience,
+			claims: claims,
+			expires: DateTime.UtcNow.Add(tokenLifetime),
+			signingCredentials: signingCredentials);
 
-    private string GenerateToken(IEnumerable<Claim> claims, TimeSpan tokenLifetime)
-    {
-        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtSettings:Key"]!));
-        SigningCredentials signingCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-
-        var token = new JwtSecurityToken(
-            issuer: configuration["JwtSettings:Issuer"],
-            audience: configuration["JwtSettings:Audience"],
-            claims: claims,
-            expires: DateTime.UtcNow.Add(tokenLifetime),
-            signingCredentials: signingCredentials);
-
-        return new JwtSecurityTokenHandler().WriteToken(token);
-    }
+		return new JwtSecurityTokenHandler().WriteToken(token);
+	}
 }
