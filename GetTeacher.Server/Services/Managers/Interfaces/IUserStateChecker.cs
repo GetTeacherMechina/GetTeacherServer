@@ -6,7 +6,7 @@ public interface IUserStateChecker
 {
 	public bool IsUserOnline(DbUser user);
 
-	public void UpdateUserLastSeen(DbUser user, DateTime time);
+	public void UpdateUserOnline(DbUser user, bool online);
 
 	public Task<ICollection<DbUser>> GetOnlineUsers();
 

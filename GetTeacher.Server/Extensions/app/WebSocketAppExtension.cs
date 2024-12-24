@@ -1,32 +1,55 @@
-﻿using System.Security.Claims;
+﻿using System.Net.WebSockets;
+using System.Security.Claims;
+using System.Text;
+using GetTeacher.Server.Services.Managers.Interfaces;
 using GetTeacher.Server.Services.Managers.Interfaces.Networking;
+using GetTeacher.Server.Services.Managers.Interfaces.UserManager;
 
 namespace GetTeacher.Server.Extensions.App;
 
 public static class WebSocketAppExtension
 {
-	public static void UseGetTeacherWebSockets(this WebApplication app, IWebSockerManager webSocketManager)
+	public static void UseGetTeacherWebSockets(this WebApplication app)
 	{
-		app.UseWebSockets(); // nice informative
+		app.UseWebSockets();
 
-		app.Map("/api/v1/websocket", async context => //connecting to the given path
+		// TODO: Add error handling
+		// Maps the websocket endpoint to the logic down below
+		app.Map("/api/v1/websocket", async context =>
 		{
-			var user = context.User;
-			if (user is null || user.Identity is null || user.Identity.IsAuthenticated is false)
+			if (!context.WebSockets.IsWebSocketRequest)
 				return;
 
-			Claim? idClaim = user.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier");
-			if (idClaim is null || !int.TryParse(idClaim.Value, out int userId))
+			var ws = await context.WebSockets.AcceptWebSocketAsync();
+
+			// TODO: Eh I think it's fine for a JWT, but maybe refine?
+			// Read the first message from the socket
+			var buffer = new byte[4096];
+			var result = await ws.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+
+			if (result.MessageType != WebSocketMessageType.Text)
 				return;
 
-			if (context.WebSockets.IsWebSocketRequest) //accept WebSocket requests from user (create connection)
-			{
-				var ws = await context.WebSockets.AcceptWebSocketAsync();
-				webSocketManager.AddWebSocket(userId, ws);
-			}
-			else
-				//classic error handling
-				context.Response.StatusCode = StatusCodes.Status400BadRequest;
+			// Get the required scoped services
+			IServiceScope serviceScope = app.Services.CreateScope();
+			IJwtAuthenticator jwtAuthenticator = serviceScope.ServiceProvider.GetRequiredService<IJwtAuthenticator>();
+			IPrincipalClaimsQuerier principalClaimsQuerier = serviceScope.ServiceProvider.GetRequiredService<IPrincipalClaimsQuerier>();
+			IWebSocketHandler webSocketHandler = serviceScope.ServiceProvider.GetRequiredService<IWebSocketHandler>();
+
+			// The first message from a WebSocket should always be the JWT associated with the client
+			var jwt = Encoding.UTF8.GetString(buffer, 0, result.Count);
+			ClaimsPrincipal? claimsPrincipal = jwtAuthenticator.ValidateToken(jwt);
+			if (claimsPrincipal is null)
+				return;
+
+			// Get the ID from the JWT claim
+			int? clientId = principalClaimsQuerier.GetId(claimsPrincipal);
+			if (clientId is null)
+				return;
+
+			// Add the websocket to the handler
+			webSocketHandler.AddWebSocket(clientId.Value, ws);
+			context.User = claimsPrincipal;
 		});
 	}
 }

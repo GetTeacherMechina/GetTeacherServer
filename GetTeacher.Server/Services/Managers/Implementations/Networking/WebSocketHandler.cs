@@ -3,6 +3,8 @@ using System.Net.WebSockets;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Text.Json;
+using GetTeacher.Server.Services.Database.Models;
+using GetTeacher.Server.Services.Managers.Interfaces;
 using GetTeacher.Server.Services.Managers.Interfaces.Networking;
 
 namespace GetTeacher.Server.Services.Managers.Implementations.Networking;
@@ -12,15 +14,16 @@ public class WebSocketProfile(int ClientId, WebSocket Socket)
 	public int ClientId { get; set; } = ClientId;
 	public WebSocket Socket { get; set; } = Socket;
 	public Func<string, Task<object?>> MessageHandler { get; set; } = str => Task.FromResult<object?>(null);
-
 }
 
-public class WebSocketManager : IWebSockerManager
+public class WebSocketHandler(IUserStateChecker userStateChecker) : IWebSocketHandler
 {
-	private readonly ConcurrentDictionary<int, WebSocketProfile> _clients = new();
+	private static readonly ConcurrentDictionary<int, WebSocketProfile> _clients = new();
+
+	private readonly IUserStateChecker userStateChecker = userStateChecker;
 
 	public void AddWebSocket(int clientId, WebSocket webSocket)
-		=> WebSocketHandler(new WebSocketProfile(clientId, webSocket));
+		=> Handler(new WebSocketProfile(clientId, webSocket));
 
 	public void SetMessageReceivedHandler(int clientId, Func<string, Task<object?>> messageReceived)
 	{
@@ -44,7 +47,7 @@ public class WebSocketManager : IWebSockerManager
 		await ws.Socket.SendAsync(new ArraySegment<byte>(bytes), WebSocketMessageType.Text, true, CancellationToken.None);
 	}
 
-	private async void WebSocketHandler(WebSocketProfile ws)
+	private async void Handler(WebSocketProfile ws)
 	{
 		await OnClientConnectedAsync(ws);
 
@@ -80,6 +83,7 @@ public class WebSocketManager : IWebSockerManager
 	private async Task OnClientConnectedAsync(WebSocketProfile ws)
 	{
 		_clients.AddOrUpdate(ws.ClientId, ws, (key, old) => ws);
+		userStateChecker.UpdateUserOnline(new DbUser { Id = ws.ClientId }, true);
 
 		// Suppress warning: we may need this function to be async sometime
 		await Task.CompletedTask;
@@ -87,9 +91,10 @@ public class WebSocketManager : IWebSockerManager
 
 	private async Task OnClientDisconnectedAsync(WebSocketProfile ws)
 	{
+		userStateChecker.UpdateUserOnline(new DbUser { Id = ws.ClientId }, false);
+		_clients.TryRemove(ws.ClientId, out _);
+
 		if (ws.Socket.State != WebSocketState.Closed && ws.Socket.State != WebSocketState.Aborted)
 			await ws.Socket.CloseAsync(WebSocketCloseStatus.InternalServerError, string.Empty, CancellationToken.None);
-
-		_clients.TryRemove(ws.ClientId, out _);
 	}
 }

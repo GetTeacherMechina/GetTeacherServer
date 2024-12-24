@@ -5,51 +5,63 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GetTeacher.Server.Services.Managers.Implementations;
 
-public class UserStateChecker(GetTeacherDbContext getTeacherDbContext) : IUserStateChecker
+public class UserStateChecker : IUserStateChecker
 {
-	private static readonly IDictionary<int, DateTime> lastSeenUsers = new Dictionary<int, DateTime>();
-	private static readonly TimeSpan delta = TimeSpan.FromSeconds(15);
+	private static readonly IDictionary<int, bool> LastSeenUsers = new Dictionary<int, bool>();
 
-	private readonly GetTeacherDbContext getTeacherDbContext = getTeacherDbContext;
+	private readonly GetTeacherDbContext getTeacherDbContext;
+
+	public UserStateChecker(GetTeacherDbContext getTeacherDbContext)
+	{
+		this.getTeacherDbContext = getTeacherDbContext;
+	}
 
 	private List<int> GetOnlineUserIds()
 	{
-		List<int> userIds = new List<int>(lastSeenUsers.Count);
-		foreach (int userId in lastSeenUsers.Keys)
+		List<int> userIds = new List<int>(LastSeenUsers.Count);
+		foreach (int userId in LastSeenUsers.Keys)
+		{
 			if (IsUserOnline(new DbUser { Id = userId }))
 				userIds.Add(userId);
+		}
 
 		return userIds;
 	}
 
 	public bool IsUserOnline(DbUser user)
 	{
-		if (!lastSeenUsers.TryGetValue(user.Id, out DateTime lastSeenUser))
+		if (!LastSeenUsers.TryGetValue(user.Id, out bool online))
 			return false;
 
-		return DateTime.Now - lastSeenUser <= delta;
+		return online;
 	}
 
 	public async Task<ICollection<DbUser>> GetOnlineUsers()
 	{
 		List<int> onlineUserIds = GetOnlineUserIds();
-		return await getTeacherDbContext.Users.Where(u => onlineUserIds.Contains(u.Id)).ToListAsync();
+		return await getTeacherDbContext.Users
+			.Where(u => onlineUserIds.Contains(u.Id))
+			.ToListAsync();
 	}
 
 	public async Task<ICollection<DbTeacher>> GetOnlineTeachers()
 	{
 		List<int> onlineUserIds = GetOnlineUserIds();
-		return await getTeacherDbContext.Teachers.Where(t => onlineUserIds.Contains(t.Id)).ToListAsync();
+		return await getTeacherDbContext.Teachers
+			.Where(t => onlineUserIds.Contains(t.Id))
+			.ToListAsync();
 	}
 
 	public async Task<ICollection<DbStudent>> GetOnlineStudents()
 	{
 		List<int> onlineUserIds = GetOnlineUserIds();
-		return await getTeacherDbContext.Students.Where(s => onlineUserIds.Contains(s.Id)).ToListAsync();
+		return await getTeacherDbContext.Students
+			.Where(s => onlineUserIds.Contains(s.Id))
+			.ToListAsync();
 	}
 
-	public void UpdateUserLastSeen(DbUser user, DateTime time)
+	public void UpdateUserOnline(DbUser user, bool online)
 	{
-		lastSeenUsers[user.Id] = time;
+		LastSeenUsers[user.Id] = online;
 	}
 }
