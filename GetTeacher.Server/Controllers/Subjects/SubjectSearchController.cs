@@ -30,8 +30,8 @@ public class SubjectSearchController: ControllerBase
             return Ok(new SubjectSearchResponseModel());
         }
 
-
-        return Ok(await subjects.ToListAsync());
+		var result = new SubjectSearchResponseModel { Subjects = await subjects.ToListAsync() };
+        return Ok(result);
     }
 
 
