@@ -12,17 +12,17 @@ namespace GetTeacher.Server.Controllers.Subjects;
 [Route("/api/v1/subjects/search")]
 public class SubjectSearchController : ControllerBase
 {
-	private GetTeacherDbContext context;
-	public SubjectSearchController(GetTeacherDbContext context)
-	{
-		this.context = context;
-	}
+    private GetTeacherDbContext context;
+    public SubjectSearchController(GetTeacherDbContext context)
+    {
+        this.context = context;
+    }
 
-	[HttpGet]
+    [HttpGet]
 	public async Task<IActionResult> SearchSubjects([FromQuery] SubjectSearchRequestModel request)
-	{
-		var subjects = context
-			.Subjects
+    {
+        var subjects = context
+            .Subjects
 			.Where(s => EF.Functions.Like(s.Name, $"%{request.subjectName}%"));
 
 		//try
@@ -38,14 +38,14 @@ public class SubjectSearchController : ControllerBase
 		//{
 		//}
 
-		if (subjects == null)
-		{
-			return Ok(new SubjectSearchResponseModel());
-		}
+        if (subjects == null)
+        {
+            return Ok(new SubjectSearchResponseModel());
+        }
 
 		var result = new SubjectSearchResponseModel { Subjects = await subjects.ToListAsync() };
 		return Ok(result);
-	}
+    }
 
 
 }
