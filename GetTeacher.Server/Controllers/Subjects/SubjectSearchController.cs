@@ -19,7 +19,7 @@ public class SubjectSearchController: ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> SearchSubjects([FromBody] SubjectSearchRequestModel request)
+    public async Task<IActionResult> SearchSubjects([FromQuery] SubjectSearchRequestModel request)
     {
         var subjects = context
             .Subjects
