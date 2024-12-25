@@ -21,10 +21,9 @@ public class SubjectSearchController: ControllerBase
     [HttpGet]
     public async Task<IActionResult> SearchSubjects([FromBody] SubjectSearchRequestModel request)
     {
-		Console.WriteLine($"%{request.SubjectName}%");
         var subjects = context
             .Subjects
-            .Where(s => EF.Functions.Like(s.Name, $"%{request.SubjectName}%"));
+            .Where(s => EF.Functions.Like(s.Name, $"%{request.subjectName}%"));
         if (subjects == null)
         {
             return Ok(new SubjectSearchResponseModel());
