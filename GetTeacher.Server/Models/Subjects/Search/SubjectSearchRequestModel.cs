@@ -2,5 +2,5 @@
 
 public class SubjectSearchRequestModel
 {
-    public string SubjectName { get; set; } = string.Empty;
+    public string subjectName { get; set; } = string.Empty;
 }
