@@ -4,5 +4,5 @@ namespace GetTeacher.Server.Models.Subjects.Search;
 
 public class SubjectSearchResponseModel
 {
-    public ICollection<DbGrade> Subjects { get; set; } = new List<DbGrade>();
+    public ICollection<DbSubject> Subjects { get; set; } = new List<DbSubject>();
 }
