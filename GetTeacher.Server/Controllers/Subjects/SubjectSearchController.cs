@@ -10,28 +10,42 @@ namespace GetTeacher.Server.Controllers.Subjects;
 
 [Controller]
 [Route("/api/v1/subjects/search")]
-public class SubjectSearchController: ControllerBase
+public class SubjectSearchController : ControllerBase
 {
-    private GetTeacherDbContext context;
-    public SubjectSearchController(GetTeacherDbContext context)
-    {
-        this.context = context;
-    }
+	private GetTeacherDbContext context;
+	public SubjectSearchController(GetTeacherDbContext context)
+	{
+		this.context = context;
+	}
 
-    [HttpGet]
-    public async Task<IActionResult> SearchSubjects([FromQuery] SubjectSearchRequestModel request)
-    {
-        var subjects = context
-            .Subjects
-            .Where(s => EF.Functions.Like(s.Name, $"%{request.subjectName}%"));
-        if (subjects == null)
-        {
-            return Ok(new SubjectSearchResponseModel());
-        }
+	[HttpGet]
+	public async Task<IActionResult> SearchSubjects([FromQuery] SubjectSearchRequestModel request)
+	{
+		var subjects = context
+			.Subjects
+			.Where(s => EF.Functions.Like(s.Name, $"%{request.subjectName}%"));
+
+		//try
+		//{
+		//	for (int i = 0; i < 5; i++)
+		//	{
+
+		//		context.Subjects.Add(new DbSubject() { Name = $"pipikaki{i}" });
+		//		context.SaveChanges();
+		//	}
+		//}
+		//catch (Exception ex)
+		//{
+		//}
+
+		if (subjects == null)
+		{
+			return Ok(new SubjectSearchResponseModel());
+		}
 
 		var result = new SubjectSearchResponseModel { Subjects = await subjects.ToListAsync() };
-        return Ok(result);
-    }
+		return Ok(result);
+	}
 
 
 }
