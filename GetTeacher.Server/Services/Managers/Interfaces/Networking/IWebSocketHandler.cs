@@ -1,5 +1,4 @@
 ﻿using System.Net.WebSockets;
-using System.Runtime.Serialization;
 
 namespace GetTeacher.Server.Services.Managers.Interfaces.Networking;
 
@@ -9,5 +8,5 @@ public interface IWebSocketHandler
 
 	public void SetMessageReceivedHandler(int clientId, Func<string, Task<object?>> messageReceived);
 
-	public Task SendAsync<T>(int clientId, T message) where T : ISerializable;
+	public Task SendAsync<T>(int clientId, T message);
 }

@@ -20,6 +20,8 @@ public static class GetTeacherBuilderExtensions
 		builder.Services.AddScoped<IMeetingMatcher, MeetingMatcher>();
 		builder.Services.AddScoped<ITeacherRankManager, TeacherRankManager>();
 		builder.Services.AddScoped<IUserStateChecker, UserStateChecker>();
+		builder.Services.AddScoped<ITeacherReadyManager, TeacherReadyManager>();
+		builder.Services.AddScoped<IStudentMatcher, StudentMatcher>();
 
 		// Probably will only be used for manual JWT authentication in the context of WebSockets
 		builder.Services.AddScoped<IWebSocketHandler, WebSocketHandler>();

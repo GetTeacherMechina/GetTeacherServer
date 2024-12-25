@@ -37,11 +37,17 @@ public class TeacherManager(GetTeacherDbContext getTeacherDbContext) : ITeacherM
 		return await getTeacherDbContext.Teachers.ToListAsync();
 	}
 
-	public async Task<ICollection<DbTeacher>> GetTeachersBySubjectAndGrade(DbSubject subject, DbGrade garde)
+	public async Task<ICollection<DbTeacher>> GetTeachersBySubjectAndGrade(DbSubject subject, DbGrade grade)
 	{
-		return await getTeacherDbContext.Teachers.Where(
-			t => t.TeacherSubjects.Where(sub => sub.Subject.Id == subject.Id &&
-			sub.Grade.Id == garde.Id).Count() != 0).ToListAsync();
+		return await getTeacherDbContext.Teachers
+			.Include(t => t.DbUser)
+			.Include(t => t.TeacherSubjects)
+			.ThenInclude(tS => tS.Subject)
+			.Include(t => t.TeacherSubjects)
+			.ThenInclude(tS => tS.Grade)
+			.Where(t => t.TeacherSubjects
+				.Any(ts => ts.Subject.Name == subject.Name && ts.Grade.Name == grade.Name))
+			.ToListAsync();
 	}
 
 	public async Task<DbTeacher?> GetFromUser(DbUser user)

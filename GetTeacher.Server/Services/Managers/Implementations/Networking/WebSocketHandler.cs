@@ -1,6 +1,5 @@
 ﻿using System.Collections.Concurrent;
 using System.Net.WebSockets;
-using System.Runtime.Serialization;
 using System.Text;
 using System.Text.Json;
 using GetTeacher.Server.Services.Database.Models;
@@ -33,7 +32,7 @@ public class WebSocketHandler(IUserStateChecker userStateChecker) : IWebSocketHa
 		ws.MessageHandler = messageReceived;
 	}
 
-	public async Task SendAsync<T>(int clientId, T message) where T : ISerializable
+	public async Task SendAsync<T>(int clientId, T message)
 	{
 		// "out var ws" - wow - amazing syntax. breathtaking.
 		if (!_clients.TryGetValue(clientId, out var ws))
@@ -69,14 +68,14 @@ public class WebSocketHandler(IUserStateChecker userStateChecker) : IWebSocketHa
 				}
 			}
 		}
-		catch // Catch errors to prevent crashes
+		catch (Exception ex) // Catch errors to prevent crashes
 		{
-
+			Console.WriteLine(ex);
 		}
 		finally
 		{
 			// Nevermind if a client disconnected due to an exception or a controlled stop, we handle the disconnection
-			await OnClientDisconnectedAsync(ws);
+			// await OnClientDisconnectedAsync(ws);
 		}
 	}
 
@@ -95,6 +94,13 @@ public class WebSocketHandler(IUserStateChecker userStateChecker) : IWebSocketHa
 		_clients.TryRemove(ws.ClientId, out _);
 
 		if (ws.Socket.State != WebSocketState.Closed && ws.Socket.State != WebSocketState.Aborted)
-			await ws.Socket.CloseAsync(WebSocketCloseStatus.InternalServerError, string.Empty, CancellationToken.None);
+			try
+			{
+				await ws.Socket.CloseAsync(WebSocketCloseStatus.InternalServerError, string.Empty, CancellationToken.None);
+			}
+			catch // (Exception ex)
+			{
+				// Console.WriteLine(ex);
+			}
 	}
 }

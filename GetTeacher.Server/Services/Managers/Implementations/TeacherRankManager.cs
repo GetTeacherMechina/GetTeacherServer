@@ -4,9 +4,10 @@ using GetTeacher.Server.Services.Managers.Interfaces.UserManager;
 
 namespace GetTeacher.Server.Services.Managers.Implementations;
 
-public class TeacherRankManager(ITeacherManager teacherManager) : ITeacherRankManager
+public class TeacherRankManager(ITeacherManager teacherManager, ITeacherReadyManager teacherReadyManager) : ITeacherRankManager
 {
 	private readonly ITeacherManager teacherManager = teacherManager;
+	private readonly ITeacherReadyManager teacherReadyManager = teacherReadyManager;
 
 	public async Task<ICollection<DbTeacher>> GetRankedTeachersBySubjectAndGradeAndFavorite(DbStudent student, DbSubject subject)
 	{
@@ -18,7 +19,16 @@ public class TeacherRankManager(ITeacherManager teacherManager) : ITeacherRankMa
 
 		teachers = teachers.Except(favoriteTeachers).ToList();
 
-		return favoriteTeachers.Concat(teachers).ToList();
+		// Get the IDs of ready teachers
+		HashSet<int> readyTeacherIds = teacherReadyManager
+			.GetReadyTeachers(subject, student.Grade)
+			.Select(readyT => readyT.Id)
+			.ToHashSet();
+
+		return favoriteTeachers
+			.Concat(teachers)
+			.Where(t => readyTeacherIds.Contains(t.Id))
+			.ToList();
 	}
 
 	public async Task UpdateRank(DbUser teacherUser, int stars)
