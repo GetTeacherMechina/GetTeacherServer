@@ -2,7 +2,6 @@ using GetTeacher.Server.Extensions.App;
 using GetTeacher.Server.Extensions.Builder;
 using GetTeacher.Server.Services.Database;
 using GetTeacher.Server.Services.Database.Models;
-using GetTeacher.Server.Services.Managers.Interfaces.Networking;
 using Microsoft.AspNetCore.Identity;
 
 namespace GetTeacher.Server;
@@ -38,7 +37,7 @@ public class Program
 		app.UseAuthorization();
 
 		// Add the WebSocket pipeline stage AFTER authentication
-		app.UseGetTeacherWebSockets(app.Services.GetRequiredService<IWebSockerManager>());
+		app.UseGetTeacherWebSockets();
 
 		app.MapControllers();
 

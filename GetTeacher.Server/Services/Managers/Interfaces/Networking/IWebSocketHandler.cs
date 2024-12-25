@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 
 namespace GetTeacher.Server.Services.Managers.Interfaces.Networking;
 
-public interface IWebSockerManager
+public interface IWebSocketHandler
 {
 	public void AddWebSocket(int clientId, WebSocket webSocket);
 

@@ -1,5 +1,6 @@
 ﻿using GetTeacher.Server.Services.Generators;
 using GetTeacher.Server.Services.Managers.Implementations;
+using GetTeacher.Server.Services.Managers.Implementations.Networking;
 using GetTeacher.Server.Services.Managers.Implementations.UserManager;
 using GetTeacher.Server.Services.Managers.Interfaces;
 using GetTeacher.Server.Services.Managers.Interfaces.Networking;
@@ -14,13 +15,16 @@ public static class GetTeacherBuilderExtensions
 		builder.UseGetTeacherDb();
 		builder.Services.AddScoped<JwtTokenGenerator>();
 
-		// TODO: Why the fuck AddScoped
 		builder.Services.AddScoped<ITeacherManager, TeacherManager>();
 		builder.Services.AddScoped<IStudentManager, StudentManager>();
 		builder.Services.AddScoped<IMeetingMatcher, MeetingMatcher>();
 		builder.Services.AddScoped<ITeacherRankManager, TeacherRankManager>();
 		builder.Services.AddScoped<IUserStateChecker, UserStateChecker>();
-		builder.Services.AddSingleton<IWebSockerManager, Services.Managers.Implementations.Networking.WebSocketManager>();
+
+		// Probably will only be used for manual JWT authentication in the context of WebSockets
+		builder.Services.AddScoped<IWebSocketHandler, WebSocketHandler>();
+		builder.Services.AddScoped<IJwtAuthenticator, JwtAuthenticator>();
+		builder.Services.AddSingleton<IPrincipalClaimsQuerier, PrincipalClaimsQuerier>();
 
 		// builder.Services.AddSingleton<IMeetingHandler, ?>();
 	}

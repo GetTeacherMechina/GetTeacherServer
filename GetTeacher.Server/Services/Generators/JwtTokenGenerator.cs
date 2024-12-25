@@ -18,8 +18,9 @@ public class JwtTokenGenerator(IConfiguration configuration, UserManager<DbUser>
 		// Add basic email username and JwtId claims
 		ICollection<Claim> claims =
 		[
-			new Claim(JwtRegisteredClaimNames.Email, user.Email!),
-			new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+			new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+
+			// TODO: Track JTI for force expiration?
 			new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
 		];
 
