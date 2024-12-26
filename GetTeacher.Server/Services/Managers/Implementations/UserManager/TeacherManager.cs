@@ -20,7 +20,7 @@ public class TeacherManager(GetTeacherDbContext getTeacherDbContext) : ITeacherM
 	}
 	public async Task RemoveTeacher(DbTeacher teacher)
 	{
-		if (!(await TeacherExists(teacher.DbUser)))
+		if (!await TeacherExists(teacher.DbUser))
 			return;
 
 		getTeacherDbContext.Teachers.Remove(teacher);

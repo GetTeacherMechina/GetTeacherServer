@@ -1,7 +1,6 @@
 ﻿using GetTeacher.Server.Services.Database;
 using GetTeacher.Server.Services.Database.Models;
 using GetTeacher.Server.Services.Managers.Interfaces;
-using GetTeacher.Server.Services.Managers.Interfaces.Networking;
 using GetTeacher.Server.Services.Managers.Interfaces.UserManager;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +13,7 @@ namespace GetTeacher.Server.Controllers.Meeting;
 public class MeetingStudentController(GetTeacherDbContext getTeacherDbContext, IMeetingMatcherBackgroundService meetingMatcherBackgroundService, IPrincipalClaimsQuerier principalClaimsQuerier) : ControllerBase
 {
 	private readonly GetTeacherDbContext getTeacherDbContext = getTeacherDbContext;
-	private readonly IMeetingMatcherBackgroundService  meetingMatcherBackgroundService = meetingMatcherBackgroundService;
+	private readonly IMeetingMatcherBackgroundService meetingMatcherBackgroundService = meetingMatcherBackgroundService;
 	private readonly IPrincipalClaimsQuerier principalClaimsQuerier = principalClaimsQuerier;
 
 	[Authorize]

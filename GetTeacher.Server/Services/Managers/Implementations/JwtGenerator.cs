@@ -2,19 +2,19 @@
 using System.Security.Claims;
 using System.Text;
 using GetTeacher.Server.Services.Database.Models;
-using Microsoft.AspNetCore.Identity;
+using GetTeacher.Server.Services.Managers.Interfaces;
 using Microsoft.IdentityModel.Tokens;
 
-namespace GetTeacher.Server.Services.Generators;
+namespace GetTeacher.Server.Services.Managers.Implementations;
 
-public class JwtGenerator(ILogger<JwtGenerator> logger, IConfiguration configuration)
+public class JwtGenerator(ILogger<JwtGenerator> logger, IConfiguration configuration) : IJwtGenerator
 {
 	private readonly ILogger<JwtGenerator> logger = logger;
 	private readonly IConfiguration configuration = configuration;
 
 	public string? GenerateUserToken(DbUser user)
 	{
-		// Add userId and JwtId
+		// Add userId, email and JwtId
 		ICollection<Claim> claims =
 		[
 			new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
@@ -35,8 +35,7 @@ public class JwtGenerator(ILogger<JwtGenerator> logger, IConfiguration configura
 		if (key == null || issuer == null || audience == null)
 		{
 			// Something wrong in the configuration, JwtSettings is not set up correctly
-			// TODO: Change to a [critical] using logger
-			logger.LogCritical("JwtSettings is not set up correctly");
+			logger.LogCritical("JwtSettings are not set up correctly in the configuration");
 			return null;
 		}
 

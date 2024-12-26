@@ -1,6 +1,7 @@
 ﻿using System.Net.WebSockets;
 using System.Security.Claims;
 using System.Text;
+using GetTeacher.Server.Services.Database.Models;
 using GetTeacher.Server.Services.Managers.Interfaces;
 using GetTeacher.Server.Services.Managers.Interfaces.Networking;
 using GetTeacher.Server.Services.Managers.Interfaces.UserManager;
@@ -32,6 +33,7 @@ public static class WebSocketAppExtension
 
 			// Get the required scoped services
 			IServiceScope serviceScope = app.Services.CreateScope();
+			ILogger<IWebSocketSystem> logger = serviceScope.ServiceProvider.GetRequiredService<ILogger<IWebSocketSystem>>();
 			IJwtAuthenticator jwtAuthenticator = serviceScope.ServiceProvider.GetRequiredService<IJwtAuthenticator>();
 			IPrincipalClaimsQuerier principalClaimsQuerier = serviceScope.ServiceProvider.GetRequiredService<IPrincipalClaimsQuerier>();
 			IWebSocketSystem webSocketSystem = serviceScope.ServiceProvider.GetRequiredService<IWebSocketSystem>();
@@ -47,9 +49,32 @@ public static class WebSocketAppExtension
 			if (clientId is null)
 				return;
 
-			// Add the websocket to the handler
-			webSocketSystem.AddWebSocket(clientId.Value, ws);
+			// Add the WebSocket to the system
 			context.User = claimsPrincipal;
+			webSocketSystem.AddWebSocket(new DbUser { Id = clientId.Value }, ws);
+
+			try
+			{
+				// TODO: I think there's no way to better implement this, but better safe than sorry: check again
+				//  Keep the WebSocket alive by not exiting the context in which it was created
+				while (ws.State == WebSocketState.Open)
+					await ws.ReceiveAsync(buffer, CancellationToken.None);
+			}
+			catch { }
+			finally
+			{
+				// Imagine nesting "try-catch" blocks, couldn't be me
+				try
+				{
+					await ws.CloseAsync(WebSocketCloseStatus.InternalServerError, string.Empty, CancellationToken.None);
+					ws.Dispose();
+				}
+				catch { }
+
+				webSocketSystem.RemoveWebSocket(new DbUser { Id = clientId.Value });
+			}
+
+			// Due to the WebSocket being created from the "context" exiting this call frame causes the WebSocket to die
 		});
 	}
 }

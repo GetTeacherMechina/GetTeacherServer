@@ -8,38 +8,29 @@ using GetTeacher.Server.Services.Managers.Interfaces.Networking;
 
 namespace GetTeacher.Server.Services.Managers.Implementations.Networking;
 
-public record WebSocketProfile(int ClientId, WebSocket Socket);
+public record WebSocketProfile(DbUser User, WebSocket Socket);
 
-public class WebSocketSystem(ILogger<WebSocketSystem> logger, IUserStateChecker userStateChecker) : IWebSocketSystem
+public class WebSocketSystem(ILogger<IWebSocketSystem> logger, IUserStateTracker userStateChecker) : IWebSocketSystem
 {
 	private static readonly ConcurrentDictionary<int, WebSocketProfile> clients = new();
 
-	private readonly ILogger<WebSocketSystem> logger = logger;
-	private readonly IUserStateChecker userStateChecker = userStateChecker;
+	private readonly ILogger<IWebSocketSystem> logger = logger;
+	private readonly IUserStateTracker userStateChecker = userStateChecker;
 
-	public void AddWebSocket(int clientId, WebSocket webSocket)
+	public void AddWebSocket(DbUser user, WebSocket webSocket)
 	{
-		WebSocketProfile ws = new WebSocketProfile(clientId, webSocket);
+		WebSocketProfile ws = new WebSocketProfile(user, webSocket);
 
-		clients.AddOrUpdate(ws.ClientId, ws, (key, old) => ws);
-		userStateChecker.UpdateUserOnline(new DbUser { Id = ws.ClientId }, true);
+		clients.AddOrUpdate(ws.User.Id, ws, (key, old) => ws);
+		userStateChecker.SetOnline(new DbUser { Id = user.Id });
+		logger.LogInformation("Client [{clientId}] WebSocket connected.", user.Id);
 	}
 
-	public async void RemoveWebSocket(int clientId)
+	public void RemoveWebSocket(DbUser user)
 	{
-		userStateChecker.UpdateUserOnline(new DbUser { Id = clientId }, false);
-		if (!clients.TryRemove(clientId, out WebSocketProfile? ws))
-			return;
-
-		try
-		{
-			if (ws.Socket.State != WebSocketState.Closed && ws.Socket.State != WebSocketState.Aborted)
-				await ws.Socket.CloseAsync(WebSocketCloseStatus.InternalServerError, string.Empty, CancellationToken.None);
-		}
-		catch (Exception ex)
-		{
-			logger.LogError(ex, "An unexpected error occurred while closing the WebSocket.");
-		}
+		userStateChecker.SetOffline(user);
+		clients.TryRemove(user.Id, out _);
+		logger.LogInformation("Client [{clientId}] WebSocket disconnected.", user.Id);
 	}
 
 	public async Task<bool> SendAsync<T>(int clientId, T message)

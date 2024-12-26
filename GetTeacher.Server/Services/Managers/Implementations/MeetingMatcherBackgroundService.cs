@@ -3,7 +3,6 @@ using GetTeacher.Server.Models.Meeting;
 using GetTeacher.Server.Services.Database.Models;
 using GetTeacher.Server.Services.Managers.Interfaces;
 using GetTeacher.Server.Services.Managers.Interfaces.Networking;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace GetTeacher.Server.Services.Managers.Implementations;
 
