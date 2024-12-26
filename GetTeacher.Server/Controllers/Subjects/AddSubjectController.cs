@@ -9,7 +9,7 @@ namespace GetTeacher.Server.Controllers.Subjects;
 
 [Controller]
 [Route("/api/v1/subjects/add")]
-public class AddSubjectController
+public class AddSubjectController : ControllerBase
 {
 	private GetTeacherDbContext context;
 	public AddSubjectController(GetTeacherDbContext context)
