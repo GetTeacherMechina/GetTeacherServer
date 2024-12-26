@@ -5,21 +5,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GetTeacher.Server.Services.Managers.Implementations;
 
-public class UserStateChecker : IUserStateChecker
+public class UserStateChecker(GetTeacherDbContext getTeacherDbContext) : IUserStateChecker
 {
-	private static readonly IDictionary<int, bool> LastSeenUsers = new Dictionary<int, bool>();
+	private static readonly IDictionary<int, bool> usersOnline = new Dictionary<int, bool>();
 
-	private readonly GetTeacherDbContext getTeacherDbContext;
-
-	public UserStateChecker(GetTeacherDbContext getTeacherDbContext)
-	{
-		this.getTeacherDbContext = getTeacherDbContext;
-	}
+	private readonly GetTeacherDbContext getTeacherDbContext = getTeacherDbContext;
 
 	private List<int> GetOnlineUserIds()
 	{
-		List<int> userIds = new List<int>(LastSeenUsers.Count);
-		foreach (int userId in LastSeenUsers.Keys)
+		List<int> userIds = new List<int>(usersOnline.Count);
+		foreach (int userId in usersOnline.Keys)
 		{
 			if (IsUserOnline(new DbUser { Id = userId }))
 				userIds.Add(userId);
@@ -30,7 +25,7 @@ public class UserStateChecker : IUserStateChecker
 
 	public bool IsUserOnline(DbUser user)
 	{
-		if (!LastSeenUsers.TryGetValue(user.Id, out bool online))
+		if (!usersOnline.TryGetValue(user.Id, out bool online))
 			return false;
 
 		return online;
@@ -62,6 +57,6 @@ public class UserStateChecker : IUserStateChecker
 
 	public void UpdateUserOnline(DbUser user, bool online)
 	{
-		LastSeenUsers[user.Id] = online;
+		usersOnline[user.Id] = online;
 	}
 }

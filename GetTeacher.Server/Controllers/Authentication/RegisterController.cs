@@ -48,6 +48,9 @@ public class RegisterController(UserManager<DbUser> userManager, GetTeacherDbCon
 			Email = registerModel.Email
 		};
 
+		if (registerModel.Teacher is null && registerModel.Student is null)
+			return BadRequest();
+
 		var result = await userManager.CreateAsync(user, registerModel.Password);
 
 		if (result.Succeeded)

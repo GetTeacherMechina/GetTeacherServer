@@ -1,36 +1,33 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using GetTeacher.Server.Extensions.Collection;
 using GetTeacher.Server.Services.Database.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 
 namespace GetTeacher.Server.Services.Generators;
 
-public class JwtTokenGenerator(IConfiguration configuration, UserManager<DbUser> userManager)
+public class JwtGenerator(ILogger<JwtGenerator> logger, IConfiguration configuration)
 {
+	private readonly ILogger<JwtGenerator> logger = logger;
 	private readonly IConfiguration configuration = configuration;
-	private readonly UserManager<DbUser> userManager = userManager;
 
-	public async Task<string> GenerateUserToken(DbUser user)
+	public string? GenerateUserToken(DbUser user)
 	{
-		// Add basic email username and JwtId claims
+		// Add userId and JwtId
 		ICollection<Claim> claims =
 		[
 			new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+			new Claim(ClaimTypes.Email, user.Email!.ToString()),
 
 			// TODO: Track JTI for force expiration?
 			new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
 		];
 
-		claims.AddRange((await userManager.GetClaimsAsync(user)).AsQueryable());
-		// TODO: Add ClaimTypes.Role for roles
-
 		return GenerateToken(claims, TimeSpan.FromMinutes(60));
 	}
 
-	private string GenerateToken(IEnumerable<Claim> claims, TimeSpan tokenLifetime)
+	private string? GenerateToken(IEnumerable<Claim> claims, TimeSpan tokenLifetime)
 	{
 		string? key = configuration["JwtSettings:Key"];
 		string? issuer = configuration["JwtSettings:Issuer"];
@@ -39,8 +36,8 @@ public class JwtTokenGenerator(IConfiguration configuration, UserManager<DbUser>
 		{
 			// Something wrong in the configuration, JwtSettings is not set up correctly
 			// TODO: Change to a [critical] using logger
-			Console.WriteLine("JwtSettings is not set up correctly");
-			return string.Empty;
+			logger.LogCritical("JwtSettings is not set up correctly");
+			return null;
 		}
 
 		var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));

@@ -8,10 +8,10 @@ namespace GetTeacher.Server.Controllers.Authentication;
 
 [ApiController]
 [Route("api/v1/auth/[controller]")]
-public class LoginController(UserManager<DbUser> userManager, JwtTokenGenerator jwtTokenGenerator) : ControllerBase
+public class LoginController(UserManager<DbUser> userManager, JwtGenerator jwtTokenGenerator) : ControllerBase
 {
 	private readonly UserManager<DbUser> userManager = userManager;
-	private readonly JwtTokenGenerator jwtTokenGenerator = jwtTokenGenerator;
+	private readonly JwtGenerator jwtTokenGenerator = jwtTokenGenerator;
 
 	[HttpPost]
 	public async Task<IActionResult> Login([FromBody] LoginRequestModel loginModel)
@@ -24,8 +24,11 @@ public class LoginController(UserManager<DbUser> userManager, JwtTokenGenerator 
 
 		if (passwordResult)
 		{
-			string jwtToken = await jwtTokenGenerator.GenerateUserToken(userResult);
-			return Ok(new LoginResponseModel { Result = "Login successful", JwtToken = jwtToken });
+			string? jwt = jwtTokenGenerator.GenerateUserToken(userResult);
+			if (jwt is null)
+				return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred when generating a JWT.");
+
+			return Ok(new LoginResponseModel { Result = "Login successful", JwtToken = jwt });
 		}
 
 		return Unauthorized(new LoginResponseModel { Result = "Invalid email or password" });
