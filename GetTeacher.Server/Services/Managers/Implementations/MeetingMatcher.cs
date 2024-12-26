@@ -12,6 +12,7 @@ public class MeetingMatcher(ITeacherRankManager teacherRankManager, IUserStateCh
 	{
 		ICollection<DbTeacher> rankedTeachers = await teacherRankManager.GetRankedTeachersBySubjectAndGradeAndFavorite(student, subject);
 
+		// Filter only online teachers
 		rankedTeachers = rankedTeachers.Where(t => userStateChecker.IsUserOnline(t.DbUser)).ToList();
 
 		// TODO:

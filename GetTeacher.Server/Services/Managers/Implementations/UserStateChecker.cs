@@ -5,16 +5,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GetTeacher.Server.Services.Managers.Implementations;
 
-public class UserStateChecker : IUserStateChecker
+public class UserStateChecker(GetTeacherDbContext getTeacherDbContext) : IUserStateChecker
 {
 	private static readonly IDictionary<int, bool> usersOnline = new Dictionary<int, bool>();
 
-	private readonly GetTeacherDbContext getTeacherDbContext;
-
-	public UserStateChecker(GetTeacherDbContext getTeacherDbContext)
-	{
-		this.getTeacherDbContext = getTeacherDbContext;
-	}
+	private readonly GetTeacherDbContext getTeacherDbContext = getTeacherDbContext;
 
 	private List<int> GetOnlineUserIds()
 	{

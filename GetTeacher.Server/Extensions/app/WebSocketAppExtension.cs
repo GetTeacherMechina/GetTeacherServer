@@ -34,7 +34,7 @@ public static class WebSocketAppExtension
 			IServiceScope serviceScope = app.Services.CreateScope();
 			IJwtAuthenticator jwtAuthenticator = serviceScope.ServiceProvider.GetRequiredService<IJwtAuthenticator>();
 			IPrincipalClaimsQuerier principalClaimsQuerier = serviceScope.ServiceProvider.GetRequiredService<IPrincipalClaimsQuerier>();
-			IWebSocketHandler webSocketHandler = serviceScope.ServiceProvider.GetRequiredService<IWebSocketHandler>();
+			IWebSocketSystem webSocketSystem = serviceScope.ServiceProvider.GetRequiredService<IWebSocketSystem>();
 
 			// The first message from a WebSocket should always be the JWT associated with the client
 			var jwt = Encoding.UTF8.GetString(buffer, 0, result.Count);
@@ -48,7 +48,7 @@ public static class WebSocketAppExtension
 				return;
 
 			// Add the websocket to the handler
-			webSocketHandler.AddWebSocket(clientId.Value, ws);
+			webSocketSystem.AddWebSocket(clientId.Value, ws);
 			context.User = claimsPrincipal;
 		});
 	}

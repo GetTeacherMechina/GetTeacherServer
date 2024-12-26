@@ -3,6 +3,6 @@
 [Serializable]
 public class MeetingResponse
 {
-	public int CallId { get; set; }
-	public string MatchedWith { get; set; } = string.Empty;
+	public int MeetingId { get; set; }
+	public string CompanionName { get; set; } = string.Empty;
 }

@@ -2,7 +2,7 @@
 
 namespace GetTeacher.Server.Services.Managers.Interfaces;
 
-public interface IStudentMatcher
+public interface IMeetingMatcherBackgroundService
 {
-	public Task MatchLoop(DbStudent student, DbSubject subject);
+	public void MatchStudent(DbStudent student, DbSubject subject);
 }

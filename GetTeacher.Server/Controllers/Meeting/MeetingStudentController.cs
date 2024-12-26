@@ -11,12 +11,10 @@ namespace GetTeacher.Server.Controllers.Meeting;
 
 [ApiController]
 [Route("api/v1/meeting/student")]
-public class MeetingStudentController(GetTeacherDbContext getTeacherDbContext, IStudentMatcher studentMatcher, IMeetingMatcher meetingMatcher, IWebSocketHandler webSocketHandler, IPrincipalClaimsQuerier principalClaimsQuerier) : ControllerBase
+public class MeetingStudentController(GetTeacherDbContext getTeacherDbContext, IMeetingMatcherBackgroundService meetingMatcherBackgroundService, IPrincipalClaimsQuerier principalClaimsQuerier) : ControllerBase
 {
 	private readonly GetTeacherDbContext getTeacherDbContext = getTeacherDbContext;
-	private readonly IStudentMatcher studentMatcher = studentMatcher;
-	private readonly IMeetingMatcher meetingMatcher = meetingMatcher;
-	private readonly IWebSocketHandler webSocketHandler = webSocketHandler;
+	private readonly IMeetingMatcherBackgroundService  meetingMatcherBackgroundService = meetingMatcherBackgroundService;
 	private readonly IPrincipalClaimsQuerier principalClaimsQuerier = principalClaimsQuerier;
 
 	[Authorize]
@@ -36,7 +34,7 @@ public class MeetingStudentController(GetTeacherDbContext getTeacherDbContext, I
 		if (student is null)
 			return BadRequest();
 
-		await studentMatcher.MatchLoop(student, subject);
+		meetingMatcherBackgroundService.MatchStudent(student, subject);
 		return Ok();
 	}
 }
