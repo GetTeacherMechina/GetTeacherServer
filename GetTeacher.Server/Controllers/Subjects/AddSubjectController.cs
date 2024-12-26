@@ -9,12 +9,8 @@ namespace GetTeacher.Server.Controllers.Subjects;
 
 [Controller]
 [Route("/api/v1/subjects/add")]
-<<<<<<< HEAD
-public class AddSubjectController : ControllerBase
-=======
 [ProducesResponseType(StatusCodes.Status400BadRequest)]
 public class AddSubjectController
->>>>>>> 67d36b34fc2ef861c37b645c792c4159cd933f9b
 {
 	private GetTeacherDbContext context;
 	public AddSubjectController(GetTeacherDbContext context)
