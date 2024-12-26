@@ -33,7 +33,6 @@ namespace GetTeacher.Server.Controllers.Teacher
 			DbUser? userResult = await userManager.FindByEmailAsync(email);
 			if (userResult == null)
 			{
-				Console.WriteLine("------------------------------hi------------------------------------------------");
 				return BadRequest(new TeacherSubjectsResponsModel());
 			}
 			DbTeacherSubject[] teacherSubjects = (await teacherManager.GetFromUser(userResult)).TeacherSubjects.ToArray();
@@ -46,8 +45,8 @@ namespace GetTeacher.Server.Controllers.Teacher
 			}
 			return Ok(new TeacherSubjectsResponsModel 
 			{
-				Grades = new String[] { "g", "g" },
-				Subjects = new String[]{ "g", "g" } 
+				Grades = grades,
+				Subjects = subject
 			});
 		}
 	}
