@@ -4,5 +4,5 @@ namespace GetTeacher.Server.Services.Managers.Interfaces;
 
 public interface ITeacherRankManager
 {
-	public Task<ICollection<DbTeacher>> GetRankedTeachersBySubjectAndGradeAndFavorite(DbStudent student, DbSubject subject);
+	public Task AddRatingReview(DbTeacher teacher, DbStudent ranker, int stars);
 }

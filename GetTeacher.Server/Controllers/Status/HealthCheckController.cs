@@ -1,6 +1,5 @@
 ﻿using GetTeacher.Server.Models.Status;
 using GetTeacher.Server.Services.Database;
-using GetTeacher.Server.Services.Managers.Interfaces.UserState;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GetTeacher.Server.Controllers.Status;

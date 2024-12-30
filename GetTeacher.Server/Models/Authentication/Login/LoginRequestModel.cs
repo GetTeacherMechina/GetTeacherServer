@@ -1,12 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace GetTeacher.Server.Models.Authentication.Login;
+﻿namespace GetTeacher.Server.Models.Authentication.Login;
 
 public class LoginRequestModel()
 {
-	[Required]
-	public string Email { get; set; } = string.Empty;
+	public required string Email { get; set; } = string.Empty;
 
-	[Required]
-	public string Password { get; set; } = string.Empty;
+	public required string Password { get; set; } = string.Empty;
 }
