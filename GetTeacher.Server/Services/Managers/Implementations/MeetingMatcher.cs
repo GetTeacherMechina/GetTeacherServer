@@ -3,10 +3,10 @@ using GetTeacher.Server.Services.Managers.Interfaces;
 
 namespace GetTeacher.Server.Services.Managers.Implementations;
 
-public class MeetingMatcher(ITeacherRankManager teacherRankManager, IUserStateChecker userStateChecker) : IMeetingMatcher
+public class MeetingMatcher(ITeacherRankManager teacherRankManager, IUserStateTracker userStateChecker) : IMeetingMatcher
 {
 	private readonly ITeacherRankManager teacherRankManager = teacherRankManager;
-	private readonly IUserStateChecker userStateChecker = userStateChecker;
+	private readonly IUserStateTracker userStateChecker = userStateChecker;
 
 	public async Task<DbTeacher?> MatchStudentTeacher(DbStudent student, DbSubject subject)
 	{
