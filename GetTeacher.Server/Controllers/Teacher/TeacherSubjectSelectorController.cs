@@ -6,49 +6,41 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
-namespace GetTeacher.Server.Controllers.Teacher
+namespace GetTeacher.Server.Controllers.Teacher;
+
+[ApiController]
+[Route("api/v1/TeacherSubjectSelectorController")]
+public class TeacherSubjectSelectorController(ITeacherManager teacherManager, UserManager<DbUser> userManager) : ControllerBase
 {
-	[ApiController]
-	[Route("api/v1/TeacherSubjectSelectorController")]
-	public class TeacherSubjectSelectorController : ControllerBase
+	private readonly ITeacherManager teacherManager = teacherManager;
+	private readonly UserManager<DbUser> userManager = userManager;
+
+	[HttpGet]
+	[Authorize]
+	public async Task<IActionResult> GetTeacherSubjects()
 	{
-		private readonly ITeacherManager teacherManager;
-		private readonly UserManager<DbUser> userManager;
+		var emailClaim = User.FindFirst(ClaimTypes.Email);
+		if (emailClaim is null)
+			return BadRequest();
 
-		public TeacherSubjectSelectorController(ITeacherManager teacherManager, UserManager<DbUser> userManager)
+		string email = emailClaim.Value;
+		DbUser? userResult = await userManager.FindByEmailAsync(email);
+		if (userResult == null)
 		{
-			this.teacherManager = teacherManager;
-			this.userManager = userManager;
+			return BadRequest(new TeacherSubjectsResponsModel());
 		}
-
-		[HttpGet]
-		[Authorize]
-		public async Task<IActionResult> GetTeacherSubjects()
+		DbTeacherSubject[] teacherSubjects = (await teacherManager.GetFromUser(userResult)).TeacherSubjects.ToArray();
+		string[] subject = new string[teacherSubjects.Length];
+		string[] grades = new string[teacherSubjects.Length];
+		for (int i = 0; i < teacherSubjects.Length; i++)
 		{
-			var emailClaim = User.FindFirst(ClaimTypes.Email);
-			if (emailClaim is null)
-				return BadRequest();
-
-			string email = emailClaim.Value;
-			DbUser? userResult = await userManager.FindByEmailAsync(email);
-			if (userResult == null)
-			{
-				return BadRequest(new TeacherSubjectsResponsModel());
-			}
-			DbTeacherSubject[] teacherSubjects = (await teacherManager.GetFromUser(userResult)).TeacherSubjects.ToArray();
-			String[] subject = new string[teacherSubjects.Length];
-			String[] grades = new string[teacherSubjects.Length];
-			for (int i = 0; i < teacherSubjects.Length; i++)
-			{
-				subject[i] = teacherSubjects[i].Subject.Name;
-				grades[i] = teacherSubjects[i].Grade.Name;
-			}
-			return Ok(new TeacherSubjectsResponsModel 
-			{
-				Grades = grades,
-				Subjects = subject
-			});
+			subject[i] = teacherSubjects[i].Subject.Name;
+			grades[i] = teacherSubjects[i].Grade.Name;
 		}
+		return Ok(new TeacherSubjectsResponsModel 
+		{
+			Grades = grades,
+			Subjects = subject
+		});
 	}
-
 }
