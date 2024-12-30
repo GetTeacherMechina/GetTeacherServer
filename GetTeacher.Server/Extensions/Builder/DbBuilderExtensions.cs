@@ -6,12 +6,11 @@ namespace GetTeacher.Server.Extensions.Builder;
 
 public static class DbBuilderExtensions
 {
-	public static void UseGetTeacherDb(this WebApplicationBuilder builder)
+	public static void AddGetTeacherDb(this WebApplicationBuilder builder)
 	{
 		string? connectionString = builder.Configuration.GetConnectionString("Default");
 		if (connectionString == null)
 		{
-			// TODO: Logging
 			Console.WriteLine("Connection string was null, please provide one in appsettings.json");
 			return;
 		}
@@ -24,7 +23,10 @@ public static class DbBuilderExtensions
 		// Add DbContext based on environment
 		// Postgre for production and sqlite for development
 		if (builder.Environment.IsDevelopment())
+		{
+			Console.WriteLine("[Debug] Using connection string: {0}", connectionString);
 			builder.Services.AddSqlite(connectionString);
+		}
 		else
 			builder.Services.AddPostgreSql(connectionString);
 	}

@@ -27,7 +27,7 @@ public class MeetingMatcherBackgroundService(IServiceProvider serviceProvider, I
 
 	protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 	{
-		logger.LogInformation("Triggered Background Service is running.");
+		logger.LogInformation("Triggered MeetingMatcherBackgroundService is running.");
 
 		while (!stoppingToken.IsCancellationRequested)
 		{

@@ -14,17 +14,17 @@ public class Program
 
 		builder.Services.AddControllers();
 
-		// Adds the custom services to the service collection
-		builder.UseGetTeacherServices();
-
-		builder.AddJwtAuthentication();
-
 		// Adds the identity services
 		builder.Services.AddIdentityCore<DbUser>()
 			.AddEntityFrameworkStores<GetTeacherDbContext>()
 			.AddDefaultTokenProviders();
 
 		builder.AddCorsPolicy();
+
+		// Add custom services
+		builder.AddGetTeacherServices();
+		builder.AddGetTeacherDb();
+		builder.AddJwtAuthentication();
 
 		var app = builder.Build();
 

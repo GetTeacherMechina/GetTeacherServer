@@ -9,10 +9,8 @@ namespace GetTeacher.Server.Extensions.Builder;
 
 public static class GetTeacherBuilderExtensions
 {
-	public static void UseGetTeacherServices(this WebApplicationBuilder builder)
+	public static void AddGetTeacherServices(this WebApplicationBuilder builder)
 	{
-		builder.UseGetTeacherDb();
-
 		builder.Services.AddScoped<IJwtGenerator, JwtGenerator>();
 		builder.Services.AddScoped<ITeacherManager, TeacherManager>();
 		builder.Services.AddScoped<IStudentManager, StudentManager>();
