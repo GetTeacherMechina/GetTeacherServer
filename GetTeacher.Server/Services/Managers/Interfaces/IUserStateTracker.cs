@@ -11,4 +11,8 @@ public interface IUserStateTracker
 	public void SetOnline(DbUser user);
 
 	public void SetOffline(DbUser user);
+
+	public void AddDisconnectAction(DbUser user, Action<int> onDisconnect);
+
+	public void RemoveDisconnectAction(DbUser user, Action<int> onDisconnect);
 }

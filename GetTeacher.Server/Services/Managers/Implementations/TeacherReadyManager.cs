@@ -4,8 +4,10 @@ using GetTeacher.Server.Services.Managers.Interfaces;
 
 namespace GetTeacher.Server.Services.Managers.Implementations;
 
-public class TeacherReadyManager : ITeacherReadyManager
+public class TeacherReadyManager(IUserStateTracker userStateTracker) : ITeacherReadyManager
 {
+	private readonly IUserStateTracker userStateTracker = userStateTracker;
+
 	// Teacher.Id -> (Subject.Name, Grade.Name)
 	// Using a low level construct id and names because comparing and popping entries by reference sucks
 	private static readonly ConcurrentDictionary<int, (DbTeacher teacher, string subName, string gradeName)> readyTeachers = new ConcurrentDictionary<int, (DbTeacher teacher, string, string)>();
@@ -23,9 +25,13 @@ public class TeacherReadyManager : ITeacherReadyManager
 		readyTeachers.AddOrUpdate(teacher.Id,
 			(teacher, subject.Name, grade.Name),
 			(key, value) => (teacher, subject.Name, grade.Name));
+
+		userStateTracker.AddDisconnectAction(new DbUser { Id = teacher.DbUserId }, (i) => NotReadyToTeach(new DbTeacher { Id = i }));
 	}
+
 	public void NotReadyToTeach(DbTeacher teacher)
 	{
 		readyTeachers.Remove(teacher.Id, out _);
+		userStateTracker.RemoveDisconnectAction(new DbUser { Id = teacher.DbUserId }, (i) => NotReadyToTeach(new DbTeacher { Id = i }));
 	}
 }
