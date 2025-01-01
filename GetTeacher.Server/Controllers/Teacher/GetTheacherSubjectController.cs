@@ -10,7 +10,7 @@ namespace GetTeacher.Server.Controllers.Teacher;
 
 [ApiController]
 [Route("api/v1/TeacherSubjectSelectorController")]
-public class TeacherSubjectSelectorController(ITeacherManager teacherManager, UserManager<DbUser> userManager) : ControllerBase
+public class GetTheacherSubjectController(ITeacherManager teacherManager, UserManager<DbUser> userManager) : ControllerBase
 {
 	private readonly ITeacherManager teacherManager = teacherManager;
 	private readonly UserManager<DbUser> userManager = userManager;
@@ -19,17 +19,41 @@ public class TeacherSubjectSelectorController(ITeacherManager teacherManager, Us
 	[Authorize]
 	public async Task<IActionResult> GetTeacherSubjects()
 	{
+		// -----------------------------------------
 		var emailClaim = User.FindFirst(ClaimTypes.Email);
 		if (emailClaim is null)
+		{
 			return BadRequest();
-
+		}
 		string email = emailClaim.Value;
 		DbUser? userResult = await userManager.FindByEmailAsync(email);
-		if (userResult == null)
+		if (userResult is null)
 		{
-			return BadRequest(new TeacherSubjectsResponsModel());
+			return BadRequest(new AddSubjectToTeacherResponsModel());
 		}
-		DbTeacherSubject[] teacherSubjects = (await teacherManager.GetFromUser(userResult)).TeacherSubjects.ToArray();
+		// ---------------------------------------
+
+		DbTeacher? teacher = await teacherManager.GetFromUser(userResult);
+		if (teacher is null)
+		{
+			return BadRequest(new AddSubjectToTeacherResponsModel());
+		}
+		DbTeacherSubject[] teacherSubjects = teacher.TeacherSubjects.ToArray();
+
+		string[][] teacherSubjectsStr = ExtrctingTeacherSubjects(teacherSubjects);
+
+		return Ok(new AddSubjectToTeacherResponsModel 
+		{
+			Grades = teacherSubjectsStr[0],
+			Subjects = teacherSubjectsStr[1]
+		});
+	}
+
+	//**
+	//return subject in index 1 and grades in index 0
+	//*/
+	private string[][] ExtrctingTeacherSubjects(DbTeacherSubject[] teacherSubjects)
+	{
 		string[] subject = new string[teacherSubjects.Length];
 		string[] grades = new string[teacherSubjects.Length];
 		for (int i = 0; i < teacherSubjects.Length; i++)
@@ -37,10 +61,8 @@ public class TeacherSubjectSelectorController(ITeacherManager teacherManager, Us
 			subject[i] = teacherSubjects[i].Subject.Name;
 			grades[i] = teacherSubjects[i].Grade.Name;
 		}
-		return Ok(new TeacherSubjectsResponsModel 
-		{
-			Grades = grades,
-			Subjects = subject
-		});
+		return new string[][] { grades , subject };
 	}
+
+
 }

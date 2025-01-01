@@ -1,6 +1,6 @@
 ﻿namespace GetTeacher.Server.Models.Teacher;
 
-public class TeacherSubjectsResponsModel
+public class AddSubjectToTeacherResponsModel
 {
 	public string[]? Subjects { get; set; }
 

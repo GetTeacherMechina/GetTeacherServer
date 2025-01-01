@@ -96,4 +96,45 @@ public class TeacherManager(GetTeacherDbContext getTeacherDbContext) : ITeacherM
 		(await getTeacherDbContext.Teachers.Where(t => t.Id == teacher.Id).FirstAsync()).Rank = newRank;
 		await getTeacherDbContext.SaveChangesAsync();
 	}
+
+	public async Task AddSubjectToTeacher(DbTeacherSubject subject, DbTeacher teacher)
+	{
+		if (teacher == null)
+		{
+			return;
+		}
+		(await getTeacherDbContext.Teachers.Where((t) => teacher.Id == t.Id).FirstOrDefaultAsync())
+			.TeacherSubjects.Add(subject);
+
+		await getTeacherDbContext.SaveChangesAsync();
+	}
+
+	public async Task RemoveSubjectFromTeacher(DbTeacherSubject subject, DbTeacher teacher)
+	{
+		if (teacher == null)
+		{
+			return;
+		}
+		(await getTeacherDbContext.Teachers.Where((t) => teacher.Id == t.Id).FirstOrDefaultAsync())
+			.TeacherSubjects.Remove(subject);
+
+		await getTeacherDbContext.SaveChangesAsync();
+	}
+
+	public async Task AddSubject(DbSubject subject)
+	{
+		getTeacherDbContext.Subjects.Add(subject);
+		await getTeacherDbContext.SaveChangesAsync();
+	}
+
+
+	public async Task<ICollection<DbGrade>> GetAllGrades() { 
+		return await getTeacherDbContext.Grades.ToArrayAsync();
+	}
+
+	public async Task AddGrade(DbGrade garade)
+	{
+		getTeacherDbContext.Grades.Add(garade);
+		await getTeacherDbContext.SaveChangesAsync();
+	} 
 }
