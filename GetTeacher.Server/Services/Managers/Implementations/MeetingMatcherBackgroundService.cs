@@ -27,7 +27,7 @@ public class MeetingMatcherBackgroundService(IServiceProvider serviceProvider, I
 
 	protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 	{
-		logger.LogInformation("Triggered Background Service is running.");
+		logger.LogInformation("Student matcher background service has started running.");
 
 		while (!stoppingToken.IsCancellationRequested)
 		{
@@ -38,6 +38,10 @@ public class MeetingMatcherBackgroundService(IServiceProvider serviceProvider, I
 
 				logger.LogInformation("Student matcher background job is processing.");
 				await ProcessMatchesAsync();
+			}
+			catch (OperationCanceledException)
+			{
+				logger.LogInformation("Exiting student matcher background service.");
 			}
 			catch (Exception ex)
 			{

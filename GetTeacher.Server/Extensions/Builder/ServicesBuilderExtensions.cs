@@ -7,9 +7,9 @@ using GetTeacher.Server.Services.Managers.Interfaces.UserManager;
 
 namespace GetTeacher.Server.Extensions.Builder;
 
-public static class GetTeacherBuilderExtensions
+public static class ServicesBuilderExtensions
 {
-	public static void UseGetTeacherServices(this WebApplicationBuilder builder)
+	public static void AddGetTeacherServices(this WebApplicationBuilder builder)
 	{
 		builder.UseGetTeacherDb();
 
