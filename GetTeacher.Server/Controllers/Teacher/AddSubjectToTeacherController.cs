@@ -9,7 +9,7 @@ using System.Security.Claims;
 namespace GetTeacher.Server.Controllers.Teacher
 {
 	[Controller]
-	[Route("/api/v1/subjects/add")]
+	[Route("/api/v1/teacher_subjects/add")]
 	public class AddSubjectToTeacherController(ITeacherManager teacherManager, UserManager<DbUser> userManager) : ControllerBase
 	{
 		private readonly ITeacherManager teacherManager = teacherManager;
@@ -45,7 +45,7 @@ namespace GetTeacher.Server.Controllers.Teacher
 			}
 			await teacherManager.AddSubjectToTeacher(subject, teacher);
 
-			return Ok();
+			return Ok(new { });
 		}
 
 		private async void ValidateSubjectTeacher(DbTeacherSubject subject)

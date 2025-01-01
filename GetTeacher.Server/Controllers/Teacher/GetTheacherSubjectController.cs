@@ -9,7 +9,7 @@ using System.Security.Claims;
 namespace GetTeacher.Server.Controllers.Teacher;
 
 [ApiController]
-[Route("api/v1/TeacherSubjectSelectorController")]
+[Route("api/v1/teacher_subjects")]
 public class GetTheacherSubjectController(ITeacherManager teacherManager, UserManager<DbUser> userManager) : ControllerBase
 {
 	private readonly ITeacherManager teacherManager = teacherManager;

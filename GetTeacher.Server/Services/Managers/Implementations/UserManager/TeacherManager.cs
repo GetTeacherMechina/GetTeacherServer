@@ -99,7 +99,7 @@ public class TeacherManager(GetTeacherDbContext getTeacherDbContext) : ITeacherM
 
 	public async Task AddSubjectToTeacher(DbTeacherSubject subject, DbTeacher teacher)
 	{
-		if (teacher == null)
+		if (teacher is null)
 		{
 			return;
 		}
@@ -111,7 +111,7 @@ public class TeacherManager(GetTeacherDbContext getTeacherDbContext) : ITeacherM
 
 	public async Task RemoveSubjectFromTeacher(DbTeacherSubject subject, DbTeacher teacher)
 	{
-		if (teacher == null)
+		if (teacher is null)
 		{
 			return;
 		}
