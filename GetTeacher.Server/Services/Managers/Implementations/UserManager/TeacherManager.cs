@@ -20,7 +20,7 @@ public class TeacherManager(GetTeacherDbContext getTeacherDbContext) : ITeacherM
 	}
 	public async Task RemoveTeacher(DbTeacher teacher)
 	{
-		if (!(await TeacherExists(teacher.DbUser)))
+		if (!await TeacherExists(teacher.DbUser))
 			return;
 
 		getTeacherDbContext.Teachers.Remove(teacher);
@@ -53,7 +53,10 @@ public class TeacherManager(GetTeacherDbContext getTeacherDbContext) : ITeacherM
 	public async Task<DbTeacher?> GetFromUser(DbUser user)
 	{
 		return await getTeacherDbContext.Teachers.Where(t =>
-			t.DbUser == user).FirstOrDefaultAsync();
+			t.DbUser == user)
+			.Include (t => t.TeacherSubjects).ThenInclude(ts => ts.Subject)
+			.Include(t => t.TeacherSubjects).ThenInclude (ts => ts.Grade)
+			.FirstOrDefaultAsync();
 	}
 
 	public async Task<int> GetNumOfTeacherRankers(DbTeacher teacher)

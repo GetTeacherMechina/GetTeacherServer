@@ -1,6 +1,6 @@
 ﻿using GetTeacher.Server.Models.Authentication.Login;
 using GetTeacher.Server.Services.Database.Models;
-using GetTeacher.Server.Services.Generators;
+using GetTeacher.Server.Services.Managers.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,10 +8,10 @@ namespace GetTeacher.Server.Controllers.Authentication;
 
 [ApiController]
 [Route("api/v1/auth/[controller]")]
-public class LoginController(UserManager<DbUser> userManager, JwtGenerator jwtTokenGenerator) : ControllerBase
+public class LoginController(UserManager<DbUser> userManager, IJwtGenerator jwtTokenGenerator) : ControllerBase
 {
 	private readonly UserManager<DbUser> userManager = userManager;
-	private readonly JwtGenerator jwtTokenGenerator = jwtTokenGenerator;
+	private readonly IJwtGenerator jwtTokenGenerator = jwtTokenGenerator;
 
 	[HttpPost]
 	public async Task<IActionResult> Login([FromBody] LoginRequestModel loginModel)

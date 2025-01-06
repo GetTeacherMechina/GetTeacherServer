@@ -1,6 +1,21 @@
+param (
+    [Parameter(Mandatory=$true)]
+    [string]$Environment
+)
+
+# Validate environment
+if ($Environment -ne "Development" -and $Environment -ne "Release") {
+    Write-Host "Invalid environment. Please specify 'Development' or 'Release'." -ForegroundColor Red
+    exit 1
+}
+
 # Set project paths
 $projectPath = "."
 $migrationsPath = ".\Services\Database\Migrations\"
+
+# Set the environment
+$env:ASPNETCORE_ENVIRONMENT = $Environment
+Write-Host "Using environment: $Environment" -ForegroundColor Yellow
 
 # Ensure dotnet-ef CLI tools are installed
 Write-Host "Checking if dotnet-ef CLI tools are installed..."

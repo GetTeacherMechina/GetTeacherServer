@@ -2,49 +2,50 @@
 using GetTeacher.Server.Services.Database.Models;
 using GetTeacher.Server.Services.Managers.Interfaces.UserManager;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
-namespace GetTeacher.Server.Controllers.Teacher
+
+namespace GetTeacher.Server.Controllers.Teacher;
+
+[Controller]
+[Route("/api/v1/teacher_subjects/add")]
+public class AddSubjectToTeacherController(IPrincipalClaimsQuerier principalClaimsQuerier, ITeacherManager teacherManager) : ControllerBase
 {
-	[Controller]
-	[Route("/api/v1/teacher_subjects/add")]
-	public class AddSubjectToTeacherController(ITeacherManager teacherManager, UserManager<DbUser> userManager) : ControllerBase
+	private readonly IPrincipalClaimsQuerier principalClaimsQuerier = principalClaimsQuerier;
+	private readonly ITeacherManager teacherManager = teacherManager;
+
+	[HttpPost]
+	[Authorize]
+	public async Task<IActionResult> AddSubject([FromBody] TeacherSubjectRequestModel request)
 	{
-		private readonly ITeacherManager teacherManager = teacherManager;
-		private readonly UserManager<DbUser> userManager = userManager;
+		DbTeacherSubject subject = new() { Subject = new() { Name = request.Name }, 
+			Grade = new() { Name = request.Grade} };
 
+		ValidateSubjectTeacher(subject);
 
-		[HttpPost]
-		[Authorize]
-		public async Task<IActionResult> AddSubject([FromBody] TeacherSubjectRequestModel request)
+		int? teacherUserId = principalClaimsQuerier.GetId(User);
+		if (teacherUserId is null)
+			return BadRequest(new { });
+
+		DbTeacher? teacher = await teacherManager.GetFromUser(new DbUser { Id = teacherUserId.Value });
+		if (teacher is null)
+			return BadRequest(new { });
+
+		await teacherManager.AddSubjectToTeacher(subject, teacher);
+
+		return Ok(new { });
+	}
+
+	private async void ValidateSubjectTeacher(DbTeacherSubject subject)
+	{
+		if (!(await teacherManager.GetAllSubjects()).Any(t => t.Name == subject.Subject.Name))
 		{
-			DbTeacherSubject subject = new() { Subject = new() { Name = request.Name }, 
-				Grade = new() { Name = request.Grade} };
-
-			ValidateSubjectTeacher(subject);
-
-			DbTeacher? teacher = await Utils.GetTeacherFromUser(User, userManager, teacherManager)
-			if (teacher is null)
-			{
-				return BadRequest(new AddSubjectToTeacherResponsModel());
-			}
-			await teacherManager.AddSubjectToTeacher(subject, teacher);
-
-			return Ok(new { });
+			await teacherManager.AddSubject(subject.Subject);
 		}
 
-		private async void ValidateSubjectTeacher(DbTeacherSubject subject)
+		if (!(await teacherManager.GetAllGrades()).Where(t => t.Name == subject.Grade.Name).Any())
 		{
-			if ((await teacherManager.GetAllSubjects()).Where(t => t.Name == subject.Subject.Name).Count() == 0)
-			{
-				await teacherManager.AddSubject(subject.Subject);
-			}
-			if ((await teacherManager.GetAllGrades()).Where(t => t.Name == subject.Grade.Name).Count() == 0)
-			{
-				await teacherManager.AddGrade(subject.Grade);
-			}
+			await teacherManager.AddGrade(subject.Grade);
 		}
 	}
 }

@@ -39,7 +39,7 @@ public class TeacherRankManager(ITeacherManager teacherManager, ITeacherReadyMan
 
 		double currentRank = await teacherManager.GetTeacherRank(teacher);
 		int numOfRankers = await teacherManager.GetNumOfTeacherRankers(teacher);
-		double newRank = ((currentRank * numOfRankers) + stars) / (numOfRankers + 1);
+		double newRank = (currentRank * numOfRankers + stars) / (numOfRankers + 1);
 
 		await teacherManager.UpdateTeacherRank(teacher, newRank);
 		await teacherManager.IncrementNumOfLessons(teacher);

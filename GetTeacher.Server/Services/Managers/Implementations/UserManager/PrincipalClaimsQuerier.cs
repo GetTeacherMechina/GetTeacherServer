@@ -16,4 +16,13 @@ public class PrincipalClaimsQuerier : IPrincipalClaimsQuerier
 
 		return id;
 	}
+
+	public string? GetEmail(ClaimsPrincipal claimsPrincipal)
+	{
+		var emailClaim = claimsPrincipal.FindFirst(ClaimTypes.Email);
+		if (emailClaim is null)
+			return null;
+
+		return emailClaim.Value;
+	}
 }

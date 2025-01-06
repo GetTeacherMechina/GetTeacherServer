@@ -2,29 +2,30 @@
 using GetTeacher.Server.Services.Database.Models;
 using GetTeacher.Server.Services.Managers.Interfaces.UserManager;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace GetTeacher.Server.Controllers.Teacher;
 
 [ApiController]
-[Route("api/v1/teacher_subjects")]
-public class GetTheacherSubjectController(ITeacherManager teacherManager, UserManager<DbUser> userManager) : ControllerBase
+[Route("api/v1/teacher-subjects")]
+public class GetTeacherSubjectController(IPrincipalClaimsQuerier principalClaimsQuerier, ITeacherManager teacherManager) : ControllerBase
 {
+	private readonly IPrincipalClaimsQuerier principalClaimsQuerier = principalClaimsQuerier;
 	private readonly ITeacherManager teacherManager = teacherManager;
-	private readonly UserManager<DbUser> userManager = userManager;
 
 	[HttpGet]
 	[Authorize]
 	public async Task<IActionResult> GetTeacherSubjects()
 	{
-		DbTeacher? teacher = await Utils.GetTeacherFromUser(User, userManager, teacherManager);
+		int? teacherUserId = principalClaimsQuerier.GetId(User);
+		if (teacherUserId is null)
+			return BadRequest(new { });
+
+		DbTeacher? teacher = await teacherManager.GetFromUser(new DbUser { Id = teacherUserId.Value });
 
 		if (teacher is null)
-		{
-			return BadRequest(new AddSubjectToTeacherResponsModel());
-		}
+			return BadRequest(new { });
+
 		DbTeacherSubject[] teacherSubjects = teacher.TeacherSubjects.ToArray();
 
 		string[][] teacherSubjectsStr = ExtrctingTeacherSubjects(teacherSubjects);

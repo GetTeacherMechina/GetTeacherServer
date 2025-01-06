@@ -10,29 +10,30 @@ namespace GetTeacher.Server.Controllers.Teacher;
 
 [Controller]
 [Route("/api/v1/teacher_subjects/remove")]
-public class RemoveSubjectFromTeacher(ITeacherManager teacherManager, UserManager<DbUser> userManager) : ControllerBase
+public class RemoveSubjectFromTeacherController(IPrincipalClaimsQuerier principalClaimsQuerier, ITeacherManager teacherManager) : ControllerBase
 {
+	private readonly IPrincipalClaimsQuerier principalClaimsQuerier = principalClaimsQuerier;
 	private readonly ITeacherManager teacherManager = teacherManager;
-	private readonly UserManager<DbUser> userManager = userManager;
 
 	[HttpGet]
 	[Authorize]
 	public async Task<IActionResult> RemoveSubject([FromBody] TeacherSubjectRequestModel request)
 	{
-		DbTeacher? teacher = await Utils.GetTeacherFromUser(User, userManager, teacherManager);
+		int? teacherUserId = principalClaimsQuerier.GetId(User);
+		if (teacherUserId is null)
+			return BadRequest(new { });
 
+		DbTeacher? teacher = await teacherManager.GetFromUser(new DbUser { Id = teacherUserId.Value });
 		if (teacher is null)
-		{
 			return BadRequest(new AddSubjectToTeacherResponsModel());
-		}
 
-		 DbTeacherSubject? subject = teacher.TeacherSubjects.Where(t => 
-			t.Subject.Name == request.Name && t.Grade.Name == request.Grade).FirstOrDefault();
-		if (subject is null) {
+		DbTeacherSubject? subject = teacher.TeacherSubjects
+			.Where(t =>t.Subject.Name == request.Name && t.Grade.Name == request.Grade)
+			.FirstOrDefault();
+		if (subject is null)
 			return Ok();
-		}
+
 		await teacherManager.RemoveSubjectFromTeacher(subject, teacher);
 		return Ok();
 	}
-
 }

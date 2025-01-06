@@ -7,7 +7,7 @@ namespace GetTeacher.Server.Models.Subjects;
 
 [Controller]
 [Route("/api/v1/subjects/search")]
-public class subjectGetter(ITeacherManager manger) : ControllerBase
+public class SubjectGetterController(ITeacherManager manger) : ControllerBase
 {
 	private readonly ITeacherManager manger = manger;
 

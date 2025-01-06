@@ -1,5 +1,6 @@
 ## Custom
 LocalDevelopmentDb.db
+GetTeacher.Server/Services/Database/Migrations/
 ##
 
 ## Ignore Visual Studio temporary files, build results, and
