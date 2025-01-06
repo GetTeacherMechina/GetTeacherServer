@@ -103,8 +103,7 @@ public class TeacherManager(GetTeacherDbContext getTeacherDbContext) : ITeacherM
 		{
 			return;
 		}
-		(await getTeacherDbContext.Teachers.Where((t) => teacher.Id == t.Id).FirstOrDefaultAsync())
-			.TeacherSubjects.Add(subject);
+		teacher.TeacherSubjects.Add(subject);
 
 		await getTeacherDbContext.SaveChangesAsync();
 	}
@@ -115,8 +114,7 @@ public class TeacherManager(GetTeacherDbContext getTeacherDbContext) : ITeacherM
 		{
 			return;
 		}
-		(await getTeacherDbContext.Teachers.Where((t) => teacher.Id == t.Id).FirstOrDefaultAsync())
-			.TeacherSubjects.Remove(subject);
+		teacher.TeacherSubjects.Remove(subject);
 
 		await getTeacherDbContext.SaveChangesAsync();
 	}

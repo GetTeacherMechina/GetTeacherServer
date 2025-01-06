@@ -15,7 +15,7 @@ public class subjectGetter(ITeacherManager manger) : ControllerBase
 	public async Task<IActionResult> GetSubjects()
 	{
 		DbSubject[] subjects = (await manger.GetAllSubjects()).ToArray();
-		if (subjects == null)
+		if (subjects is null)
 		{
 			return BadRequest(new SubjectGetterResposeModel());
 		}

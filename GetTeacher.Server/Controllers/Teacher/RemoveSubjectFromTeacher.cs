@@ -19,20 +19,8 @@ public class RemoveSubjectFromTeacher(ITeacherManager teacherManager, UserManage
 	[Authorize]
 	public async Task<IActionResult> RemoveSubject([FromBody] TeacherSubjectRequestModel request)
 	{
-		// -------------------------
-		var emailClaim = User.FindFirst(ClaimTypes.Email);
-		if (emailClaim is null)
-		{
-			return BadRequest();
-		}
-		string email = emailClaim.Value;
-		DbUser? userResult = await userManager.FindByEmailAsync(email);
-		if (userResult is null)
-		{
-			return BadRequest(new AddSubjectToTeacherResponsModel());
-		}
-		//--------------------------
-		DbTeacher? teacher = await teacherManager.GetFromUser(userResult);
+		DbTeacher? teacher = await Utils.GetTeacherFromUser(User, userManager, teacherManager);
+
 		if (teacher is null)
 		{
 			return BadRequest(new AddSubjectToTeacherResponsModel());
