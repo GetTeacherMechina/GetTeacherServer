@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace GetTeacher.Server.Controllers.Teacher;
 
 [Controller]
-[Route("/api/v1/teacher_subjects/add")]
+[Route("/api/v1/teacher-subjects/add")]
 public class AddSubjectToTeacherController(IPrincipalClaimsQuerier principalClaimsQuerier, ITeacherManager teacherManager) : ControllerBase
 {
 	private readonly IPrincipalClaimsQuerier principalClaimsQuerier = principalClaimsQuerier;

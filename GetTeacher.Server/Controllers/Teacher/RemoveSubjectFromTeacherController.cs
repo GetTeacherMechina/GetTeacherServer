@@ -9,7 +9,7 @@ using System.Security.Claims;
 namespace GetTeacher.Server.Controllers.Teacher;
 
 [Controller]
-[Route("/api/v1/teacher_subjects/remove")]
+[Route("/api/v1/teacher-subjects/remove")]
 public class RemoveSubjectFromTeacherController(IPrincipalClaimsQuerier principalClaimsQuerier, ITeacherManager teacherManager) : ControllerBase
 {
 	private readonly IPrincipalClaimsQuerier principalClaimsQuerier = principalClaimsQuerier;
