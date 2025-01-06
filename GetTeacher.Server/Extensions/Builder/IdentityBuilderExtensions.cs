@@ -14,11 +14,11 @@ public static class IdentityBuilderExtensions
 			.CreateScope().ServiceProvider
 			.GetRequiredService<IConfiguration>();
 
-		string? allowedUserNameCharacters = configuration["Identity:AllowedUsernameCharacters"];
+		string? allowedUserNameCharacters = configuration["IdentitySettings:AllowedUsernameCharacters"];
 		if (allowedUserNameCharacters is null)
 		{
 			// TODO: Logging
-			Console.WriteLine("Identity:AllowedUsernameCharacters was null, please provide one in appsettings.json");
+			Console.WriteLine("IdentitySettings:AllowedUsernameCharacters was null, please provide one in appsettings.json");
 			return;
 		}
 

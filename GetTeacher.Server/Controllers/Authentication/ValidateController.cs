@@ -1,5 +1,4 @@
-﻿using GetTeacher.Server.Models.Authentication.Validate;
-using GetTeacher.Server.Services.Managers.Interfaces;
+﻿using GetTeacher.Server.Services.Managers.Interfaces;
 using GetTeacher.Server.Services.Managers.Interfaces.UserManager;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
