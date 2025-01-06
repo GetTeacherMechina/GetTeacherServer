@@ -10,5 +10,5 @@ public interface IMeetingMatcher
      Input student id, subject id.
      Output selected teacher id.
     */
-	public Task<DbTeacher?> MatchStudentTeacher(DbStudent student, DbSubject subject);
+	public Task<DbTeacher?> MatchStudentTeacher(DbStudent student, DbSubject subject, ICollection<DbTeacher> teacherExclusions);
 }

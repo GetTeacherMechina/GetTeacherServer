@@ -8,13 +8,15 @@ public class MeetingMatcher(ITeacherRankManager teacherRankManager, IUserStateTr
 	private readonly ITeacherRankManager teacherRankManager = teacherRankManager;
 	private readonly IUserStateTracker userStateChecker = userStateChecker;
 
-	public async Task<DbTeacher?> MatchStudentTeacher(DbStudent student, DbSubject subject)
+	public async Task<DbTeacher?> MatchStudentTeacher(DbStudent student, DbSubject subject, ICollection<DbTeacher> teacherExclusion)
 	{
 		ICollection<DbTeacher> rankedTeachers = await teacherRankManager.GetRankedTeachersBySubjectAndGradeAndFavorite(student, subject);
 
 		// Filter only online teachers
-		rankedTeachers = rankedTeachers.Where(t => userStateChecker.IsUserOnline(t.DbUser)).ToList();
-
+		rankedTeachers = rankedTeachers
+			.Where(t => userStateChecker.IsUserOnline(t.DbUser) && teacherExclusion.Any(tE => tE.DbUserId == t.DbUserId))
+			.ToList();
+		
 		// TODO:
 		// NotifyOnlineTeachers(bestTeachersBySubject);
 		return rankedTeachers.FirstOrDefault();
