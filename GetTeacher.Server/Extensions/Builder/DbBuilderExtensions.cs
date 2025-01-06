@@ -1,5 +1,4 @@
 ﻿using GetTeacher.Server.Services.Database;
-using GetTeacher.Server.Services.Database.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace GetTeacher.Server.Extensions.Builder;
@@ -9,17 +8,12 @@ public static class DbBuilderExtensions
 	public static void UseGetTeacherDb(this WebApplicationBuilder builder)
 	{
 		string? connectionString = builder.Configuration.GetConnectionString("Default");
-		if (connectionString == null)
+		if (connectionString is null)
 		{
 			// TODO: Logging
-			Console.WriteLine("Connection string was null, please provide one in appsettings.json");
+			Console.WriteLine("ConnectionStrings:Default string was null, please provide one in appsettings.json");
 			return;
 		}
-
-		// Add identity services
-		builder.Services
-			.AddIdentityCore<DbUser>()
-			.AddEntityFrameworkStores<GetTeacherDbContext>();
 
 		// Add DbContext based on environment
 		// Postgre for production and sqlite for development
