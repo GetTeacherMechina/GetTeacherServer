@@ -25,4 +25,14 @@ public interface ITeacherManager
 	public Task IncrementNumOfLessons(DbTeacher teacher);
 
 	public Task<ICollection<DbSubject>> GetAllSubjects();
+
+	public Task AddSubjectToTeacher(DbTeacherSubject subject, DbTeacher teacher);
+
+	public Task AddSubject(DbSubject subject);
+
+	public Task AddGrade(DbGrade garade);
+
+	public Task<ICollection<DbGrade>> GetAllGrades();
+
+	public Task RemoveSubjectFromTeacher(DbTeacherSubject subject, DbTeacher teacher);
 }

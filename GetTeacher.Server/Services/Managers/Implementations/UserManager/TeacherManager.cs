@@ -53,7 +53,10 @@ public class TeacherManager(GetTeacherDbContext getTeacherDbContext) : ITeacherM
 	public async Task<DbTeacher?> GetFromUser(DbUser user)
 	{
 		return await getTeacherDbContext.Teachers.Where(t =>
-			t.DbUser == user).FirstOrDefaultAsync();
+			t.DbUser == user)
+			.Include (t => t.TeacherSubjects).ThenInclude(ts => ts.Subject)
+			.Include(t => t.TeacherSubjects).ThenInclude (ts => ts.Grade)
+			.FirstOrDefaultAsync();
 	}
 
 	public async Task<int> GetNumOfTeacherRankers(DbTeacher teacher)
@@ -96,4 +99,43 @@ public class TeacherManager(GetTeacherDbContext getTeacherDbContext) : ITeacherM
 		(await getTeacherDbContext.Teachers.Where(t => t.Id == teacher.Id).FirstAsync()).Rank = newRank;
 		await getTeacherDbContext.SaveChangesAsync();
 	}
+
+	public async Task AddSubjectToTeacher(DbTeacherSubject subject, DbTeacher teacher)
+	{
+		if (teacher is null)
+		{
+			return;
+		}
+		teacher.TeacherSubjects.Add(subject);
+
+		await getTeacherDbContext.SaveChangesAsync();
+	}
+
+	public async Task RemoveSubjectFromTeacher(DbTeacherSubject subject, DbTeacher teacher)
+	{
+		if (teacher is null)
+		{
+			return;
+		}
+		teacher.TeacherSubjects.Remove(subject);
+
+		await getTeacherDbContext.SaveChangesAsync();
+	}
+
+	public async Task AddSubject(DbSubject subject)
+	{
+		getTeacherDbContext.Subjects.Add(subject);
+		await getTeacherDbContext.SaveChangesAsync();
+	}
+
+
+	public async Task<ICollection<DbGrade>> GetAllGrades() { 
+		return await getTeacherDbContext.Grades.ToArrayAsync();
+	}
+
+	public async Task AddGrade(DbGrade garade)
+	{
+		getTeacherDbContext.Grades.Add(garade);
+		await getTeacherDbContext.SaveChangesAsync();
+	} 
 }
