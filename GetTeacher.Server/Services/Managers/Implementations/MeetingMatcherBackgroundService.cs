@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using GetTeacher.Server.Models.CsGoContract;
 using GetTeacher.Server.Models.Meeting;
 using GetTeacher.Server.Services.Database.Models;
 using GetTeacher.Server.Services.Managers.Interfaces;
@@ -79,8 +80,23 @@ public class MeetingMatcherBackgroundService(IServiceProvider serviceProvider, I
 			// Notify student and teacher :)
 			try
 			{
-				Task sendTeacher = webSocketSystem.SendAsync(foundTeacher.DbUserId, new MeetingResponse { CompanionName = studentEntry.Student.DbUser.UserName! });
-				Task sendStudent = webSocketSystem.SendAsync(studentEntry.Student.DbUserId, new MeetingResponse { CompanionName = foundTeacher.DbUser.UserName! });
+				// TODO: Plop the GUID from the database-backed session entry we create beforehand
+				string meetingGuid = Guid.NewGuid().ToString();
+				CsGoContractRequestModel csGoContractRequestModel =	new CsGoContractRequestModel
+				{
+					TeacherBio = foundTeacher.Bio,
+					TeacherRank = foundTeacher.Rank,
+					MeetingResponseModel = new MeetingResponseModel
+					{
+						MeetingGuid = meetingGuid,
+						CompanionName = studentEntry.Student.DbUser.UserName!,
+					}
+				};
+
+				Task sendTeacher = webSocketSystem.SendAsync(foundTeacher.DbUserId, csGoContractRequestModel);
+
+				csGoContractRequestModel.MeetingResponseModel.CompanionName = foundTeacher.DbUser.UserName!;
+				Task sendStudent = webSocketSystem.SendAsync(studentEntry.Student.DbUserId, csGoContractRequestModel);
 				await Task.WhenAll(sendTeacher, sendStudent);
 			}
 			catch (Exception ex)

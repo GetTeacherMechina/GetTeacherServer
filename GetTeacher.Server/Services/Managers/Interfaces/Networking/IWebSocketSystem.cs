@@ -3,7 +3,7 @@ using GetTeacher.Server.Services.Database.Models;
 
 namespace GetTeacher.Server.Services.Managers.Interfaces.Networking;
 
-public record ReceiveResult(bool success, string message);
+public record ReceiveResult(bool Success, string Message);
 
 public interface IWebSocketSystem
 {
