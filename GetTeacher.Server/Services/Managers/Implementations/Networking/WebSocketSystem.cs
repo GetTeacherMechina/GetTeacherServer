@@ -12,6 +12,8 @@ public record WebSocketProfile(DbUser User, WebSocket Socket);
 
 public class WebSocketSystem(ILogger<IWebSocketSystem> logger, IUserStateTracker userStateChecker) : IWebSocketSystem
 {
+	private const int maxMessageLength = 4096;
+
 	private static readonly ConcurrentDictionary<int, WebSocketProfile> clients = new();
 
 	private readonly ILogger<IWebSocketSystem> logger = logger;
@@ -31,6 +33,25 @@ public class WebSocketSystem(ILogger<IWebSocketSystem> logger, IUserStateTracker
 		userStateChecker.SetOffline(user);
 		clients.TryRemove(user.Id, out _);
 		logger.LogInformation("Client [{clientId}] WebSocket disconnected.", user.Id);
+	}
+
+	public async Task<ReceiveResult> ReceiveAsync(int clientId)
+	{
+		byte[] buffer = new byte[maxMessageLength];
+		if (!clients.TryGetValue(clientId, out var ws))
+			return new ReceiveResult(false, "");
+
+		try
+		{
+			await ws.Socket.ReceiveAsync(buffer, CancellationToken.None);
+		}
+		catch
+		{
+			return new ReceiveResult(false, "");
+		}
+
+		string message = Encoding.UTF8.GetString(buffer);
+		return new ReceiveResult(true, message);
 	}
 
 	public async Task<bool> SendAsync<T>(int clientId, T message)
