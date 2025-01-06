@@ -37,7 +37,7 @@ public class MeetingTeacherController(GetTeacherDbContext getTeacherDbContext, I
 			return BadRequest();
 
 		teacherReadyManager.ReadyToTeachSubject(teacher, teacherSubject.Subject, teacherSubject.Grade);
-		return Ok();
+		return Ok(new { });
 	}
 
 	[Authorize]
@@ -54,6 +54,6 @@ public class MeetingTeacherController(GetTeacherDbContext getTeacherDbContext, I
 			return BadRequest();
 
 		teacherReadyManager.NotReadyToTeach(teacher);
-		return Ok();
+		return Ok(new { });
 	}
 }

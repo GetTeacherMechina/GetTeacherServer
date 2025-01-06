@@ -56,19 +56,27 @@ public class MeetingMatcherBackgroundService(IServiceProvider serviceProvider, I
 			IServiceScope serviceScope = serviceProvider.CreateScope();
 			IMeetingMatcher meetingMatcher = serviceScope.ServiceProvider.GetRequiredService<IMeetingMatcher>();
 			IWebSocketSystem webSocketSystem = serviceScope.ServiceProvider.GetRequiredService<IWebSocketSystem>();
+			IUserStateTracker userStateTracker = serviceScope.ServiceProvider.GetRequiredService<IUserStateTracker>();
 
+			bool studentOnline = true;
 			DbTeacher? foundTeacher = null;
 			while (foundTeacher is null)
 			{
-				await Task.Delay(500); // Nice
+				if (!(studentOnline = userStateTracker.IsUserOnline(studentEntry.Student.DbUser)))
+					break;
+
 				foundTeacher = await meetingMatcher.MatchStudentTeacher(studentEntry.Student, studentEntry.Subject);
+				await Task.Delay(500); // Nice
 			}
+
+			if (!studentOnline || foundTeacher is null)
+				continue;
 
 			// Notify student and teacher :)
 			try
 			{
-				Task sendTeacher = webSocketSystem.SendAsync(foundTeacher.DbUser.Id, new MeetingResponse { CompanionName = studentEntry.Student.DbUser.UserName! });
-				Task sendStudent = webSocketSystem.SendAsync(studentEntry.Student.DbUser.Id, new MeetingResponse { CompanionName = foundTeacher.DbUser.UserName! });
+				Task sendTeacher = webSocketSystem.SendAsync(foundTeacher.DbUserId, new MeetingResponse { CompanionName = studentEntry.Student.DbUser.UserName! });
+				Task sendStudent = webSocketSystem.SendAsync(studentEntry.Student.DbUserId, new MeetingResponse { CompanionName = foundTeacher.DbUser.UserName! });
 				await Task.WhenAll(sendTeacher, sendStudent);
 			}
 			catch (Exception ex)

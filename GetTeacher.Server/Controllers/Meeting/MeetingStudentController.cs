@@ -34,6 +34,6 @@ public class MeetingStudentController(GetTeacherDbContext getTeacherDbContext, I
 			return BadRequest();
 
 		meetingMatcherBackgroundService.MatchStudent(student, subject);
-		return Ok();
+		return Ok(new { });
 	}
 }
