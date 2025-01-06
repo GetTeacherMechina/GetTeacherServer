@@ -13,7 +13,7 @@ public class GetTeacherSubjectController(IPrincipalClaimsQuerier principalClaims
 	private readonly IPrincipalClaimsQuerier principalClaimsQuerier = principalClaimsQuerier;
 	private readonly ITeacherManager teacherManager = teacherManager;
 
-	[HttpGet]
+	[HttpPost]
 	[Authorize]
 	public async Task<IActionResult> GetTeacherSubjects()
 	{
@@ -30,7 +30,7 @@ public class GetTeacherSubjectController(IPrincipalClaimsQuerier principalClaims
 
 		string[][] teacherSubjectsStr = ExtrctingTeacherSubjects(teacherSubjects);
 
-		return Ok(new AddSubjectToTeacherResponsModel 
+		return Ok(new SubjectTeacherResponsModel 
 		{
 			Grades = teacherSubjectsStr[0],
 			Subjects = teacherSubjectsStr[1]
