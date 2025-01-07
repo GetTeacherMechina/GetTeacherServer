@@ -2,13 +2,14 @@
 using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
+using System.Threading.Tasks.Dataflow;
 using GetTeacher.Server.Services.Database.Models;
 using GetTeacher.Server.Services.Managers.Interfaces;
 using GetTeacher.Server.Services.Managers.Interfaces.Networking;
 
 namespace GetTeacher.Server.Services.Managers.Implementations.Networking;
 
-public record WebSocketProfile(DbUser User, WebSocket Socket);
+public record WebSocketProfile(DbUser User, WebSocket Socket, BufferBlock<ArraySegment<byte>> MessageQueue);
 
 public class WebSocketSystem(ILogger<IWebSocketSystem> logger, IUserStateTracker userStateChecker) : IWebSocketSystem
 {
@@ -19,9 +20,9 @@ public class WebSocketSystem(ILogger<IWebSocketSystem> logger, IUserStateTracker
 	private readonly ILogger<IWebSocketSystem> logger = logger;
 	private readonly IUserStateTracker userStateChecker = userStateChecker;
 
-	public void AddWebSocket(DbUser user, WebSocket webSocket)
+	public void AddWebSocket(DbUser user, WebSocket webSocket, BufferBlock<ArraySegment<byte>> messageQueue)
 	{
-		WebSocketProfile ws = new WebSocketProfile(user, webSocket);
+		WebSocketProfile ws = new WebSocketProfile(user, webSocket, messageQueue);
 
 		clients.AddOrUpdate(ws.User.Id, ws, (key, old) => ws);
 		userStateChecker.SetOnline(new DbUser { Id = user.Id });
@@ -37,20 +38,14 @@ public class WebSocketSystem(ILogger<IWebSocketSystem> logger, IUserStateTracker
 
 	public async Task<ReceiveResult> ReceiveAsync(int clientId)
 	{
-		byte[] buffer = new byte[maxMessageLength];
 		if (!clients.TryGetValue(clientId, out var ws))
 			return new ReceiveResult(false, "");
 
-		try
-		{
-			await ws.Socket.ReceiveAsync(buffer, CancellationToken.None);
-		}
-		catch
-		{
-			return new ReceiveResult(false, "");
-		}
+		ArraySegment<byte> messageBytes = await ws.MessageQueue.ReceiveAsync();
 
-		string message = Encoding.UTF8.GetString(buffer);
+
+
+		string message = Encoding.UTF8.GetString(messageBytes);
 		return new ReceiveResult(true, message);
 	}
 
