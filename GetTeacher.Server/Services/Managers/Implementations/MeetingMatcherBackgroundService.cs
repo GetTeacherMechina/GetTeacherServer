@@ -67,6 +67,7 @@ public class MeetingMatcherBackgroundService(IServiceProvider serviceProvider, I
 			IMeetingMatcher meetingMatcher = serviceScope.ServiceProvider.GetRequiredService<IMeetingMatcher>();
 			IWebSocketSystem webSocketSystem = serviceScope.ServiceProvider.GetRequiredService<IWebSocketSystem>();
 			IUserStateTracker userStateTracker = serviceScope.ServiceProvider.GetRequiredService<IUserStateTracker>();
+			ITeacherReadyManager teacherReadyManager = serviceScope.ServiceProvider.GetRequiredService<ITeacherReadyManager>();
 
 			// TODO: Plop the GUID from the database-backed session entry we create beforehand
 			string meetingGuid = Guid.NewGuid().ToString();
@@ -124,6 +125,7 @@ public class MeetingMatcherBackgroundService(IServiceProvider serviceProvider, I
 			if (!studentOnline || foundTeacher is null)
 				continue;
 
+			teacherReadyManager.NotReadyToTeach(foundTeacher);
 			// Notify student and teacher :)
 			try
 			{
