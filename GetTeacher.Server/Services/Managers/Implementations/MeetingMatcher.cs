@@ -14,9 +14,9 @@ public class MeetingMatcher(ITeacherRankManager teacherRankManager, IUserStateTr
 
 		// Filter only online teachers
 		rankedTeachers = rankedTeachers
-			.Where(t => userStateChecker.IsUserOnline(t.DbUser) && teacherExclusion.Any(tE => tE.DbUserId == t.DbUserId))
+			.Where(t => userStateChecker.IsUserOnline(t.DbUser) && !teacherExclusion.Any(tE => tE.DbUserId == t.DbUserId))
 			.ToList();
-		
+
 		// TODO:
 		// NotifyOnlineTeachers(bestTeachersBySubject);
 		return rankedTeachers.FirstOrDefault();
