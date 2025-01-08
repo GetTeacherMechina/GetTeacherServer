@@ -36,7 +36,7 @@ public class MeetingTeacherController(GetTeacherDbContext getTeacherDbContext, I
 		if (teacher is null)
 			return BadRequest();
 
-		teacherReadyManager.ReadyToTeachSubject(teacher, teacherSubject.Subject, teacherSubject.Grade);
+		teacherReadyManager.ReadyToTeachSubject(teacher);
 		return Ok(new { });
 	}
 
