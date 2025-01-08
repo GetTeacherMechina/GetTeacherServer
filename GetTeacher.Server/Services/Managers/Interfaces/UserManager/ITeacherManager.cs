@@ -34,5 +34,7 @@ public interface ITeacherManager
 
 	public Task<ICollection<DbGrade>> GetAllGrades();
 
+	public ICollection<DbTeacherSubject> GetAllTeacherSubjects(DbTeacher teacher);
+
 	public Task RemoveSubjectFromTeacher(DbTeacherSubject subject, DbTeacher teacher);
 }

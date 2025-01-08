@@ -54,8 +54,8 @@ public class TeacherManager(GetTeacherDbContext getTeacherDbContext) : ITeacherM
 	{
 		return await getTeacherDbContext.Teachers.Where(t =>
 			t.DbUser == user)
-			.Include (t => t.TeacherSubjects).ThenInclude(ts => ts.Subject)
-			.Include(t => t.TeacherSubjects).ThenInclude (ts => ts.Grade)
+			.Include(t => t.TeacherSubjects).ThenInclude(ts => ts.Subject)
+			.Include(t => t.TeacherSubjects).ThenInclude(ts => ts.Grade)
 			.FirstOrDefaultAsync();
 	}
 
@@ -129,7 +129,8 @@ public class TeacherManager(GetTeacherDbContext getTeacherDbContext) : ITeacherM
 	}
 
 
-	public async Task<ICollection<DbGrade>> GetAllGrades() { 
+	public async Task<ICollection<DbGrade>> GetAllGrades()
+	{
 		return await getTeacherDbContext.Grades.ToArrayAsync();
 	}
 
@@ -137,5 +138,10 @@ public class TeacherManager(GetTeacherDbContext getTeacherDbContext) : ITeacherM
 	{
 		getTeacherDbContext.Grades.Add(garade);
 		await getTeacherDbContext.SaveChangesAsync();
-	} 
+	}
+
+	public ICollection<DbTeacherSubject> GetAllTeacherSubjects(DbTeacher teacher)
+	{
+		return teacher.TeacherSubjects;
+	}
 }
