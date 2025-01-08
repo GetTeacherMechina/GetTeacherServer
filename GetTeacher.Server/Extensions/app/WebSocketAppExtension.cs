@@ -1,6 +1,8 @@
-﻿using System.Net.WebSockets;
+﻿using System.Collections.Concurrent;
+using System.Net.WebSockets;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks.Dataflow;
 using GetTeacher.Server.Services.Database.Models;
 using GetTeacher.Server.Services.Managers.Interfaces;
 using GetTeacher.Server.Services.Managers.Interfaces.Networking;
@@ -51,14 +53,20 @@ public static class WebSocketAppExtension
 
 			// Add the WebSocket to the system
 			context.User = claimsPrincipal;
-			webSocketSystem.AddWebSocket(new DbUser { Id = clientId.Value }, ws);
+			BufferBlock<ArraySegment<byte>> messages = new BufferBlock<ArraySegment<byte>>();
+			webSocketSystem.AddWebSocket(new DbUser { Id = clientId.Value }, ws, messages);
 
 			try
 			{
 				// TODO: I think there's no way to better implement this, but better safe than sorry: check again
 				//  Keep the WebSocket alive by not exiting the context in which it was created
 				while (ws.State == WebSocketState.Open)
-					await ws.ReceiveAsync(buffer, CancellationToken.None);
+				{
+					byte[] messageBuffer = new byte[4096];
+					WebSocketReceiveResult messageResult = await ws.ReceiveAsync(messageBuffer, CancellationToken.None);
+					ArraySegment<byte> message = new ArraySegment<byte>(messageBuffer, 0, messageResult.Count);
+					messages.Post(message);
+				}
 			}
 			catch { }
 			finally

@@ -1,8 +1,7 @@
 ﻿namespace GetTeacher.Server.Models.Meeting;
 
-[Serializable]
-public class MeetingResponse
+public class MeetingResponseModel
 {
-	public int MeetingId { get; set; }
+	public string MeetingGuid { get; set; } = string.Empty;
 	public string CompanionName { get; set; } = string.Empty;
 }
