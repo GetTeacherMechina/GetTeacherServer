@@ -1,13 +1,14 @@
-﻿using System.Collections.Concurrent;
+﻿using GetTeacher.Server.DataStructures.Concurrent;
 using GetTeacher.Server.Models.CsGoContract;
 using GetTeacher.Server.Models.Meeting;
 using GetTeacher.Server.Services.Database.Models;
 using GetTeacher.Server.Services.Managers.Interfaces;
 using GetTeacher.Server.Services.Managers.Interfaces.Networking;
+using GetTeacher.Server.Services.Managers.Interfaces.ReadyManager;
 
 namespace GetTeacher.Server.Services.Managers.Implementations;
 
-public record StudentEntry(DbStudent Student, DbSubject Subject);
+public record StudentEntry(DbStudent Student, DbSubject Subject, CancellationTokenSource StopMatchingCts);
 
 public class MeetingMatcherBackgroundService(IServiceProvider serviceProvider, ILogger<MeetingMatcherBackgroundService> logger) : BackgroundService, IMeetingMatcherBackgroundService
 {
@@ -18,15 +19,28 @@ public class MeetingMatcherBackgroundService(IServiceProvider serviceProvider, I
 	private readonly ILogger<MeetingMatcherBackgroundService> logger = logger;
 	private readonly SemaphoreSlim trigger = new(0); // Semaphore for waking up the service
 
-	private readonly ConcurrentQueue<StudentEntry> matchingStudents = new ConcurrentQueue<StudentEntry>();
+	private readonly ConcurrentList<StudentEntry> studentsProcessingQueue = [];
+	private readonly ConcurrentList<StudentEntry> searchingStudents = [];
 
-	public void MatchStudent(DbStudent student, DbSubject subject)
+	public void StartMatchStudent(DbStudent student, DbSubject subject)
 	{
 		logger.LogInformation("Matching {studentName}, subject: {subjectName}.", student.DbUser.UserName, subject.Name);
-		matchingStudents.Enqueue(new StudentEntry(student, subject));
+		studentsProcessingQueue.Add(new StudentEntry(student, subject, new CancellationTokenSource()));
 
 		// Release the semaphore to wake up the service
 		trigger.Release();
+	}
+
+	public void StopMatchStudent(DbStudent student)
+	{
+		StudentEntry? studentEntry = searchingStudents.Where((s) => s.Student.Id == student.Id).FirstOrDefault();
+		if (studentEntry is null)
+			return;
+
+		studentEntry.StopMatchingCts.Cancel();
+		studentsProcessingQueue.Remove(studentEntry);
+		searchingStudents.Remove(studentEntry);
+		logger.LogInformation("Stopped matching {studentName}", student.DbUser.UserName);
 	}
 
 	protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -41,7 +55,7 @@ public class MeetingMatcherBackgroundService(IServiceProvider serviceProvider, I
 				await trigger.WaitAsync(stoppingToken);
 
 				logger.LogInformation("Student matcher background job is processing.");
-				await ProcessMatchesAsync();
+				StartAsyncMatches();
 			}
 			catch (OperationCanceledException)
 			{
@@ -54,13 +68,22 @@ public class MeetingMatcherBackgroundService(IServiceProvider serviceProvider, I
 		}
 	}
 
-	private async Task ProcessMatchesAsync()
+	private void StartAsyncMatches()
 	{
-		while (!matchingStudents.IsEmpty)
+		while (studentsProcessingQueue.Count != 0)
 		{
-			if (!matchingStudents.TryDequeue(out StudentEntry? studentEntry))
-				return;
+			StudentEntry studentEntry = studentsProcessingQueue.First();
+			studentsProcessingQueue.Remove(studentEntry);
+			_ = ProcessStudentMatchAsync(studentEntry);
+		}
+	}
 
+	private async Task ProcessStudentMatchAsync(StudentEntry studentEntry)
+	{
+		searchingStudents.Add(studentEntry);
+
+		while (!studentEntry.StopMatchingCts.IsCancellationRequested)
+		{
 			ICollection<DbTeacher> teacherExclusions = [];
 
 			IServiceScope serviceScope = serviceProvider.CreateScope();
@@ -84,7 +107,12 @@ public class MeetingMatcherBackgroundService(IServiceProvider serviceProvider, I
 				// TODO: Change this shit
 				if (foundTeacher is null)
 				{
-					await Task.Delay(500); // Nice
+					try
+					{
+						await Task.Delay(500, studentEntry.StopMatchingCts.Token); // Nice
+					}
+					catch { }
+
 					continue;
 				}
 
@@ -142,5 +170,7 @@ public class MeetingMatcherBackgroundService(IServiceProvider serviceProvider, I
 				logger.LogError(ex, "An unexpected expection happened when trying to match student and teacher.");
 			}
 		}
+
+		searchingStudents.Remove(studentEntry);
 	}
 }

@@ -1,5 +1,4 @@
-﻿using GetTeacher.Server.Services.Database;
-using GetTeacher.Server.Services.Database.Models;
+﻿using GetTeacher.Server.Services.Database.Models;
 using GetTeacher.Server.Services.Managers.Interfaces.UserManager;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,7 +19,8 @@ public class SubjectGetterController(ITeacherManager manger) : ControllerBase
 			return BadRequest(new SubjectGetterResposeModel());
 		}
 		string[] subjectsStr = new string[subjects.Length];
-		for (int i = 0; i < subjects.Length; i++) {
+		for (int i = 0; i < subjects.Length; i++)
+		{
 			subjectsStr[i] = subjects[i].Name;
 		}
 		return Ok(new SubjectGetterResposeModel

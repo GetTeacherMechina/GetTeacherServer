@@ -30,7 +30,7 @@ public class GetTeacherSubjectController(IPrincipalClaimsQuerier principalClaims
 
 		string[][] teacherSubjectsStr = ExtrctingTeacherSubjects(teacherSubjects);
 
-		return Ok(new SubjectTeacherResponsModel 
+		return Ok(new SubjectTeacherResponsModel
 		{
 			Grades = teacherSubjectsStr[0],
 			Subjects = teacherSubjectsStr[1]
@@ -49,7 +49,7 @@ public class GetTeacherSubjectController(IPrincipalClaimsQuerier principalClaims
 			subject[i] = teacherSubjects[i].Subject.Name;
 			grades[i] = teacherSubjects[i].Grade.Name;
 		}
-		return new string[][] { grades , subject };
+		return new string[][] { grades, subject };
 	}
 
 

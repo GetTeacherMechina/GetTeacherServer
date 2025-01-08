@@ -18,8 +18,11 @@ public class AddSubjectToTeacherController(IPrincipalClaimsQuerier principalClai
 	[Authorize]
 	public async Task<IActionResult> AddSubject([FromBody] TeacherSubjectRequestModel request)
 	{
-		DbTeacherSubject subject = new() { Subject = new() { Name = request.Name }, 
-			Grade = new() { Name = request.Grade} };
+		DbTeacherSubject subject = new()
+		{
+			Subject = new() { Name = request.Name },
+			Grade = new() { Name = request.Grade }
+		};
 
 		ValidateSubjectTeacher(subject);
 

@@ -1,6 +1,7 @@
 ﻿using GetTeacher.Server.Services.Database;
 using GetTeacher.Server.Services.Database.Models;
 using GetTeacher.Server.Services.Managers.Interfaces;
+using GetTeacher.Server.Services.Managers.Interfaces.ReadyManager;
 using GetTeacher.Server.Services.Managers.Interfaces.UserManager;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,8 +11,9 @@ namespace GetTeacher.Server.Controllers.Meeting;
 
 [ApiController]
 [Route("api/v1/meeting/teacher")]
-public class MeetingTeacherController(GetTeacherDbContext getTeacherDbContext, IPrincipalClaimsQuerier principalClaimsQuerier, ITeacherReadyManager teacherReadyManager) : ControllerBase
+public class MeetingTeacherController(IUserStateTracker userStateTracker, GetTeacherDbContext getTeacherDbContext, IPrincipalClaimsQuerier principalClaimsQuerier, ITeacherReadyManager teacherReadyManager) : ControllerBase
 {
+	private readonly IUserStateTracker userStateTracker = userStateTracker;
 	private readonly GetTeacherDbContext getTeacherDbContext = getTeacherDbContext;
 	private readonly IPrincipalClaimsQuerier principalClaimsQuerier = principalClaimsQuerier;
 	private readonly ITeacherReadyManager teacherReadyManager = teacherReadyManager;
@@ -19,7 +21,8 @@ public class MeetingTeacherController(GetTeacherDbContext getTeacherDbContext, I
 	[Authorize]
 	[HttpPost]
 	[Route("start")]
-	public async Task<IActionResult> TeacherReadyToTeach([FromBody] DbTeacherSubject teacherSubject)
+	// TODO: Subject exclusions?
+	public async Task<IActionResult> TeacherReadyToTeach()
 	{
 		int? userId = principalClaimsQuerier.GetId(User);
 		if (userId is null)
@@ -36,6 +39,7 @@ public class MeetingTeacherController(GetTeacherDbContext getTeacherDbContext, I
 		if (teacher is null)
 			return BadRequest();
 
+		userStateTracker.AddDisconnectAction(teacher, (i) => teacherReadyManager.NotReadyToTeach(teacher));
 		teacherReadyManager.ReadyToTeachSubject(teacher);
 		return Ok(new { });
 	}
@@ -53,6 +57,7 @@ public class MeetingTeacherController(GetTeacherDbContext getTeacherDbContext, I
 		if (teacher is null)
 			return BadRequest();
 
+		userStateTracker.ClearDisconnectActions(teacher);
 		teacherReadyManager.NotReadyToTeach(teacher);
 		return Ok(new { });
 	}
