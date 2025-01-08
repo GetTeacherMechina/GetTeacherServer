@@ -21,7 +21,7 @@ public class LoginController(IWebSocketSystem webSocketSystem, UserManager<DbUse
 		DbUser? userResult = await userManager.FindByEmailAsync(loginModel.Email);
 		if (userResult == null)
 			return Unauthorized(new LoginResponseModel { Result = "Invalid email or password" });
-		
+
 		var passwordResult = await userManager.CheckPasswordAsync(userResult, loginModel.Password);
 
 		if (passwordResult)

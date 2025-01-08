@@ -35,16 +35,22 @@ public class UserStateTracker : IUserStateTracker
 	public void AddDisconnectAction(DbUser user, Action<int> onDisconnect)
 	{
 		if (!disconnectionCallbacks.TryGetValue(user.Id, out List<Action<int>>? onDisconnectedCallbacks))
-			onDisconnectedCallbacks = disconnectionCallbacks.AddOrUpdate(user.Id, (i) => new List<Action<int>>(), (i, k) => new List<Action<int>>());
+			onDisconnectedCallbacks = disconnectionCallbacks.AddOrUpdate(user.Id, (i) => [], (i, k) => []);
 
 		onDisconnectedCallbacks.Add(onDisconnect);
 	}
+	public void AddDisconnectAction(DbTeacher teacher, Action<int> onDisconnect)
+		=> AddDisconnectAction(new DbUser { Id = teacher.DbUserId }, onDisconnect);
 
-	public void RemoveDisconnectAction(DbUser user, Action<int> onDisconnect)
-	{
-		if (!disconnectionCallbacks.TryGetValue(user.Id, out List<Action<int>>? onDisconnectedCallbacks))
-			onDisconnectedCallbacks = disconnectionCallbacks.AddOrUpdate(user.Id, (i) => new List<Action<int>>(), (i, k) => new List<Action<int>>());
+	public void AddDisconnectAction(DbStudent student, Action<int> onDisconnect)
+		=> AddDisconnectAction(new DbUser { Id = student.DbUserId }, onDisconnect);
 
-		onDisconnectedCallbacks.Remove(onDisconnect);
-	}
+	public void ClearDisconnectActions(DbUser user)
+		=> disconnectionCallbacks.Remove(user.Id, out _);
+
+	public void ClearDisconnectActions(DbTeacher teacher)
+		=> ClearDisconnectActions(new DbUser { Id = teacher.DbUserId });
+
+	public void ClearDisconnectActions(DbStudent student)
+		=> ClearDisconnectActions(new DbUser { Id = student.DbUserId });
 }

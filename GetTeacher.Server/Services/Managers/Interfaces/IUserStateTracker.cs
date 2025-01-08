@@ -14,5 +14,13 @@ public interface IUserStateTracker
 
 	public void AddDisconnectAction(DbUser user, Action<int> onDisconnect);
 
-	public void RemoveDisconnectAction(DbUser user, Action<int> onDisconnect);
+	public void AddDisconnectAction(DbTeacher teacher, Action<int> onDisconnect);
+
+	public void AddDisconnectAction(DbStudent student, Action<int> onDisconnect);
+
+	public void ClearDisconnectActions(DbUser user);
+
+	public void ClearDisconnectActions(DbTeacher teacher);
+
+	public void ClearDisconnectActions(DbStudent student);
 }

@@ -1,13 +1,12 @@
 ﻿using System.Collections.Concurrent;
 using GetTeacher.Server.Services.Database.Models;
-using GetTeacher.Server.Services.Managers.Interfaces;
+using GetTeacher.Server.Services.Managers.Interfaces.ReadyManager;
 using GetTeacher.Server.Services.Managers.Interfaces.UserManager;
 
-namespace GetTeacher.Server.Services.Managers.Implementations;
+namespace GetTeacher.Server.Services.Managers.Implementations.ReadyManager;
 
-public class TeacherReadyManager(IUserStateTracker userStateTracker, ITeacherManager teacherManager) : ITeacherReadyManager
+public class TeacherReadyManager(ITeacherManager teacherManager) : ITeacherReadyManager
 {
-	private readonly IUserStateTracker userStateTracker = userStateTracker;
 	private readonly ITeacherManager teacherManager = teacherManager;
 
 	// Teacher.Id -> (Subject.Name, Grade.Name)

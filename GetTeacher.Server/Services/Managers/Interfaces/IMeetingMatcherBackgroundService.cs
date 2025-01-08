@@ -4,5 +4,7 @@ namespace GetTeacher.Server.Services.Managers.Interfaces;
 
 public interface IMeetingMatcherBackgroundService
 {
-	public void MatchStudent(DbStudent student, DbSubject subject);
+	public void StartMatchStudent(DbStudent student, DbSubject subject);
+
+	public void StopMatchStudent(DbStudent student);
 }

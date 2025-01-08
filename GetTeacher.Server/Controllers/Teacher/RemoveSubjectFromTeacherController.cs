@@ -2,9 +2,7 @@
 using GetTeacher.Server.Services.Database.Models;
 using GetTeacher.Server.Services.Managers.Interfaces.UserManager;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace GetTeacher.Server.Controllers.Teacher;
 
@@ -28,12 +26,12 @@ public class RemoveSubjectFromTeacherController(IPrincipalClaimsQuerier principa
 			return BadRequest(new SubjectTeacherResponsModel());
 
 		DbTeacherSubject? subject = teacher.TeacherSubjects
-			.Where(t =>t.Subject.Name == request.Name && t.Grade.Name == request.Grade)
+			.Where(t => t.Subject.Name == request.Name && t.Grade.Name == request.Grade)
 			.FirstOrDefault();
 		if (subject is null)
-			return Ok(new {});
+			return Ok(new { });
 
 		await teacherManager.RemoveSubjectFromTeacher(subject, teacher);
-		return Ok(new {});
+		return Ok(new { });
 	}
 }

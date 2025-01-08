@@ -1,8 +1,7 @@
-﻿using GetTeacher.Server.Models.Teacher;
+﻿using System.Security.Claims;
 using GetTeacher.Server.Services.Database.Models;
 using GetTeacher.Server.Services.Managers.Interfaces.UserManager;
 using Microsoft.AspNetCore.Identity;
-using System.Security.Claims;
 
 namespace GetTeacher.Server.Controllers.Teacher;
 
