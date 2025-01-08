@@ -14,7 +14,6 @@ public class JwtGenerator(ILogger<JwtGenerator> logger, IConfiguration configura
 
 	public string? GenerateUserToken(DbUser user)
 	{
-		// Add userId, email and JwtId
 		ICollection<Claim> claims =
 		[
 			new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),

@@ -1,0 +1,80 @@
+# LoadBalancer Service (Exposing externally)
+apiVersion: v1
+kind: Service
+metadata:
+  name: getteacher-service
+  namespace: getteacher-app
+spec:
+  selector:
+    app: getteacher-app
+  ports:
+  - name: http
+    protocol: TCP
+    port: 80
+    targetPort: 80
+  - name: https
+    protocol: TCP
+    port: 443
+    targetPort: 443
+  type: LoadBalancer  # LoadBalancer to expose externally
+---
+# Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: getteacher-app
+  namespace: getteacher-app
+spec:
+  selector:
+    matchLabels:
+      app: getteacher-app
+  template:
+    metadata:
+      labels:
+        app: getteacher-app
+    spec:
+      containers:
+      - name: getteacher-container
+        image: getteacher
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 80  # HTTP
+        - containerPort: 443 # HTTPS (you can remove this if you only need HTTP)
+        env:
+        - name: ASPNETCORE_URLS
+          value: "http://+:80;https://+:443"
+        - name: ASPNETCORE_ENVIRONMENT
+          value: "Development"
+        - name: ASPNETCORE_Kestrel__Certificates__Default__Path
+          value: "/app/certificates/certificate.pfx"
+        - name: ASPNETCORE_Kestrel__Certificates__Default__Password
+          value: "GetTeacherCertificate"
+        volumeMounts:
+        - name: https-certificate
+          mountPath: /app/certificates/
+          readOnly: true  # Ensure the volume is read-only
+      volumes:
+      - name: https-certificate
+        secret:
+          secretName: https-certificate
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: getteacher-hpa
+  namespace: getteacher-app
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: getteacher-app  # This should match the name of your deployment
+  minReplicas: 1  # Minimum number of replicas
+  maxReplicas: 10  # Maximum number of replicas
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 75  # Scale when average CPU usage exceeds 75%
