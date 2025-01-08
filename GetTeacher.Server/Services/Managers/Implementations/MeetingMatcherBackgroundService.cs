@@ -68,13 +68,14 @@ public class MeetingMatcherBackgroundService(IServiceProvider serviceProvider, I
 		}
 	}
 
-	private void StartAsyncMatches()
+	private async void StartAsyncMatches()
 	{
 		while (studentsProcessingQueue.Count != 0)
 		{
 			StudentEntry studentEntry = studentsProcessingQueue.First();
 			studentsProcessingQueue.Remove(studentEntry);
-			_ = ProcessStudentMatchAsync(studentEntry);
+			// TODO: !!!!!
+			await ProcessStudentMatchAsync(studentEntry);
 		}
 	}
 
@@ -169,6 +170,9 @@ public class MeetingMatcherBackgroundService(IServiceProvider serviceProvider, I
 			{
 				logger.LogError(ex, "An unexpected expection happened when trying to match student and teacher.");
 			}
+
+			// TODO: Remove this shit with the while condition
+			return;
 		}
 
 		searchingStudents.Remove(studentEntry);

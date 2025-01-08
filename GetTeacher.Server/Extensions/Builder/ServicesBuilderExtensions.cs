@@ -25,6 +25,7 @@ public static class ServicesBuilderExtensions
 		builder.Services.AddScoped<ITeacherRankManager, TeacherRankManager>();
 		builder.Services.AddScoped<IUserStateTracker, UserStateTracker>();
 		builder.Services.AddScoped<ITeacherReadyManager, TeacherReadyManager>();
+		builder.Services.AddScoped<IStudentReadyManager, StudentReadyManager>();
 		builder.Services.AddScoped<IMeetingMatcher, MeetingMatcher>();
 		builder.Services.AddScoped<IEmailSender, EmailSender>();
 		builder.Services.AddScoped<IEmailSender<DbUser>, IdentityEmailSender>();
