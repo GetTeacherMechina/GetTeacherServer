@@ -9,7 +9,7 @@ using GetTeacher.Server.Services.Managers.Interfaces.Networking;
 
 namespace GetTeacher.Server.Services.Managers.Implementations.Networking;
 
-public record WebSocketProfile(DbUser User, WebSocket Socket, BufferBlock<ArraySegment<byte>> MessageQueue);
+public record WebSocketProfile(DbUser User, WebSocket Socket, BufferBlock<Interfaces.Networking.WebSocketReceiveResult> MessageQueue);
 
 public class WebSocketSystem(ILogger<IWebSocketSystem> logger, IUserStateTracker userStateChecker) : IWebSocketSystem
 {
@@ -20,7 +20,7 @@ public class WebSocketSystem(ILogger<IWebSocketSystem> logger, IUserStateTracker
 	private readonly ILogger<IWebSocketSystem> logger = logger;
 	private readonly IUserStateTracker userStateChecker = userStateChecker;
 
-	public void AddWebSocket(DbUser user, WebSocket webSocket, BufferBlock<ArraySegment<byte>> messageQueue)
+	public void AddWebSocket(DbUser user, WebSocket webSocket, BufferBlock<Interfaces.Networking.WebSocketReceiveResult> messageQueue)
 	{
 		WebSocketProfile ws = new WebSocketProfile(user, webSocket, messageQueue);
 
@@ -36,17 +36,12 @@ public class WebSocketSystem(ILogger<IWebSocketSystem> logger, IUserStateTracker
 		logger.LogInformation("Client [{clientId}] WebSocket disconnected.", user.Id);
 	}
 
-	public async Task<ReceiveResult> ReceiveAsync(int clientId)
+	public async Task<Interfaces.Networking.WebSocketReceiveResult> ReceiveAsync(int clientId)
 	{
 		if (!clients.TryGetValue(clientId, out var ws))
-			return new ReceiveResult(false, "");
+			return new Interfaces.Networking.WebSocketReceiveResult(false, "");
 
-		ArraySegment<byte> messageBytes = await ws.MessageQueue.ReceiveAsync();
-
-
-
-		string message = Encoding.UTF8.GetString(messageBytes);
-		return new ReceiveResult(true, message);
+		return await ws.MessageQueue.ReceiveAsync();
 	}
 
 	public async Task<bool> SendAsync<T>(int clientId, T message)

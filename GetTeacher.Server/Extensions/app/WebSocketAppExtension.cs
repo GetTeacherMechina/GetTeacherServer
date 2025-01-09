@@ -52,34 +52,40 @@ public static class WebSocketAppExtension
 
 			// Add the WebSocket to the system
 			context.User = claimsPrincipal;
-			BufferBlock<ArraySegment<byte>> messages = new BufferBlock<ArraySegment<byte>>();
+			BufferBlock<Services.Managers.Interfaces.Networking.WebSocketReceiveResult> messages = new BufferBlock<Services.Managers.Interfaces.Networking.WebSocketReceiveResult>();
 			webSocketSystem.AddWebSocket(new DbUser { Id = clientId.Value }, ws, messages);
 
-			try
+			// TODO: I think there's no way to better implement this, but better safe than sorry: check again
+			//  Keep the WebSocket alive by not exiting the context in which it was created
+			while (ws.State == WebSocketState.Open)
 			{
-				// TODO: I think there's no way to better implement this, but better safe than sorry: check again
-				//  Keep the WebSocket alive by not exiting the context in which it was created
-				while (ws.State == WebSocketState.Open)
-				{
-					byte[] messageBuffer = new byte[4096];
-					WebSocketReceiveResult messageResult = await ws.ReceiveAsync(messageBuffer, CancellationToken.None);
-					ArraySegment<byte> message = new ArraySegment<byte>(messageBuffer, 0, messageResult.Count);
-					messages.Post(message);
-				}
-			}
-			catch { }
-			finally
-			{
-				// Imagine nesting "try-catch" blocks, couldn't be me
+				byte[] messageBuffer = new byte[4096];
 				try
 				{
-					await ws.CloseAsync(WebSocketCloseStatus.InternalServerError, string.Empty, CancellationToken.None);
-					ws.Dispose();
-				}
-				catch { }
+					System.Net.WebSockets.WebSocketReceiveResult messageResult = await ws.ReceiveAsync(messageBuffer, CancellationToken.None);
 
-				webSocketSystem.RemoveWebSocket(new DbUser { Id = clientId.Value });
+					ArraySegment<byte> message = new ArraySegment<byte>(messageBuffer, 0, messageResult.Count);
+					string messageStr = Encoding.UTF8.GetString(message);
+					messages.Post(new Services.Managers.Interfaces.Networking.WebSocketReceiveResult(true, messageStr));
+				}
+				catch
+				{
+					messages.Post(new Services.Managers.Interfaces.Networking.WebSocketReceiveResult(false, ""));
+					break;
+				}
 			}
+			// Imagine nesting "try-catch" blocks, couldn't be me
+			try
+			{
+				await ws.CloseAsync(WebSocketCloseStatus.InternalServerError, string.Empty, CancellationToken.None);
+				ws.Dispose();
+			}
+			catch
+			{
+
+			}
+
+			webSocketSystem.RemoveWebSocket(new DbUser { Id = clientId.Value });
 
 			// Due to the WebSocket being created from the "context" exiting this call frame causes the WebSocket to die
 		});

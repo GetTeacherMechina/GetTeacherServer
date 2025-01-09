@@ -180,10 +180,13 @@ public class MeetingMatcherBackgroundService(IServiceProvider serviceProvider, I
 		};
 
 		await webSocketSystem.SendAsync(studentEntry.Student.DbUserId, csGoContractRequestModel);
-		ReceiveResult wsReadResult = await webSocketSystem.ReceiveAsync(studentEntry.Student.DbUserId);
+		WebSocketReceiveResult wsReadResult = await webSocketSystem.ReceiveAsync(studentEntry.Student.DbUserId);
 
 		if (!wsReadResult.Success)
+		{
+			studentEntry.StopMatchingCts.Cancel();
 			return false;
+		}
 
 		string csgoConfirmOrDeny = wsReadResult.Message;
 		if (csgoConfirmOrDeny != csGoConfirm && csgoConfirmOrDeny != csGoDeny)
