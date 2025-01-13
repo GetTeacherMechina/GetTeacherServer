@@ -1,13 +1,24 @@
-﻿using GetTeacher.Server.Services.Database;
+﻿using System.Security.Claims;
+using GetTeacher.Server.Services.Database;
 using GetTeacher.Server.Services.Database.Models;
 using GetTeacher.Server.Services.Managers.Interfaces.UserManager;
 using Microsoft.EntityFrameworkCore;
 
 namespace GetTeacher.Server.Services.Managers.Implementations.UserManager;
 
-public class TeacherManager(GetTeacherDbContext getTeacherDbContext) : ITeacherManager
+public class TeacherManager(GetTeacherDbContext getTeacherDbContext, IPrincipalClaimsQuerier principalClaimsQuerier) : ITeacherManager
 {
 	private readonly GetTeacherDbContext getTeacherDbContext = getTeacherDbContext;
+	private readonly IPrincipalClaimsQuerier principalClaimsQuerier = principalClaimsQuerier;
+
+	public async Task<DbTeacher?> GetFromUser(ClaimsPrincipal user)
+	{
+		int? id = principalClaimsQuerier.GetId(user);
+		if (id is null)
+			return null;
+
+		return await GetFromUser(new DbUser { Id = id.Value });
+	}
 
 	public async Task AddTeacher(DbUser user, DbTeacher teacher)
 	{
