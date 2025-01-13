@@ -1,9 +1,12 @@
-﻿using GetTeacher.Server.Services.Database.Models;
+﻿using System.Security.Claims;
+using GetTeacher.Server.Services.Database.Models;
 
 namespace GetTeacher.Server.Services.Managers.Interfaces.UserManager;
 
 public interface ITeacherManager
 {
+	public Task<DbTeacher?> GetFromUser(ClaimsPrincipal user);
+
 	public Task<bool> TeacherExists(DbUser user);
 
 	public Task<DbTeacher?> GetFromUser(DbUser user);
