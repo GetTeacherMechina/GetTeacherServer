@@ -13,4 +13,8 @@ public class GetTeacherDbContext(DbContextOptions<GetTeacherDbContext> options) 
 	public required DbSet<DbGrade> Grades { get; set; }
 	public required DbSet<DbSubject> Subjects { get; set; }
 	public required DbSet<DbTeacherSubject> TeacherSubjects { get; set; }
+
+	public required DbSet<DbMessage> Messages { get; set; }
+
+	public required DbSet<DbChat> Chats { get; set; }
 }
