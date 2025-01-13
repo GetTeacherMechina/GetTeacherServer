@@ -2,7 +2,7 @@
     "profiles": {
         "Run": {
             "commandName": "Project",
-            "applicationUrl": "https://0.0.0.0:44300;http://0.0.0.0:5000",
+            "applicationUrl": "https://0.0.0.0:44300;http://0.0.0.0:8000",
             "dotnetRunMessages": true,
             "environmentVariables": {
                 "ASPNETCORE_ENVIRONMENT": "Development"

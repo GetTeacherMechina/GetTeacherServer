@@ -9,6 +9,7 @@ public class Program
 	{
 		var builder = WebApplication.CreateBuilder(args);
 
+		builder.Services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
 		builder.Services.AddControllers();
 		builder.AddCorsPolicy();
 
@@ -20,7 +21,7 @@ public class Program
 		var app = builder.Build();
 
 		app.UseCors();
-
+		
 		// Redirects http requests to https
 		app.UseHttpsRedirection();
 

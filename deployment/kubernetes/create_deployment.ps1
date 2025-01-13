@@ -1,0 +1,1 @@
+kubectl apply -f deployment-getteacher.yaml -n getteacher-app

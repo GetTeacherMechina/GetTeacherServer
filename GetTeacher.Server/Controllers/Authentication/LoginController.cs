@@ -2,6 +2,7 @@
 using GetTeacher.Server.Services.Database.Models;
 using GetTeacher.Server.Services.Managers.Interfaces;
 using GetTeacher.Server.Services.Managers.Interfaces.Networking;
+using GetTeacher.Server.Services.Managers.Interfaces.UserState;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -32,7 +33,7 @@ public class LoginController(IWebSocketSystem webSocketSystem, UserManager<DbUse
 
 			// TODO: Check if in a call BEFORE drop-kicking if online
 			// Drop-kick the previous client instance
-			if (userStateTracker.IsUserOnline(userResult))
+			if (await userStateTracker.IsUserOnline(userResult))
 				webSocketSystem.RemoveWebSocket(userResult);
 
 			return Ok(new LoginResponseModel { Result = "Login successful", JwtToken = jwt });
