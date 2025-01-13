@@ -1,16 +1,16 @@
 ﻿using GetTeacher.Server.Services.Database.Models;
 
-namespace GetTeacher.Server.Services.Managers.Interfaces;
+namespace GetTeacher.Server.Services.Managers.Interfaces.UserState;
 
 public interface IUserStateTracker
 {
-	public bool IsUserOnline(DbUser user);
+	public Task<bool> IsUserOnline(DbUser user);
 
-	public ICollection<DbUser> GetOnlineUsers();
+	public Task<ICollection<DbUser>> GetOnlineUsers();
 
-	public void SetOnline(DbUser user);
+	public Task SetOnline(DbUser user);
 
-	public void SetOffline(DbUser user);
+	public Task SetOffline(DbUser user);
 
 	public void AddDisconnectAction(DbUser user, Action<int> onDisconnect);
 

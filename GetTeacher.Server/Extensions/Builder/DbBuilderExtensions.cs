@@ -17,10 +17,12 @@ public static class DbBuilderExtensions
 
 		// Add DbContext based on environment
 		// Postgre for production and sqlite for development
-		if (builder.Environment.IsDevelopment())
+		if (builder.Environment.IsRelease())
+			builder.Services.AddPostgreSql(connectionString);
+		else if (builder.Environment.IsDevelopment())
 			builder.Services.AddSqlite(connectionString);
 		else
-			builder.Services.AddPostgreSql(connectionString);
+			Console.WriteLine("Error: Environment unrecognized");
 	}
 
 	private static void AddPostgreSql(this IServiceCollection services, string connectionString)

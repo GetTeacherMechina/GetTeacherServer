@@ -1,23 +1,24 @@
-﻿using GetTeacher.Server.Models;
+﻿using GetTeacher.Server.Models.Status;
 using GetTeacher.Server.Services.Database;
+using GetTeacher.Server.Services.Managers.Interfaces.UserState;
 using Microsoft.AspNetCore.Mvc;
 
-namespace GetTeacher.Server.Controllers;
+namespace GetTeacher.Server.Controllers.Status;
 
 [ApiController]
-[Route("api/v1/[controller]")]
+[Route("api/v1/status/[controller]")]
 public class HealthCheckController(ILogger<HealthCheckController> logger, DatabaseConnectionTester databaseConnectionTester) : ControllerBase
 {
 	private readonly ILogger<HealthCheckController> logger = logger;
 	private readonly DatabaseConnectionTester databaseConnectionTester = databaseConnectionTester;
 
 	[HttpGet]
-    public async Task<IActionResult> Health()
-    {
+	public async Task<IActionResult> GetHealthCheck()
+	{
 		logger.LogInformation("Starting health check...");
 		bool databaseConnectionStatus = await databaseConnectionTester.TestConnectionAsync();
-		logger.LogInformation("Ended health check!");
+		logger.LogInformation("Health check completed");
 
 		return Ok(new HealthCheckResponseModel { DatabaseConnectionStatus = databaseConnectionStatus });
-    }
+	}
 }

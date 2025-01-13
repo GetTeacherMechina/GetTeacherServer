@@ -5,10 +5,12 @@ using GetTeacher.Server.Services.Managers.Implementations.EmailSender;
 using GetTeacher.Server.Services.Managers.Implementations.Networking;
 using GetTeacher.Server.Services.Managers.Implementations.ReadyManager;
 using GetTeacher.Server.Services.Managers.Implementations.UserManager;
+using GetTeacher.Server.Services.Managers.Implementations.UserStateTracker;
 using GetTeacher.Server.Services.Managers.Interfaces;
 using GetTeacher.Server.Services.Managers.Interfaces.Networking;
 using GetTeacher.Server.Services.Managers.Interfaces.ReadyManager;
 using GetTeacher.Server.Services.Managers.Interfaces.UserManager;
+using GetTeacher.Server.Services.Managers.Interfaces.UserState;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 
@@ -19,6 +21,7 @@ public static class ServicesBuilderExtensions
 	public static void AddGetTeacherServices(this WebApplicationBuilder builder)
 	{
 		builder.UseGetTeacherDb();
+		builder.UseGetTeacherUserStateTracker();
 
 		builder.Services.AddScoped<IJwtGenerator, JwtGenerator>();
 		builder.Services.AddScoped<ITeacherManager, TeacherManager>();
@@ -30,6 +33,8 @@ public static class ServicesBuilderExtensions
 		builder.Services.AddScoped<IMeetingMatcher, MeetingMatcher>();
 		builder.Services.AddScoped<IEmailSender, EmailSender>();
 		builder.Services.AddScoped<IEmailSender<DbUser>, IdentityEmailSender>();
+
+		// Testers
 		builder.Services.AddScoped<DatabaseConnectionTester>();
 		
 		// Probably will only be used for manual JWT authentication in the context of WebSockets

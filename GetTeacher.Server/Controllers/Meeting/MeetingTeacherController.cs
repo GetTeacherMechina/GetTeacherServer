@@ -1,8 +1,8 @@
 ﻿using GetTeacher.Server.Services.Database;
 using GetTeacher.Server.Services.Database.Models;
-using GetTeacher.Server.Services.Managers.Interfaces;
 using GetTeacher.Server.Services.Managers.Interfaces.ReadyManager;
 using GetTeacher.Server.Services.Managers.Interfaces.UserManager;
+using GetTeacher.Server.Services.Managers.Interfaces.UserState;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

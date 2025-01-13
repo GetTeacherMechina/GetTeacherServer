@@ -6,9 +6,14 @@ param(
 # Variables
 $pfxPassword = "GetTeacherCertificate"   # Password for the .pfx file
 $certDir = "."    # Directory to store the temporary and final certificate files
-$pfxFile = "$certDir/certificate.pfx"
+$pfxFile = "$certDir/certificate_$ip.pfx"
 $privateKeyFile = "$certDir/private.key"
 $certFile = "$certDir/certificate.crt"
+
+if (Test-Path $pfxFile) {
+	Write-Host "Certificate for IP $Ip already exists." -ForegroundColor Green
+	exit 0
+}
 
 # Ensure OpenSSL is installed
 if (-not (Get-Command "openssl" -ErrorAction SilentlyContinue)) {

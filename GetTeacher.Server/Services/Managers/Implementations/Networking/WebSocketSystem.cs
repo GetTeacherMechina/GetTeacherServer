@@ -4,8 +4,8 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks.Dataflow;
 using GetTeacher.Server.Services.Database.Models;
-using GetTeacher.Server.Services.Managers.Interfaces;
 using GetTeacher.Server.Services.Managers.Interfaces.Networking;
+using GetTeacher.Server.Services.Managers.Interfaces.UserState;
 
 namespace GetTeacher.Server.Services.Managers.Implementations.Networking;
 
