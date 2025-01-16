@@ -1,5 +1,6 @@
 ﻿using GetTeacher.Server.Services.Database;
 using GetTeacher.Server.Services.Database.Models;
+using GetTeacher.Server.Services.Managers;
 using GetTeacher.Server.Services.Managers.Implementations;
 using GetTeacher.Server.Services.Managers.Implementations.EmailSender;
 using GetTeacher.Server.Services.Managers.Implementations.Networking;
@@ -31,7 +32,9 @@ public static class ServicesBuilderExtensions
 		builder.Services.AddScoped<ITeacherReadyManager, TeacherReadyManager>();
 		builder.Services.AddScoped<IStudentReadyManager, StudentReadyManager>();
 		builder.Services.AddScoped<IMeetingMatcher, MeetingMatcher>();
+		builder.Services.AddScoped<IResetPasswordTokenStore, LocalResetPasswordTokenStore>();
 		builder.Services.AddScoped<IEmailSender, EmailSender>();
+		builder.Services.AddScoped<ICodeGenerator, CodeGenerator>();
 		builder.Services.AddScoped<IEmailSender<DbUser>, IdentityEmailSender>();
 
 		// Testers
