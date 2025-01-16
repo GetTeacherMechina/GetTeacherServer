@@ -30,7 +30,6 @@ public class StudentManager(GetTeacherDbContext getTeacherDbContext, IPrincipalC
 			.Include(u => u.FavoriteTeachers)
 				.ThenInclude(t => t.TeacherSubjects)
 			.Include(u => u.DbUser)
-
 			.FirstOrDefaultAsync();
 	}
 
