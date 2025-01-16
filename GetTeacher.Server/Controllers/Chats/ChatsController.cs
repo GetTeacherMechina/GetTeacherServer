@@ -1,7 +1,9 @@
+using System.Runtime.CompilerServices;
 using GetTeacher.Server.Models.Chats;
 using GetTeacher.Server.Services.Database;
 using GetTeacher.Server.Services.Database.Models;
 using GetTeacher.Server.Services.Managers.Interfaces.Chats;
+using GetTeacher.Server.Services.Managers.Interfaces.Networking;
 using GetTeacher.Server.Services.Managers.Interfaces.UserManager;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,10 +12,6 @@ namespace GetTeacher.Server.Controllers.Chats;
 
 public class ChatController(GetTeacherDbContext db, IChatManager chatManager, IPrincipalClaimsQuerier principalClaims) : Controller
 {
-
-
-
-
     [Route("/api/v1/chats/create")]
     [HttpPost]
     public async Task<IActionResult> CreateChat([FromBody] ChatCreationModel chat)
@@ -29,7 +27,9 @@ public class ChatController(GetTeacherDbContext db, IChatManager chatManager, IP
             return BadRequest("not authenticated");
         }
 
-        DbUser?[] users = await Task.WhenAll(chat.Users.Select(async userid => await db.Users.Where(u => u.Id == userid).FirstOrDefaultAsync()).ToList());
+        // DbUser?[] users = await Task.WhenAll(chat.Users.Select(async userid => await db.Users.Where(u => u.Id == userid).FirstOrDefaultAsync()).ToList());
+        var users_task = (from userId in chat.Users select db.Users.Where(u => u.Id == userId).FirstOrDefaultAsync()).ToArray();
+        var users = await Task.WhenAll(users_task);
         foreach (var user in users)
         {
             //checking for nulls in the array
@@ -76,8 +76,8 @@ public class ChatController(GetTeacherDbContext db, IChatManager chatManager, IP
         var message = new DbMessage
         {
             Content = messageModel.Content,
-            DbUser = sender,
-            DbUserId = sender.Id,
+            Sender = sender,
+            SenderId = sender.Id,
             DateTime = DateTime.UtcNow
         };
 
@@ -98,7 +98,7 @@ public class ChatController(GetTeacherDbContext db, IChatManager chatManager, IP
 
         var chat = await db.Chats
             .Include(c => c.Users)
-            .Include(c => c.Messages).ThenInclude(m => m.DbUser)
+            .Include(c => c.Messages).ThenInclude(m => m.Sender)
             .FirstOrDefaultAsync(c => c.Id == chatId);
 
         if (chat == null)
@@ -114,7 +114,15 @@ public class ChatController(GetTeacherDbContext db, IChatManager chatManager, IP
 
         return Ok(new
         {
-            Messages = chat.Messages,
+            Users = chat.Users.Select(u => u.Id),
+            Messages = chat.Messages.Select(m => new
+            {
+                m.Id,
+                m.SenderId,
+                m.Content,
+                m.DateTime,
+                SenderName = m.Sender.UserName,
+            }),
         });
     }
 

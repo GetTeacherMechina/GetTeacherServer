@@ -9,10 +9,10 @@ public class DbMessage
     public int Id { get; set; }
 
 
-    [ForeignKey(nameof(DbUser))]
+    [ForeignKey(nameof(Sender))]
 
-    public required int DbUserId { get; set; }
-    public required virtual DbUser DbUser { get; set; } = null!;
+    public required int SenderId { get; set; }
+    public required virtual DbUser Sender { get; set; } = null!;
 
     public DateTime DateTime { get; set; }
 
