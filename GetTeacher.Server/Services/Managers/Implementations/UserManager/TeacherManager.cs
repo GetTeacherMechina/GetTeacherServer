@@ -1,38 +1,35 @@
-﻿using GetTeacher.Server.Services.Database;
+﻿using System.Security.Claims;
+using GetTeacher.Server.Services.Database;
 using GetTeacher.Server.Services.Database.Models;
 using GetTeacher.Server.Services.Managers.Interfaces.UserManager;
 using Microsoft.EntityFrameworkCore;
 
 namespace GetTeacher.Server.Services.Managers.Implementations.UserManager;
 
-public class TeacherManager(GetTeacherDbContext getTeacherDbContext) : ITeacherManager
+public class TeacherManager(GetTeacherDbContext getTeacherDbContext, IPrincipalClaimsQuerier principalClaimsQuerier) : ITeacherManager
 {
 	private readonly GetTeacherDbContext getTeacherDbContext = getTeacherDbContext;
+	private readonly IPrincipalClaimsQuerier principalClaimsQuerier = principalClaimsQuerier;
 
-	public async Task AddTeacher(DbUser user, DbTeacher teacher)
+	public async Task<DbTeacher?> GetFromUser(ClaimsPrincipal user)
 	{
+		int? id = principalClaimsQuerier.GetId(user);
+		if (id is null)
+			return null;
 
-		if (await GetFromUser(user) is not null)
-			return;
-
-		getTeacherDbContext.Teachers.Add(teacher);
-		await getTeacherDbContext.SaveChangesAsync();
-	}
-	public async Task RemoveTeacher(DbTeacher teacher)
-	{
-		if (!await TeacherExists(teacher.DbUser))
-			return;
-
-		getTeacherDbContext.Teachers.Remove(teacher);
-		await getTeacherDbContext.SaveChangesAsync();
+		return await GetFromUser(new DbUser { Id = id.Value });
 	}
 
-	public async Task<ICollection<DbSubject>> GetAllSubjects()
+	public async Task<DbTeacher?> GetFromUser(DbUser user)
 	{
-		return await getTeacherDbContext.Subjects.ToListAsync();
+		return await getTeacherDbContext.Teachers.Where(t =>
+			t.DbUser == new DbUser { Id = user.Id })
+				.Include(t => t.TeacherSubjects).ThenInclude(ts => ts.Subject)
+				.Include(t => t.TeacherSubjects).ThenInclude(ts => ts.Grade)
+			.FirstOrDefaultAsync();
 	}
 
-	public async Task<ICollection<DbTeacher>> GetAllTeacher()
+	public async Task<ICollection<DbTeacher>> GetAllTeachers()
 	{
 		return await getTeacherDbContext.Teachers.ToListAsync();
 	}
@@ -42,101 +39,26 @@ public class TeacherManager(GetTeacherDbContext getTeacherDbContext) : ITeacherM
 		return await getTeacherDbContext.Teachers
 			.Include(t => t.DbUser)
 			.Include(t => t.TeacherSubjects)
-			.ThenInclude(tS => tS.Subject)
+				.ThenInclude(tS => tS.Subject)
 			.Include(t => t.TeacherSubjects)
-			.ThenInclude(tS => tS.Grade)
+				.ThenInclude(tS => tS.Grade)
 			.Where(t => t.TeacherSubjects
 				.Any(ts => ts.Subject.Name == subject.Name && ts.Grade.Name == grade.Name))
 			.ToListAsync();
 	}
 
-	public async Task<DbTeacher?> GetFromUser(DbUser user)
+	public async Task AddSubjectToTeacher(DbTeacherSubject teacherSubject, DbTeacher teacher)
 	{
-		return await getTeacherDbContext.Teachers.Where(t =>
-			t.DbUser == user)
-			.Include(t => t.TeacherSubjects).ThenInclude(ts => ts.Subject)
-			.Include(t => t.TeacherSubjects).ThenInclude(ts => ts.Grade)
-			.FirstOrDefaultAsync();
-	}
-
-	public async Task<int> GetNumOfTeacherRankers(DbTeacher teacher)
-	{
-		if (!await TeacherExists(teacher.DbUser))
-			return 0;
-
-		return (await getTeacherDbContext.Teachers.Where(t =>
-			t.Id == teacher.Id).FirstAsync()).NumOfLessons;
-	}
-	public async Task<double> GetTeacherRank(DbTeacher teacher)
-	{
-		if (!await TeacherExists(teacher.DbUser))
-			return 0;
-
-		return (await getTeacherDbContext.Teachers.Where(t =>
-			t.Id == teacher.Id).FirstAsync()).Rank;
-	}
-
-	public async Task<bool> TeacherExists(DbUser user)
-	{
-		return await getTeacherDbContext.Teachers.Where(t =>
-			t.DbUser.Id == user.Id).FirstOrDefaultAsync() is not null;
-	}
-
-	public async Task IncrementNumOfLessons(DbTeacher teacher)
-	{
-		if (!await TeacherExists(teacher.DbUser))
+		if (teacher.TeacherSubjects.Any(tS => tS.Subject.Name == teacherSubject.Subject.Name && tS.Grade.Name == teacherSubject.Grade.Name))
 			return;
 
-		(await getTeacherDbContext.Teachers.Where(t => t.Id == teacher.Id).FirstAsync()).NumOfLessons++;
-		await getTeacherDbContext.SaveChangesAsync();
-	}
-
-	public async Task UpdateTeacherRank(DbTeacher teacher, double newRank)
-	{
-		if (!await TeacherExists(teacher.DbUser))
-			return;
-
-		(await getTeacherDbContext.Teachers.Where(t => t.Id == teacher.Id).FirstAsync()).Rank = newRank;
-		await getTeacherDbContext.SaveChangesAsync();
-	}
-
-	public async Task AddSubjectToTeacher(DbTeacherSubject subject, DbTeacher teacher)
-	{
-		if (teacher is null)
-		{
-			return;
-		}
-		teacher.TeacherSubjects.Add(subject);
-
+		teacher.TeacherSubjects.Add(teacherSubject);
 		await getTeacherDbContext.SaveChangesAsync();
 	}
 
 	public async Task RemoveSubjectFromTeacher(DbTeacherSubject subject, DbTeacher teacher)
 	{
-		if (teacher is null)
-		{
-			return;
-		}
 		teacher.TeacherSubjects.Remove(subject);
-
-		await getTeacherDbContext.SaveChangesAsync();
-	}
-
-	public async Task AddSubject(DbSubject subject)
-	{
-		getTeacherDbContext.Subjects.Add(subject);
-		await getTeacherDbContext.SaveChangesAsync();
-	}
-
-
-	public async Task<ICollection<DbGrade>> GetAllGrades()
-	{
-		return await getTeacherDbContext.Grades.ToArrayAsync();
-	}
-
-	public async Task AddGrade(DbGrade garade)
-	{
-		getTeacherDbContext.Grades.Add(garade);
 		await getTeacherDbContext.SaveChangesAsync();
 	}
 

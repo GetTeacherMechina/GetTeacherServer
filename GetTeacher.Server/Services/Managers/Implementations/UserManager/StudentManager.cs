@@ -1,17 +1,37 @@
-﻿using GetTeacher.Server.Services.Database;
+﻿using System.Security.Claims;
+using GetTeacher.Server.Services.Database;
 using GetTeacher.Server.Services.Database.Models;
 using GetTeacher.Server.Services.Managers.Interfaces.UserManager;
 using Microsoft.EntityFrameworkCore;
 
 namespace GetTeacher.Server.Services.Managers.Implementations.UserManager;
 
-public class StudentManager(GetTeacherDbContext getTeacherDbContext) : IStudentManager
+public class StudentManager(GetTeacherDbContext getTeacherDbContext, IPrincipalClaimsQuerier principalClaimsQuerier) : IStudentManager
 {
 	private readonly GetTeacherDbContext getTeacherDbContext = getTeacherDbContext;
+	private readonly IPrincipalClaimsQuerier principalClaimsQuerier = principalClaimsQuerier;
+
+	public async Task<DbStudent?> GetFromUser(ClaimsPrincipal user)
+	{
+		int? id = principalClaimsQuerier.GetId(user);
+		if (id is null)
+			return null;
+
+		return await GetFromUser(new DbUser { Id = id.Value });
+	}
 
 	public async Task<DbStudent?> GetFromUser(DbUser studentUser)
 	{
-		return await getTeacherDbContext.Students.Where(u => u.DbUser.Id == studentUser.Id).FirstOrDefaultAsync();
+		return await getTeacherDbContext
+			.Students
+			.Where(u => u.DbUser.Id == studentUser.Id)
+			.Include(u => u.FavoriteTeachers)
+				.ThenInclude(t => t.DbUser)
+			.Include(u => u.FavoriteTeachers)
+				.ThenInclude(t => t.TeacherSubjects)
+			.Include(u => u.DbUser)
+
+			.FirstOrDefaultAsync();
 	}
 
 	public async Task<bool> StudentExists(DbUser studentUser)
@@ -36,12 +56,18 @@ public class StudentManager(GetTeacherDbContext getTeacherDbContext) : IStudentM
 
 	public async Task AddFavoriteTeacher(DbStudent student, DbTeacher teacher)
 	{
+		if (student.FavoriteTeachers.Any(fT => fT.Id == teacher.Id))
+			return;
+
 		student.FavoriteTeachers.Add(teacher);
 		await getTeacherDbContext.SaveChangesAsync();
 	}
 
 	public async Task RemoveFavoriteTeacher(DbStudent student, DbTeacher teacher)
 	{
+		if (!student.FavoriteTeachers.Any(fT => fT.Id == teacher.Id))
+			return;
+
 		student.FavoriteTeachers.Remove(teacher);
 		await getTeacherDbContext.SaveChangesAsync();
 	}

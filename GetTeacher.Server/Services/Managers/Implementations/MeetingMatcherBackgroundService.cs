@@ -76,7 +76,6 @@ public class MeetingMatcherBackgroundService(IServiceProvider serviceProvider, I
 		{
 			StudentEntry studentEntry = studentsProcessingQueue.First();
 			studentsProcessingQueue.Remove(studentEntry);
-			// TODO: !!!!!
 			_ = ProcessStudentMatchAsync(studentEntry);
 		}
 	}
@@ -88,39 +87,42 @@ public class MeetingMatcherBackgroundService(IServiceProvider serviceProvider, I
 		IServiceScope serviceScope = serviceProvider.CreateScope();
 		IWebSocketSystem webSocketSystem = serviceScope.ServiceProvider.GetRequiredService<IWebSocketSystem>();
 		ITeacherReadyManager teacherReadyManager = serviceScope.ServiceProvider.GetRequiredService<ITeacherReadyManager>();
+		IMeetingManager meetingManager = serviceScope.ServiceProvider.GetRequiredService<IMeetingManager>();
 
-		// TODO: Plop the GUID from the database-backed session entry we create beforehand
-		string meetingGuid = Guid.NewGuid().ToString();
-
-		DbTeacher? teacher = await MatchTeacher(studentEntry, meetingGuid);
+		DbTeacher? teacher = await MatchTeacher(studentEntry);
 		if (teacher is null)
 			return;
 
-		teacherReadyManager.NotReadyToTeach(teacher);
+		Guid meetingGuid = await meetingManager.AddMeeting(teacher, studentEntry.Student, studentEntry.Subject, studentEntry.Student.Grade);
 
 		// Notify student and teacher :)
-		try
-		{
-			MeetingResponseModel meetingResponseModel = new MeetingResponseModel
-			{
-				MeetingGuid = meetingGuid,
-				CompanionName = studentEntry.Student.DbUser.UserName!
-			};
+		MeetingResponseModel teacherMeetingResponseModel = new MeetingResponseModel { MeetingGuid = meetingGuid, CompanionName = studentEntry.Student.DbUser.UserName! };
+		Task<bool> studentSendTask = webSocketSystem.SendAsync(studentEntry.Student.DbUserId, teacherMeetingResponseModel, "MeetingStartNotification");
 
-			await webSocketSystem.SendAsync(teacher.DbUserId, meetingResponseModel);
-		}
-		catch (Exception ex)
+		MeetingResponseModel studentMeetingResponseModel = new MeetingResponseModel { MeetingGuid = meetingGuid, CompanionName = teacher.DbUser.UserName! };
+		Task<bool> teacherSendTask = webSocketSystem.SendAsync(teacher.DbUserId, studentMeetingResponseModel, "MeetingStartNotification");
+
+		bool sendResult = (await Task.WhenAll(teacherSendTask, studentSendTask)).All(sendResult => sendResult);
+
+		if (!sendResult)
 		{
-			logger.LogError(ex, "An unexpected expection happened when trying to match student and teacher.");
+			await meetingManager.RemoveMeeting(meetingGuid);
+			
+			Task<bool> studentSendFailTask = webSocketSystem.SendAsync(studentEntry.Student.DbUserId, new { Error = "Unexpected error occurred, please try again" }, "Error");
+			Task<bool> teacherSendFailTask = webSocketSystem.SendAsync(teacher.DbUserId, new { Error = "Unexpected error occurred, please try again" }, "Error");
+
+			await Task.WhenAll(studentSendFailTask, teacherSendFailTask);
+			return;
 		}
 
+		teacherReadyManager.NotReadyToTeach(teacher);
 		searchingStudents.Remove(studentEntry);
 	}
 
-	private async Task<DbTeacher?> MatchTeacher(StudentEntry studentEntry, string meetingGuid)
+	private async Task<DbTeacher?> MatchTeacher(StudentEntry studentEntry)
 	{
 		IServiceScope serviceScope = serviceProvider.CreateScope();
-		IMeetingMatcher meetingMatcher = serviceScope.ServiceProvider.GetRequiredService<IMeetingMatcher>();
+		IMeetingMatcherAlgorithm meetingMatcher = serviceScope.ServiceProvider.GetRequiredService<IMeetingMatcherAlgorithm>();
 
 		ICollection<DbTeacher> teacherExclusions = [];
 		DbTeacher? foundTeacher = null;
@@ -130,7 +132,7 @@ public class MeetingMatcherBackgroundService(IServiceProvider serviceProvider, I
 			await matchSemaphore.WaitAsync();
 			try
 			{
-				foundTeacher = await meetingMatcher.MatchStudentTeacher(studentEntry.Student, studentEntry.Subject, teacherExclusions.Concat(csGoPhaseTeachers).ToList());
+				foundTeacher = await meetingMatcher.MatchStudentTeacher(studentEntry.Student, studentEntry.Subject, [.. teacherExclusions, .. csGoPhaseTeachers]);
 
 				if (foundTeacher is null)
 				{
@@ -146,7 +148,7 @@ public class MeetingMatcherBackgroundService(IServiceProvider serviceProvider, I
 			}
 
 
-			if (await CsGoContract(studentEntry, foundTeacher, meetingGuid))
+			if (await CsGoContract(studentEntry, foundTeacher))
 				break;
 			else
 			{
@@ -162,24 +164,19 @@ public class MeetingMatcherBackgroundService(IServiceProvider serviceProvider, I
 		return foundTeacher;
 	}
 
-	private async Task<bool> CsGoContract(StudentEntry studentEntry, DbTeacher teacher, string meetingGuid)
+	private async Task<bool> CsGoContract(StudentEntry studentEntry, DbTeacher teacher)
 	{
 		IServiceScope serviceScope = serviceProvider.CreateScope();
-		IMeetingMatcher meetingMatcher = serviceScope.ServiceProvider.GetRequiredService<IMeetingMatcher>();
 		IWebSocketSystem webSocketSystem = serviceScope.ServiceProvider.GetRequiredService<IWebSocketSystem>();
 
 		CsGoContractRequestModel csGoContractRequestModel = new CsGoContractRequestModel
 		{
 			TeacherBio = teacher.Bio,
 			TeacherRank = teacher.Rank,
-			MeetingResponseModel = new MeetingResponseModel
-			{
-				MeetingGuid = meetingGuid,
-				CompanionName = teacher.DbUser.UserName!,
-			}
+			MeetingResponseModel = new MeetingResponseModel { CompanionName = teacher.DbUser.UserName! }
 		};
 
-		await webSocketSystem.SendAsync(studentEntry.Student.DbUserId, csGoContractRequestModel);
+		await webSocketSystem.SendAsync(studentEntry.Student.DbUserId, csGoContractRequestModel, "CsGoContract");
 		WebSocketReceiveResult wsReadResult = await webSocketSystem.ReceiveAsync(studentEntry.Student.DbUserId);
 
 		if (!wsReadResult.Success)
@@ -189,8 +186,6 @@ public class MeetingMatcherBackgroundService(IServiceProvider serviceProvider, I
 		}
 
 		string csgoConfirmOrDeny = wsReadResult.Message;
-		if (csgoConfirmOrDeny != csGoConfirm && csgoConfirmOrDeny != csGoDeny)
-			return false;
 
 		if (csgoConfirmOrDeny == csGoDeny)
 			return false;

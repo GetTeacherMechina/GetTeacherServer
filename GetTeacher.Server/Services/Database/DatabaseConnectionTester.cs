@@ -1,6 +1,6 @@
 ﻿namespace GetTeacher.Server.Services.Database;
 
-public class DatabaseConnectionTester(ILogger<DatabaseConnectionTester> logger ,GetTeacherDbContext getTeacherDbContext)
+public class DatabaseConnectionTester(ILogger<DatabaseConnectionTester> logger, GetTeacherDbContext getTeacherDbContext)
 {
 	private readonly ILogger<DatabaseConnectionTester> logger = logger;
 	private readonly GetTeacherDbContext getTeacherDbContext = getTeacherDbContext;

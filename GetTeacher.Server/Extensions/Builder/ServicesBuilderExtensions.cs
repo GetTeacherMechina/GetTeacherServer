@@ -1,5 +1,6 @@
 ﻿using GetTeacher.Server.Services.Database;
 using GetTeacher.Server.Services.Database.Models;
+using GetTeacher.Server.Services.Managers;
 using GetTeacher.Server.Services.Managers.Implementations;
 using GetTeacher.Server.Services.Managers.Implementations.EmailSender;
 using GetTeacher.Server.Services.Managers.Implementations.Networking;
@@ -30,13 +31,18 @@ public static class ServicesBuilderExtensions
 		builder.Services.AddScoped<IUserStateTracker, UserStateTracker>();
 		builder.Services.AddScoped<ITeacherReadyManager, TeacherReadyManager>();
 		builder.Services.AddScoped<IStudentReadyManager, StudentReadyManager>();
-		builder.Services.AddScoped<IMeetingMatcher, MeetingMatcher>();
+		builder.Services.AddScoped<IResetPasswordTokenStore, LocalResetPasswordTokenStore>();
+		builder.Services.AddScoped<IMeetingMatcherAlgorithm, MeetingMatcherAlgorithm>();
 		builder.Services.AddScoped<IEmailSender, EmailSender>();
+		builder.Services.AddScoped<ICodeGenerator, CodeGenerator>();
 		builder.Services.AddScoped<IEmailSender<DbUser>, IdentityEmailSender>();
-
+		builder.Services.AddScoped<ISubjectManager, SubjectManager>();
+		builder.Services.AddScoped<IGradeManager, GradeManager>();
+		builder.Services.AddScoped<IMeetingManager, MeetingManager>();
+		
 		// Testers
 		builder.Services.AddScoped<DatabaseConnectionTester>();
-		
+
 		// Probably will only be used for manual JWT authentication in the context of WebSockets
 		builder.Services.AddScoped<IJwtAuthenticator, JwtAuthenticator>();
 		builder.Services.AddScoped<IWebSocketSystem, WebSocketSystem>();
