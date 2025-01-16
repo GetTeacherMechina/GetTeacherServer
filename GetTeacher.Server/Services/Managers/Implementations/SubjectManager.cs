@@ -27,4 +27,9 @@ public class SubjectManager(ILogger<ISubjectManager> logger, GetTeacherDbContext
 		getTeacherDbContext.Subjects.Add(subject);
 		await getTeacherDbContext.SaveChangesAsync();
 	}
+
+	public async Task<DbSubject?> GetFromName(string name)
+	{
+		return await getTeacherDbContext.Subjects.Where(s => s.Name == name).FirstOrDefaultAsync();
+	}
 }

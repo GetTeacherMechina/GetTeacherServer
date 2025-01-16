@@ -16,7 +16,7 @@ public class MeetingReviewController(IMeetingManager meetingManager) : Controlle
 	[Route("rate")]
 	public async Task<IActionResult> AddRating([FromBody] UpdateRankRequestModel model)
 	{
-		await meetingManager.AddRatingReview(model.Guid, model.StarsCount);
+		await meetingManager.AddRatingReview(model.Guid, model.Rating);
 		return Ok(new { Message = "Successfully updated meeting summary" });
 	}
 }

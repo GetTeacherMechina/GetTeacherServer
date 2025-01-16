@@ -26,7 +26,5 @@ public class DbMeeting
 	public int GradeId { get; set; }
 	public DbGrade Grade { get; set; } = null!;
 
-	[ForeignKey(nameof(MeetingSummary))]
-	public int MeetingSummaryId { get; set; }
-	public DbMeetingSummary? MeetingSummary { get; set; } = null!;
+	public virtual DbMeetingSummary? MeetingSummary { get; set; }
 }
