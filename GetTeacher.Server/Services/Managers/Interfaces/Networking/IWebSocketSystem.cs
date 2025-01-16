@@ -14,5 +14,5 @@ public interface IWebSocketSystem
 
 	public Task<WebSocketReceiveResult> ReceiveAsync(int clientId);
 
-	public Task<bool> SendAsync<T>(int clientId, T message);
+	public Task<bool> SendAsync<T>(int clientId, T message, string messageType);
 }
