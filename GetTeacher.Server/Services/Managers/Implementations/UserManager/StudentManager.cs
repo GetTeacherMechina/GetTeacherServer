@@ -22,7 +22,16 @@ public class StudentManager(GetTeacherDbContext getTeacherDbContext, IPrincipalC
 
 	public async Task<DbStudent?> GetFromUser(DbUser studentUser)
 	{
-		return await getTeacherDbContext.Students.Where(u => u.DbUser.Id == studentUser.Id).FirstOrDefaultAsync();
+		return await getTeacherDbContext
+			.Students
+			.Where(u => u.DbUser.Id == studentUser.Id)
+			.Include(u => u.FavoriteTeachers)
+				.ThenInclude(t => t.DbUser)
+			.Include(u => u.FavoriteTeachers)
+				.ThenInclude(t => t.TeacherSubjects)
+			.Include(u => u.DbUser)
+
+			.FirstOrDefaultAsync();
 	}
 
 	public async Task<bool> StudentExists(DbUser studentUser)
@@ -47,12 +56,18 @@ public class StudentManager(GetTeacherDbContext getTeacherDbContext, IPrincipalC
 
 	public async Task AddFavoriteTeacher(DbStudent student, DbTeacher teacher)
 	{
+		if (student.FavoriteTeachers.Any(fT => fT.Id == teacher.Id))
+			return;
+
 		student.FavoriteTeachers.Add(teacher);
 		await getTeacherDbContext.SaveChangesAsync();
 	}
 
 	public async Task RemoveFavoriteTeacher(DbStudent student, DbTeacher teacher)
 	{
+		if (!student.FavoriteTeachers.Any(fT => fT.Id == teacher.Id))
+			return;
+
 		student.FavoriteTeachers.Remove(teacher);
 		await getTeacherDbContext.SaveChangesAsync();
 	}

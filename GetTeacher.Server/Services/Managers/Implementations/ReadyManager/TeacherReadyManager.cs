@@ -15,8 +15,6 @@ public class TeacherReadyManager(ITeacherManager teacherManager) : ITeacherReady
 
 	public ICollection<DbTeacher> GetReadyTeachers(DbSubject subject, DbGrade grade)
 	{
-
-
 		return readyTeachers.Where(t =>
 			{
 				var subjects = teacherManager.GetAllTeacherSubjects(t.Value);
@@ -24,7 +22,6 @@ public class TeacherReadyManager(ITeacherManager teacherManager) : ITeacherReady
 			})
 			.Select(t => t.Value)
 			.ToList();
-
 	}
 
 	public void ReadyToTeachSubject(DbTeacher teacher)

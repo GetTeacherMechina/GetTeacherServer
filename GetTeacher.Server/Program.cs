@@ -21,7 +21,7 @@ public class Program
 		var app = builder.Build();
 
 		app.UseCors();
-		
+
 		// Redirects http requests to https
 		app.UseHttpsRedirection();
 

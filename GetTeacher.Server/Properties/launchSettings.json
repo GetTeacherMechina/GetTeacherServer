@@ -5,7 +5,8 @@
             "applicationUrl": "https://0.0.0.0:443;http://0.0.0.0:80",
             "dotnetRunMessages": true,
             "environmentVariables": {
-                "ASPNETCORE_ENVIRONMENT": "Development"
+                "ASPNETCORE_ENVIRONMENT": "Development",
+                "ASPNETCORE_Kestrel__Certificates__Default__Path": "../deployment/certificates/certificate_172.20.20.200.pfx"
             }
         }
     }

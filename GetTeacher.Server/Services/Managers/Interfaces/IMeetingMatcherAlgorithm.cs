@@ -2,7 +2,7 @@
 
 namespace GetTeacher.Server.Services.Managers.Interfaces;
 
-public interface IMeetingMatcher
+public interface IMeetingMatcherAlgorithm
 {
 	/*
      Look for a teacher based on the selected subject and the student's studying level.

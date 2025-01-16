@@ -14,9 +14,11 @@ public class DbTeacher
 	public int DbUserId { get; set; }
 	public virtual DbUser DbUser { get; set; } = null!;
 
+	public int NumOfRankers { get; set; }
+
 	public double Rank { get; set; }
 
-	public int NumOfLessons { get; set; }
+	public int NumOfMeetings { get; set; }
 
 	public virtual ICollection<DbTeacherSubject> TeacherSubjects { get; set; } = [];
 }

@@ -18,5 +18,5 @@ public class DbStudent
 	public virtual DbUser DbUser { get; set; } = null!;
 
 	public virtual ICollection<DbTeacher> FavoriteTeachers { get; set; } = [];
-	public virtual ICollection<DbLessonSummary> DbLessonSummaries { get; set; } = [];
+	public virtual ICollection<DbMeetingSummary> DbMeetingSummaries { get; set; } = [];
 }

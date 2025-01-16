@@ -1,7 +1,9 @@
-﻿namespace GetTeacher.Server.Models.Teacher;
+﻿using GetTeacher.Server.Services.Database.Models;
+
+namespace GetTeacher.Server.Models.Teacher;
 
 public class TeacherSubjectRequestModel
 {
-	public required string Name { get; set; }
+	public required string Subject { get; set; }
 	public required string Grade { get; set; }
 }
