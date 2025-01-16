@@ -3,5 +3,5 @@
 public class UpdateRankRequestModel
 {
 	public Guid Guid { get; set; }
-	public int StarsCount { get; set; }
+	public int Rating { get; set; }
 }

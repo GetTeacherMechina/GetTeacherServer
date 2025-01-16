@@ -98,6 +98,7 @@ public class MeetingMatcherBackgroundService(IServiceProvider serviceProvider, I
 		// Notify student and teacher :)
 		MeetingResponseModel teacherMeetingResponseModel = new MeetingResponseModel { MeetingGuid = meetingGuid, CompanionName = studentEntry.Student.DbUser.UserName! };
 		Task<bool> studentSendTask = webSocketSystem.SendAsync(studentEntry.Student.DbUserId, teacherMeetingResponseModel, "MeetingStartNotification");
+		await Task.Delay(500);
 
 		MeetingResponseModel studentMeetingResponseModel = new MeetingResponseModel { MeetingGuid = meetingGuid, CompanionName = teacher.DbUser.UserName! };
 		Task<bool> teacherSendTask = webSocketSystem.SendAsync(teacher.DbUserId, studentMeetingResponseModel, "MeetingStartNotification");
@@ -107,7 +108,7 @@ public class MeetingMatcherBackgroundService(IServiceProvider serviceProvider, I
 		if (!sendResult)
 		{
 			await meetingManager.RemoveMeeting(meetingGuid);
-			
+
 			Task<bool> studentSendFailTask = webSocketSystem.SendAsync(studentEntry.Student.DbUserId, new { Error = "Unexpected error occurred, please try again" }, "Error");
 			Task<bool> teacherSendFailTask = webSocketSystem.SendAsync(teacher.DbUserId, new { Error = "Unexpected error occurred, please try again" }, "Error");
 
@@ -168,11 +169,12 @@ public class MeetingMatcherBackgroundService(IServiceProvider serviceProvider, I
 	{
 		IServiceScope serviceScope = serviceProvider.CreateScope();
 		IWebSocketSystem webSocketSystem = serviceScope.ServiceProvider.GetRequiredService<IWebSocketSystem>();
+		ITeacherRankManager teacherRankManager = serviceScope.ServiceProvider.GetRequiredService<ITeacherRankManager>();
 
 		CsGoContractRequestModel csGoContractRequestModel = new CsGoContractRequestModel
 		{
 			TeacherBio = teacher.Bio,
-			TeacherRank = teacher.Rank,
+			TeacherRank = await teacherRankManager.GetTeacherRank(teacher),
 			MeetingResponseModel = new MeetingResponseModel { CompanionName = teacher.DbUser.UserName! }
 		};
 
