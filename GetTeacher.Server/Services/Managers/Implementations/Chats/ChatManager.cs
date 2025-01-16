@@ -14,8 +14,16 @@ public class ChatManager(GetTeacherDbContext getTeacherDbContext, IWebSocketSyst
         chat.Messages.Add(message);
 
         await getTeacherDbContext.SaveChangesAsync();
-
-        var tasks = (from user in chat.Users where user.Id != self.Id select webSocketSystem.SendAsync(user.Id, message,"chat_message")).ToArray();
+        var tasks = (from user in chat.Users
+                     where user.Id != self.Id
+                     select webSocketSystem.SendAsync(user.Id, new
+                     {
+                         message.Id,
+                         message.SenderId,
+                         message.Content,
+                         message.DateTime,
+                         SenderName = message.Sender.UserName,
+                     }, "chat_message")).ToArray();
 
         Task.WaitAll(tasks);
 

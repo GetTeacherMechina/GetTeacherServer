@@ -6,7 +6,7 @@
             "dotnetRunMessages": true,
             "environmentVariables": {
                 "ASPNETCORE_ENVIRONMENT": "Development",
-                "ASPNETCORE_Kestrel__Certificates__Default__Path": "../deployment/certificates/certificate_172.20.20.200.pfx"
+                "ASPNETCORE_Kestrel__Certificates__Default__Path": "../deployment/certificates/certificate_172.20.20.61.pfx"
             }
         }
     }
