@@ -107,7 +107,7 @@ public class MeetingMatcherBackgroundService(IServiceProvider serviceProvider, I
 				CompanionName = studentEntry.Student.DbUser.UserName!
 			};
 
-			await webSocketSystem.SendAsync(teacher.DbUserId, meetingResponseModel);
+			await webSocketSystem.SendAsync(teacher.DbUserId, meetingResponseModel, "MeetingStartNotification");
 		}
 		catch (Exception ex)
 		{
@@ -130,7 +130,7 @@ public class MeetingMatcherBackgroundService(IServiceProvider serviceProvider, I
 			await matchSemaphore.WaitAsync();
 			try
 			{
-				foundTeacher = await meetingMatcher.MatchStudentTeacher(studentEntry.Student, studentEntry.Subject, teacherExclusions.Concat(csGoPhaseTeachers).ToList());
+				foundTeacher = await meetingMatcher.MatchStudentTeacher(studentEntry.Student, studentEntry.Subject, [.. teacherExclusions, .. csGoPhaseTeachers]);
 
 				if (foundTeacher is null)
 				{
@@ -165,7 +165,6 @@ public class MeetingMatcherBackgroundService(IServiceProvider serviceProvider, I
 	private async Task<bool> CsGoContract(StudentEntry studentEntry, DbTeacher teacher, string meetingGuid)
 	{
 		IServiceScope serviceScope = serviceProvider.CreateScope();
-		IMeetingMatcher meetingMatcher = serviceScope.ServiceProvider.GetRequiredService<IMeetingMatcher>();
 		IWebSocketSystem webSocketSystem = serviceScope.ServiceProvider.GetRequiredService<IWebSocketSystem>();
 
 		CsGoContractRequestModel csGoContractRequestModel = new CsGoContractRequestModel
@@ -179,7 +178,7 @@ public class MeetingMatcherBackgroundService(IServiceProvider serviceProvider, I
 			}
 		};
 
-		await webSocketSystem.SendAsync(studentEntry.Student.DbUserId, csGoContractRequestModel);
+		await webSocketSystem.SendAsync(studentEntry.Student.DbUserId, csGoContractRequestModel, "CsGoContract");
 		WebSocketReceiveResult wsReadResult = await webSocketSystem.ReceiveAsync(studentEntry.Student.DbUserId);
 
 		if (!wsReadResult.Success)

@@ -2,6 +2,7 @@
 using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks.Dataflow;
 using GetTeacher.Server.Services.Database.Models;
 using GetTeacher.Server.Services.Managers.Interfaces.Networking;
@@ -13,8 +14,6 @@ public record WebSocketProfile(DbUser User, WebSocket Socket, BufferBlock<Interf
 
 public class WebSocketSystem(ILogger<IWebSocketSystem> logger, IUserStateTracker userStateChecker) : IWebSocketSystem
 {
-	private const int maxMessageLength = 4096;
-
 	private static readonly ConcurrentDictionary<int, WebSocketProfile> clients = new();
 
 	private readonly ILogger<IWebSocketSystem> logger = logger;
@@ -44,7 +43,7 @@ public class WebSocketSystem(ILogger<IWebSocketSystem> logger, IUserStateTracker
 		return await ws.MessageQueue.ReceiveAsync();
 	}
 
-	public async Task<bool> SendAsync<T>(int clientId, T message)
+	public async Task<bool> SendAsync<T>(int clientId, T message, string messageType)
 	{
 		// "out var ws" - wow - amazing syntax. breathtaking.
 		if (!clients.TryGetValue(clientId, out var ws))
@@ -53,8 +52,19 @@ public class WebSocketSystem(ILogger<IWebSocketSystem> logger, IUserStateTracker
 		if (ws.Socket.State != WebSocketState.Open) // well ill be
 			return false;
 
-		var json = JsonSerializer.Serialize(message);
-		var bytes = Encoding.UTF8.GetBytes(json);
+		string? originalJsonStr = JsonSerializer.Serialize(message);
+		if (originalJsonStr is null)
+			return false;
+		
+		JsonNode? jsonNode = JsonNode.Parse(originalJsonStr);
+		if (jsonNode is null)
+			return false;
+
+		JsonObject jsonObject = jsonNode.AsObject();
+		jsonObject["MessageType"] = messageType;
+
+		string jsonWithMessageTypeStr = jsonObject.ToJsonString();
+		var bytes = Encoding.UTF8.GetBytes(jsonWithMessageTypeStr);
 
 		try
 		{
