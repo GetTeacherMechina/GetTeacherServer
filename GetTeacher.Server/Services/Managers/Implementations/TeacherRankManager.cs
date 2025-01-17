@@ -30,12 +30,19 @@ public class TeacherRankManager(GetTeacherDbContext getTeacherDbContext, ITeache
 
 	public async Task<double> GetTeacherRank(DbTeacher teacher)
 	{
+		if (!await getTeacherDbContext.MeetingSummaries
+			.Include(m => m.Meeting)
+				.ThenInclude(m => m.MeetingSummary)
+			.Where(m => m.Meeting.TeacherId == teacher.Id && m.Meeting.MeetingSummary != null)
+			.AnyAsync())
+			return 0;
+
 		return await getTeacherDbContext.MeetingSummaries
-		.Include(m => m.Meeting)
-		.ThenInclude(m => m.MeetingSummary)
-		.Where(m => m.Meeting.TeacherId == teacher.Id && m.Meeting.MeetingSummary != null)
-		.Select(m => m.Meeting.MeetingSummary!.StarsCount)
-		.AverageAsync();
+			.Include(m => m.Meeting)
+				.ThenInclude(m => m.MeetingSummary)
+			.Where(m => m.Meeting.TeacherId == teacher.Id && m.Meeting.MeetingSummary != null)
+			.Select(m => m.Meeting.MeetingSummary!.StarsCount)
+			.AverageAsync();
 	}
 
 }

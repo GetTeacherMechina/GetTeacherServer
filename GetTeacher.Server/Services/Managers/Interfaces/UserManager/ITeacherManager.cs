@@ -18,4 +18,6 @@ public interface ITeacherManager
 	public ICollection<DbTeacherSubject> GetAllTeacherSubjects(DbTeacher teacher);
 
 	public Task RemoveSubjectFromTeacher(DbTeacherSubject subject, DbTeacher teacher);
+
+	public Task SetCreditsTariff(DbTeacher teacher, double creditsPerMinute);
 }

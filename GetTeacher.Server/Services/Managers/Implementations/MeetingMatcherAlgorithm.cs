@@ -13,22 +13,47 @@ public class MeetingMatcherAlgorithm(ILogger<IMeetingMatcherAlgorithm> logger, I
 	private readonly ITeacherManager teacherManager = teacherManager;
 	private readonly IUserStateTracker userStateChecker = userStateChecker;
 
-	public async Task<DbTeacher?> MatchStudentTeacher(DbStudent student, DbSubject subject, ICollection<DbTeacher> teacherExclusion)
+	private static ICollection<DbTeacher> SortByRankPriceCommunityScore(ICollection<DbTeacher> teachers, DbStudent student)
+    {
+        double maxRank = teachers.Count == 0 ? 0 : Math.Max(teachers.Max(t => t.Rank), 1);
+        double maxPrice = teachers.Count == 0 ? 0 : Math.Max(teachers.Max(t => t.TariffPerMinute), 1);
+        double maxCommunityScore = teachers.Count == 0 ? 0 : Math.Max(teachers.Max(t => t.DbUser.ChatMessagesSent + t.DbUser.ChatMessagesReceived), 1);
+
+        double communityWeightFraction = 0.1;
+        double communityWeight = (student.PriceVsQuality / 100.0) * communityWeightFraction;
+        double rankWeight = (student.PriceVsQuality / 100.0) * (1 - communityWeightFraction);
+        double priceWeight = 1.0 - rankWeight - communityWeight;
+
+        return teachers.Select(t => new
+        {
+            Teacher = t,
+            Score = rankWeight * (t.Rank / maxRank)
+                  - priceWeight * (t.TariffPerMinute / maxPrice)
+                  + communityWeight * ((t.DbUser.ChatMessagesSent + t.DbUser.ChatMessagesReceived) / maxCommunityScore)
+        })
+        .OrderByDescending(result => result.Score)
+        .Select(result => result.Teacher)
+        .ToList();
+    }
+
+    public async Task<DbTeacher?> MatchStudentTeacher(DbStudent student, DbSubject subject, ICollection<DbTeacher> teacherExclusion)
 	{
 		HashSet<int> readyTeacherIds = teacherReadyManager
-			.GetReadyTeachers(subject, student.Grade)
+			.GetReadyTeachersForSubjectAndGrade(subject, student.Grade)
 			.Select(readyT => readyT.Id)
 			.ToHashSet();
 
-		// The only source for teachers in this algorithm
 		ICollection<DbTeacher> teachers = await teacherManager.GetTeachersBySubjectAndGrade(subject, student.Grade);
 		ICollection<DbTeacher> favoriteTeachers = student.FavoriteTeachers;
 
 		teachers = [.. teachers.Except(favoriteTeachers).OrderByDescending(t => t.Rank)];
 		favoriteTeachers = [.. favoriteTeachers.OrderByDescending(t => t.Rank)];
 
+		teachers = SortByRankPriceCommunityScore(teachers, student);
+		favoriteTeachers = SortByRankPriceCommunityScore(favoriteTeachers, student);
+
 		ICollection<DbTeacher> allTeachers = [.. favoriteTeachers, .. teachers];
-		ICollection<DbTeacher> onlineTeachers = (await Task.WhenAll(allTeachers.Select(async t =>
+		DbTeacher? matchedTeacher = (await Task.WhenAll(allTeachers.Select(async t =>
 			new
 			{
 				Teacher = t,
@@ -38,20 +63,12 @@ public class MeetingMatcherAlgorithm(ILogger<IMeetingMatcherAlgorithm> logger, I
 			})))
 			.Where(result => result.IsReadyToTeach && result.IsOnline && !result.IsExcluded)
 			.Select(result => result.Teacher)
-			.ToList();
+			.FirstOrDefault();
 
-		logger.LogDebug("Number of online teachers: {onlineTeachersCount}", onlineTeachers.Count);
-		logger.LogDebug("Number of ready teachers: {readyTeachersCount}", readyTeacherIds.Count);
-		logger.LogDebug("Number of offline teachers: {offlineTeachersCount}", allTeachers.Count);
 
-		// TODO:
-		// Add student preference slider algorithm
-		// Add "community contribution" points based on chat activityRemoveSubject
-		// NotifyOnlineTeachers(bestTeachersBySubject);
-		DbTeacher? matchedTeacher = onlineTeachers.FirstOrDefault();
 		if (matchedTeacher is null)
 			logger.LogDebug("Matched [Student] {studentName} with no teacher", student.DbUser.UserName);
-		else if (matchedTeacher is not null)
+		else
 			logger.LogDebug("Matched [Student] {studentName} with [Teacher] {teacherName}", student.DbUser.UserName, matchedTeacher.DbUser.UserName);
 
 		return matchedTeacher;

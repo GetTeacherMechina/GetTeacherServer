@@ -12,7 +12,6 @@ public class MeetingManager(ILogger<IMeetingManager> logger, GetTeacherDbContext
 	public async Task<Guid> AddMeeting(DbTeacher teacher, DbStudent student, DbSubject subject, DbGrade grade)
 	{
 		Guid guid = Guid.NewGuid();
-		DateTime startTime = DateTime.UtcNow;
 
 		logger.LogDebug("Adding a new meeting: [Student:{studentName}] [Teacher:{teacherName}] [Guid:{guid}]", student.DbUser.UserName, teacher.DbUser.UserName, guid);
 		DbMeeting meeting = new DbMeeting
@@ -22,7 +21,7 @@ public class MeetingManager(ILogger<IMeetingManager> logger, GetTeacherDbContext
 			TeacherId = teacher.Id,
 			SubjectId = subject.Id,
 			GradeId = grade.Id,
-			StartTime = startTime
+			StartTime = DateTime.UtcNow,
 		};
 
 		await getTeacherDbContext.Meetings.AddAsync(meeting);
@@ -40,9 +39,9 @@ public class MeetingManager(ILogger<IMeetingManager> logger, GetTeacherDbContext
 		await getTeacherDbContext.SaveChangesAsync();
 	}
 
-	public async Task AddRatingReview(Guid guid, int starsCount)
+	public async Task AddStarsReview(Guid meetingGuid, int starsCount)
 	{
-		DbMeeting? meeting = await GetMeeting(guid);
+		DbMeeting? meeting = await GetMeeting(meetingGuid);
 		if (meeting is null)
 		{
 			logger.LogWarning("Meeting was not found.");
@@ -62,24 +61,28 @@ public class MeetingManager(ILogger<IMeetingManager> logger, GetTeacherDbContext
 			StarsCount = starsCount,
 		};
 
-		await getTeacherDbContext.AddAsync(summary);
+		meeting.MeetingSummary = summary;
+		meeting.EndTime = DateTime.UtcNow;
+
+		await getTeacherDbContext.MeetingSummaries.AddAsync(summary);
 		await getTeacherDbContext.SaveChangesAsync();
 	}
 
-	public async Task<DbMeeting?> GetMeeting(Guid guid)
+	public async Task<DbMeeting?> GetMeeting(Guid meetingGuid)
 	{
 		return await getTeacherDbContext.Meetings
-			.Where(l => l.Guid == guid)
-				.Include(l => l.MeetingSummary)
-				.Include(l => l.Student)
-				.Include(l => l.Teacher)
-				.Include(l => l.Subject)
+			.Where(m => m.Guid == meetingGuid)
+				.Include(m => m.MeetingSummary)
+				.Include(m => m.Teacher)
+				.Include(m => m.Subject)
+				.Include(m => m.Student)
+					.ThenInclude(s => s.DbUser)
 			.FirstOrDefaultAsync();
 	}
 
-	public async Task<DbMeetingSummary?> GetMeetingSummary(Guid guid)
+	public async Task<DbMeetingSummary?> GetMeetingSummary(Guid meetingGuid)
 	{
-		DbMeeting? meeting = await GetMeeting(guid);
+		DbMeeting? meeting = await GetMeeting(meetingGuid);
 		if (meeting is null)
 			return null;
 
@@ -103,5 +106,17 @@ public class MeetingManager(ILogger<IMeetingManager> logger, GetTeacherDbContext
 				.Include(l => l.Student)
 				.Include(l => l.Subject)
 			.ToListAsync();
+	}
+
+	public async Task<TimeSpan?> GetMeetingLength(Guid meetingGuid)
+	{
+		DbMeeting? meeting = await GetMeeting(meetingGuid);
+		if (meeting is null || meeting.MeetingSummary is null)
+		{
+			logger.LogWarning("Meeting was not found.");
+			return null;
+		}
+
+		return meeting.EndTime - meeting.StartTime;
 	}
 }
