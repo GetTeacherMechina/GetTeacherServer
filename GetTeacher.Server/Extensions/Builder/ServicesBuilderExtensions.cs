@@ -43,6 +43,8 @@ public static class ServicesBuilderExtensions
 		builder.Services.AddScoped<IGradeManager, GradeManager>();
 		builder.Services.AddScoped<IMeetingManager, MeetingManager>();
 		builder.Services.AddScoped<IUserCreditManager, UserCreditManager>();
+		builder.Services.AddScoped<IStudentCreditCharger, StudentCreditCharger>();
+		builder.Services.AddScoped<IPaymentIntentToCredits, LocalPaymentIntentToCredits>();
 		
 		// Payment
 		builder.Services.AddScoped<IItemPriceQuerier, LocalItemPriceQuerier>();

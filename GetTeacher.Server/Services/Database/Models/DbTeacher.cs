@@ -20,5 +20,7 @@ public class DbTeacher
 
 	public int NumOfMeetings { get; set; }
 
+	public double TariffPerMinute { get; set; }
+
 	public virtual ICollection<DbTeacherSubject> TeacherSubjects { get; set; } = [];
 }

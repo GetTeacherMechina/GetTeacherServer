@@ -21,19 +21,17 @@ public class RegisterController(UserManager<DbUser> userManager, GetTeacherDbCon
 		await getTeacherDbContext.SaveChangesAsync();
 	}
 
-	private async Task AddStudent(DbUser user, StudentRequestModel model)
+	private async Task AddStudent(DbUser user, StudentRequestModel studentRequestModel)
 	{
-		var grade = await getTeacherDbContext.Grades
-			   .FirstOrDefaultAsync(g => g.Name == model.Grade);
-
-		if (grade == null)
+		DbGrade? grade = await getTeacherDbContext.Grades.FirstOrDefaultAsync(g => g.Name == studentRequestModel.Grade);
+		if (grade is null)
 		{
-			grade = new DbGrade { Name = model.Grade };
+			grade = new DbGrade { Name = studentRequestModel.Grade };
 			getTeacherDbContext.Grades.Add(grade);
 			await getTeacherDbContext.SaveChangesAsync();
 		}
 
-		DbStudent student = new DbStudent { GradeId = grade.Id, DbUserId = user.Id };
+		DbStudent student = new DbStudent { GradeId = grade.Id, DbUserId = user.Id, PriceVsQuality = 50 };
 		getTeacherDbContext.Students.Add(student);
 		await getTeacherDbContext.SaveChangesAsync();
 	}

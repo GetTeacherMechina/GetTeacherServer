@@ -3,12 +3,12 @@ using Stripe;
 
 namespace GetTeacher.Server.Services.Managers.Implementations.Payment;
 
-public class StripePaymentManager(ILogger<IPaymentManager> logger, IConfiguration configuration) : IPaymentManager
+public class StripePaymentManager(IPaymentIntentToCredits paymentIntentToCredits, ILogger<IPaymentManager> logger, IConfiguration configuration) : IPaymentManager
 {
 	private readonly ILogger<IPaymentManager> logger = logger;
 	private readonly IConfiguration configuration = configuration;
 
-	public async Task<string?> MakePaymentIntentAsync(PaymentDetailsModel paymentDetailsModel)
+	public async Task<PaymentIntendDescriptor?> MakePaymentIntentAsync(PaymentDetailsModel paymentDetailsModel)
 	{
 		string? stripeApiKey = configuration["StripeSettings:ApiKey"];
 		if (stripeApiKey is null)
@@ -32,7 +32,7 @@ public class StripePaymentManager(ILogger<IPaymentManager> logger, IConfiguratio
 			});
 
 			logger.LogCritical("Payment Intent Id: {paymentIntentId}", paymentIntent.Id);
-			return paymentIntent.ClientSecret;
+			return new PaymentIntendDescriptor(paymentIntent.Id, paymentIntent.ClientSecret);
 		}
 		catch (StripeException ex)
 		{

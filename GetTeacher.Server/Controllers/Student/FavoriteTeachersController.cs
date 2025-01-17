@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GetTeacher.Server.Controllers.Student;
 
-[Controller]
+[ApiController]
 [Route("/api/v1/student/[controller]")]
 public class FavoriteTeachersController(ITeacherManager teacherManager, IStudentManager studentManager) : Controller
 {

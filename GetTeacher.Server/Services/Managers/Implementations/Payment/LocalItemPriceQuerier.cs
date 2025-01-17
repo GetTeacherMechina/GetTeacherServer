@@ -12,17 +12,17 @@ public class LocalItemPriceQuerier : IItemPriceQuerier
 		{ 4, new PaymentItemDescriptor(4, "Cool kids will buy this ->", 1000, 100) },
 	};
 
-	public Task<double?> GetItemPriceInDollars(ItemType itemType, int itemId)
+	public Task<PaymentItemDescriptor?> GetItem(ItemType itemType, int itemId)
 	{
 		switch (itemType)
 		{
 			case ItemType.Credits:
 				if (creditPriceDescriptors.TryGetValue(itemId, out PaymentItemDescriptor? value))
-					return Task.FromResult((double?)value.PriceInDollars);
-				return Task.FromResult<double?>(null);
+					return Task.FromResult((PaymentItemDescriptor?)value);
+				return Task.FromResult<PaymentItemDescriptor?>(null);
 		}
 
-		return Task.FromResult<double?>(null);
+		return Task.FromResult<PaymentItemDescriptor?>(null);
 	}
 
 	public Task<ICollection<PaymentItemDescriptor>> GetCreditPricesInDollars()

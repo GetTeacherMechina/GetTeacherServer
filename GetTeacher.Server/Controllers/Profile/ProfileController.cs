@@ -10,9 +10,9 @@ namespace GetTeacher.Server.Controllers.Profile;
 
 [ApiController]
 [Route("api/v1/profile")]
-public class ProfileController(UserManager<DbUser> userManager, ITeacherManager teacherManager, IStudentManager studentManager) : ControllerBase
+public class ProfileController(IUserManager userManager, ITeacherManager teacherManager, IStudentManager studentManager) : ControllerBase
 {
-	private readonly UserManager<DbUser> userManager = userManager;
+	private readonly IUserManager userManager = userManager;
 	private readonly ITeacherManager teacherManager = teacherManager;
 	private readonly IStudentManager studentManager = studentManager;
 
@@ -20,27 +20,21 @@ public class ProfileController(UserManager<DbUser> userManager, ITeacherManager 
 	[Authorize]
 	public async Task<IActionResult> Profile()
 	{
-		// Shit code
-		// TODO: Make claims querier service
-		var emailClaim = User.FindFirst(ClaimTypes.Email);
-		if (emailClaim is null)
+		DbUser? user = await userManager.GetFromUser(User);
+		if (user is null)
 			return BadRequest();
 
-		string email = emailClaim.Value;
-		DbUser? userResult = await userManager.FindByEmailAsync(email);
-		if (userResult == null)
-			return BadRequest(new ProfileResponseModel { Result = "No such username - wtf authenticated but not found?" });
-
-		DbTeacher? teacher = await teacherManager.GetFromUser(userResult);
-		DbStudent? student = await studentManager.GetFromUser(userResult);
+		DbTeacher? teacher = await teacherManager.GetFromUser(user);
+		DbStudent? student = await studentManager.GetFromUser(user);
 
 		return Ok(new ProfileResponseModel
 		{
 			Result = "Success",
-			Email = userResult.Email!,
-			FullName = userResult.UserName!,
-			IsStudent = student != null,
-			IsTeacher = teacher != null
+			Email = user.Email!,
+			FullName = user.UserName!,
+			IsStudent = student is not null,
+			IsTeacher = teacher is not null,
+			Credits = user.Credits
 		});
 	}
 }

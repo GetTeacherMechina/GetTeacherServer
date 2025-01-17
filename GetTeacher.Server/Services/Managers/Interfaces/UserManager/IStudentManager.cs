@@ -18,4 +18,6 @@ public interface IStudentManager
 	public Task AddFavoriteTeacher(DbStudent student, DbTeacher teacher);
 
 	public Task RemoveFavoriteTeacher(DbStudent student, DbTeacher teacher);
+
+	public Task SetPriceVsQuality(DbStudent student, int priceVsQuality);
 }

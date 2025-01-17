@@ -4,7 +4,7 @@ namespace GetTeacher.Server.Services.Managers.Interfaces.ReadyManager;
 
 public interface ITeacherReadyManager
 {
-	public ICollection<DbTeacher> GetReadyTeachers(DbSubject subject, DbGrade grade);
+	public ICollection<DbTeacher> GetReadyTeachersForSubjectAndGrade(DbSubject subject, DbGrade grade);
 	public void ReadyToTeachSubject(DbTeacher teacher);
 	public void NotReadyToTeach(DbTeacher teacher);
 }

@@ -14,7 +14,7 @@ public class GetTeacherDbContext(DbContextOptions<GetTeacherDbContext> options) 
 	public required DbSet<DbGrade> Grades { get; set; }
 	public required DbSet<DbSubject> Subjects { get; set; }
 	public required DbSet<DbTeacherSubject> TeacherSubjects { get; set; }
-
+	
 	public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
 	{
 		// TODO: Forward to a background service for efficient non-instant save

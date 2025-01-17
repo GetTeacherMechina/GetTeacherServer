@@ -171,10 +171,12 @@ public class MeetingMatcherBackgroundService(IServiceProvider serviceProvider, I
 		IWebSocketSystem webSocketSystem = serviceScope.ServiceProvider.GetRequiredService<IWebSocketSystem>();
 		ITeacherRankManager teacherRankManager = serviceScope.ServiceProvider.GetRequiredService<ITeacherRankManager>();
 
+		double teacherRank = await teacherRankManager.GetTeacherRank(teacher);
+
 		CsGoContractRequestModel csGoContractRequestModel = new CsGoContractRequestModel
 		{
 			TeacherBio = teacher.Bio,
-			TeacherRank = await teacherRankManager.GetTeacherRank(teacher),
+			TeacherRank = teacherRank,
 			MeetingResponseModel = new MeetingResponseModel { CompanionName = teacher.DbUser.UserName! }
 		};
 

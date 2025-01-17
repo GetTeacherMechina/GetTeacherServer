@@ -11,8 +11,9 @@ namespace GetTeacher.Server.Controllers.Payment;
 
 [ApiController]
 [Route("/api/v1/payment/credits")]
-public class CreditPaymentController(IWebSocketSystem webSocketSystem, IUserCreditManager userCreditManager, IUserManager userManager,IPaymentManager paymentManager, IItemPriceQuerier  itemPriceQuerier) : ControllerBase
+public class CreditPaymentController(IPaymentIntentToCredits paymentIntentToCredits, IWebSocketSystem webSocketSystem, IUserCreditManager userCreditManager, IUserManager userManager,IPaymentManager paymentManager, IItemPriceQuerier  itemPriceQuerier) : ControllerBase
 {
+	private readonly IPaymentIntentToCredits paymentIntentToCredits = paymentIntentToCredits;
 	private readonly IWebSocketSystem webSocketSystem = webSocketSystem;
 	private readonly IUserCreditManager userCreditManager = userCreditManager;
 	private readonly IUserManager userManager = userManager;
@@ -33,16 +34,17 @@ public class CreditPaymentController(IWebSocketSystem webSocketSystem, IUserCred
 		if (user is null)
 			return BadRequest("User not found.");
 
-		double? price = await itemPriceQuerier.GetItemPriceInDollars(ItemType.Credits, buyCreditsRequestModel.ItemId);
-		if (price is null)
+		PaymentItemDescriptor? paymentItemDescriptor= await itemPriceQuerier.GetItem(ItemType.Credits, buyCreditsRequestModel.ItemId);
+		if (paymentItemDescriptor is null)
 			return BadRequest("No such item found.");
 
-		PaymentDetailsModel paymentDetailsModel = new PaymentDetailsModel(price.Value);
-		string? clientSecret = await paymentManager.MakePaymentIntentAsync(paymentDetailsModel);
-		if (clientSecret is null)
+		PaymentDetailsModel paymentDetailsModel = new PaymentDetailsModel(paymentItemDescriptor.PriceInDollars);
+		PaymentIntendDescriptor? paymentIntendDescriptor = await paymentManager.MakePaymentIntentAsync(paymentDetailsModel);
+		if (paymentIntendDescriptor is null)
 			return BadRequest("Error creating payment intent.");
 
-		return Ok(new ItemPaymentIntentResponseModel { Status = "Success", ClientSecret = clientSecret });
+		await paymentIntentToCredits.Push(paymentIntendDescriptor.PaymentIntendId, paymentItemDescriptor.Amount);
+		return Ok(new ItemPaymentIntentResponseModel { Status = "Success", ClientSecret = paymentIntendDescriptor.ClientSecret });
 	}
 
 	[HttpPost("pay")]
@@ -56,8 +58,12 @@ public class CreditPaymentController(IWebSocketSystem webSocketSystem, IUserCred
 		PaymentResultModel paymentResult = await paymentManager.ConfirmPaymentIntentAsync(itemPaymentIntentRequestModel.PaymentIntentId);
 		if (paymentResult.Success)
 		{
-			await userCreditManager.AddCreditsToUser(user, paymentResult.DollarAmount);
-			await webSocketSystem.SendAsync(user.Id, new { AddCreditAmount = paymentResult.DollarAmount }, "UpdateCredits");
+			double? creditAmount = await paymentIntentToCredits.Pop(itemPaymentIntentRequestModel.PaymentIntentId);
+			if (creditAmount is null)
+				return BadRequest("Payment intent id not found.");
+
+			await userCreditManager.AddCreditsToUser(user, creditAmount.Value);
+			await webSocketSystem.SendAsync(user.Id, new { AddCreditAmount = creditAmount.Value }, "UpdateCredits");
 
 			return Ok(new ItemPaymentResultResponseModel { Status = "Payment successful." });
 		}
