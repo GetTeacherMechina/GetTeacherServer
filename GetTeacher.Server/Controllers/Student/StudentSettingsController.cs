@@ -38,5 +38,4 @@ public class StudentSettingsController(IStudentManager studentManager) : Control
 		await studentManager.SetPriceVsQuality(student, setPriceVsQualityRequestModel.PriceVsQuality);
 		return Ok(new { });
 	}
-
 }
