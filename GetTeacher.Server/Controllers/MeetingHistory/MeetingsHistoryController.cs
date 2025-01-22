@@ -14,7 +14,7 @@ public class MeetingsHistoryController(IMeetingManager meetingManager, ITeacherM
 	private readonly ITeacherManager teacherManager = teacherManager;
 	private readonly IStudentManager studentManager = studentManager;
 
-	[HttpGet]
+	[HttpPost]
 	public async Task<IActionResult> GetMeetingHistory([FromBody] GetMeetingHistoryRequestModel getMeetingHistoryRequestModel)
 	{
 		ICollection<DbMeeting> meetings;
