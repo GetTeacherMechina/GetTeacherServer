@@ -10,12 +10,24 @@ namespace GetTeacher.Server.Controllers.Teacher;
 [Route("/api/v1/teachers")]
 public class TeacherQuerierController(GetTeacherDbContext getTeacherDbContext) : ControllerBase
 {
-    private readonly GetTeacherDbContext getTeacherDbContext = getTeacherDbContext;
+    private readonly GetTeacherDbContext db = getTeacherDbContext;
 
     [HttpGet]
     public async Task<IActionResult> GetAllTeachers()
     {
-        var Teachers = await getTeacherDbContext.Teachers.ToListAsync();
-        return Ok(new { Teachers });
+        var teachers = await db.Teachers.Include(a=>a.DbUser).ToListAsync();
+
+        return Ok(new
+        {
+            teachers = teachers.Select((teacher, index) => new
+            {
+                teacher.Bio,
+                teacher.Id,
+                teacher.DbUser.UserName,
+                teacher.NumOfMeetings,
+                teacher.Rank,
+                teacher.NumOfRankers,
+            })
+        });
     }
 }
