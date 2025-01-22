@@ -7,9 +7,11 @@ using GetTeacher.Server.Services.Managers.Interfaces.Networking;
 using GetTeacher.Server.Services.Managers.Interfaces.UserManager;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace GetTeacher.Server.Controllers.Chats;
 
+[ApiController]
 public class ChatController(GetTeacherDbContext db, IChatManager chatManager, IPrincipalClaimsQuerier principalClaims) : Controller
 {
     [Route("/api/v1/chats/create")]
@@ -125,5 +127,20 @@ public class ChatController(GetTeacherDbContext db, IChatManager chatManager, IP
             }),
         });
     }
+    [Route("/api/v1/chats")]
+    [HttpGet]
+    public async Task<IActionResult> GetChats()
+    {
+        int? userId = principalClaims.GetId(User);
+        if (userId == null)
+        {
+            return BadRequest("Not authenticated");
+        }
+        var chats = from chat in db.Chats
+                    where chat.Users.Any(u => u.Id == userId)
+                    select
+            new { chat.Id, Users = chat.Users.Select(a => new { Id = a.Id, Username = a.UserName }).ToList() };
 
+        return Ok(new { chats = await chats.ToListAsync() });
+    }
 }

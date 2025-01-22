@@ -2,6 +2,7 @@
 using GetTeacher.Server.Services.Database.Models;
 using GetTeacher.Server.Services.Managers;
 using GetTeacher.Server.Services.Managers.Implementations;
+using GetTeacher.Server.Services.Managers.Implementations.Chats;
 using GetTeacher.Server.Services.Managers.Implementations.EmailSender;
 using GetTeacher.Server.Services.Managers.Implementations.Networking;
 using GetTeacher.Server.Services.Managers.Implementations.Payment;
@@ -9,6 +10,7 @@ using GetTeacher.Server.Services.Managers.Implementations.ReadyManager;
 using GetTeacher.Server.Services.Managers.Implementations.UserManager;
 using GetTeacher.Server.Services.Managers.Implementations.UserStateTracker;
 using GetTeacher.Server.Services.Managers.Interfaces;
+using GetTeacher.Server.Services.Managers.Interfaces.Chats;
 using GetTeacher.Server.Services.Managers.Interfaces.Networking;
 using GetTeacher.Server.Services.Managers.Interfaces.Payment;
 using GetTeacher.Server.Services.Managers.Interfaces.ReadyManager;
@@ -45,7 +47,7 @@ public static class ServicesBuilderExtensions
 		builder.Services.AddScoped<IUserCreditManager, UserCreditManager>();
 		builder.Services.AddScoped<IStudentCreditCharger, StudentCreditCharger>();
 		builder.Services.AddScoped<IPaymentIntentToCredits, LocalPaymentIntentToCredits>();
-		
+
 		// Payment
 		builder.Services.AddScoped<IItemPriceQuerier, LocalItemPriceQuerier>();
 		builder.Services.AddScoped<IPaymentManager, StripePaymentManager>();
@@ -57,6 +59,10 @@ public static class ServicesBuilderExtensions
 		builder.Services.AddScoped<IJwtAuthenticator, JwtAuthenticator>();
 		builder.Services.AddScoped<IWebSocketSystem, WebSocketSystem>();
 		builder.Services.AddSingleton<IPrincipalClaimsQuerier, PrincipalClaimsQuerier>();
+
+		// Chats
+		builder.Services.AddScoped<IChatManager, ChatManager>();
+
 
 		// Add the meeting matcher as a background service
 		builder.Services.AddSingleton<MeetingMatcherBackgroundService>();
