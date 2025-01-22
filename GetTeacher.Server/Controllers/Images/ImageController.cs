@@ -16,7 +16,7 @@ public class ImagesController : ControllerBase
         if (file == null || file.Length == 0)
             return BadRequest("No file uploaded.");
         var imageName = string.Concat(Path.GetExtension(file.FileName).Where(char.IsLetterOrDigit));
-        var uniqueFileName = $"{Guid.NewGuid()}{imageName}";
+        var uniqueFileName = $"{Guid.NewGuid()}{imageName}.png";
         var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
 
         if (!Directory.Exists(uploadsFolder))
@@ -29,7 +29,7 @@ public class ImagesController : ControllerBase
             await file.CopyToAsync(stream);
         }
 
-        var imageUrl = $"/images/{uniqueFileName}.png";
+        var imageUrl = $"/images/{uniqueFileName}";
 
         return Ok(new { Url = imageUrl });
     }
