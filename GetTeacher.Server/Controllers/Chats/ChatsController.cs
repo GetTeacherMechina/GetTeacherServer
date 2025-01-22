@@ -124,7 +124,7 @@ public class ChatController(GetTeacherDbContext db, IChatManager chatManager, IP
                 m.Content,
                 m.DateTime,
                 SenderName = m.Sender.UserName,
-            }),
+            }).OrderBy(a => a.DateTime),
         });
     }
     [Route("/api/v1/chats")]

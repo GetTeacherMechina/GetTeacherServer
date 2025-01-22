@@ -21,8 +21,8 @@ public class ValidateController(IPrincipalClaimsQuerier principalClaimsQuerier, 
 		if (userId is null)
 			return Unauthorized(new { });
 
-		if (await userStateTracker.IsUserOnline(new Services.Database.Models.DbUser { Id = userId.Value }))
-			return BadRequest(new { });
+		// if (await userStateTracker.IsUserOnline(new Services.Database.Models.DbUser { Id = userId.Value }))
+		// 	return BadRequest(new { });
 
 		return Ok(new { });
 	}
