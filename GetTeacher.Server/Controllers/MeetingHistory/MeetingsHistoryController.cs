@@ -2,55 +2,54 @@
 using GetTeacher.Server.Services.Database.Models;
 using GetTeacher.Server.Services.Managers.Interfaces;
 using GetTeacher.Server.Services.Managers.Interfaces.UserManager;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GetTeacher.Server.Controllers.MeetingHistory;
 
-
-[Controller]
-[Route("/api/v1/MeetingHistory")]
-public class MeetingsHistoryController(
-	IMeetingManager meetingManager, ITeacherManager teacherManager,
-	IStudentManager studentManager) : ControllerBase
+[ApiController]
+[Route("/api/v1/[controller]")]
+public class MeetingsHistoryController(IMeetingManager meetingManager, ITeacherManager teacherManager,IStudentManager studentManager) : ControllerBase
 {
 	private readonly IMeetingManager meetingManager = meetingManager;
 	private readonly ITeacherManager teacherManager = teacherManager;
 	private readonly IStudentManager studentManager = studentManager;
 
 	[HttpGet]
-	public async Task<IActionResult> GetMeetingHistory()
+	public async Task<IActionResult> GetMeetingHistory([FromBody] GetMeetingHistoryRequestModel getMeetingHistoryRequestModel)
 	{
-		DbMeeting[] meetings;
-		DbTeacher? teacher = await teacherManager.GetFromUser(User);
-		DbStudent? student = await studentManager.GetFromUser(User);
-		if (teacher is not null)
+		ICollection<DbMeeting> meetings;
+		if (getMeetingHistoryRequestModel.IsTeacher)
 		{
-			meetings = (await meetingManager.GetAllTeacherMeetings(teacher)).ToArray();
-		} else if (student is not null)
+			DbTeacher? teacher = await teacherManager.GetFromUser(User);
+			if (teacher is null)
+				return BadRequest("Teacher not found");
+
+			meetings = await meetingManager.GetAllTeacherMeetings(teacher);
+		}
+		else if (getMeetingHistoryRequestModel.IsStudent)
 		{
-			meetings = (await meetingManager.GetAllStudentMeetings(student)).ToArray();
+			DbStudent? student = await studentManager.GetFromUser(User);
+			if (student is null)
+				return BadRequest("Student not found");
+
+			meetings = await meetingManager.GetAllStudentMeetings(student);
 		}
 		else
+			return BadRequest("No meeting history target ticked");
+
+		meetings = [.. meetings.OrderByDescending(x => x.EndTime)];
+		ICollection<MeetingHistoryModel> meetingHistory = meetings.Select(x => new MeetingHistoryModel
 		{
-			return BadRequest("user not found");
-		}
-		MeetingHistoryModel[] meetingsHistorie = new MeetingHistoryModel[meetings.Length];
-		for (int i = 0; i < meetings.Length; i++)
-		{
-			meetingsHistorie[i] = new MeetingHistoryModel {
-				SubjectName = meetings[i].Subject.Name,
-				PrtnerName = teacher is not null ? meetings[i].Teacher.DbUser.UserName
-					: meetings[i].Student.DbUser.UserName,
-				StartTime = meetings[i].StartTime.ToString(),
-				EndTime = meetings[i].EndTime.ToString(),
-			};
-		}
+			SubjectName = x.Subject.Name,
+			PartnerName = getMeetingHistoryRequestModel.IsTeacher ? x.Student.DbUser.UserName! : x.Teacher.DbUser.UserName!,
+			StartTime = x.StartTime,
+			EndTime = x.EndTime,
+		}).ToList();
 
 		return Ok(
 			new MeetingsHistoryModel
 			{
-				History = meetingsHistorie.ToList()
+				History = meetingHistory
 			}
 		);
 	}
