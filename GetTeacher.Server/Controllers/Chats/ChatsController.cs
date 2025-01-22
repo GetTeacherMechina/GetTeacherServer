@@ -1,118 +1,103 @@
-using System.Runtime.CompilerServices;
 using GetTeacher.Server.Models.Chats;
 using GetTeacher.Server.Services.Database;
 using GetTeacher.Server.Services.Database.Models;
 using GetTeacher.Server.Services.Managers.Interfaces.Chats;
-using GetTeacher.Server.Services.Managers.Interfaces.Networking;
 using GetTeacher.Server.Services.Managers.Interfaces.UserManager;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace GetTeacher.Server.Controllers.Chats;
 
 [ApiController]
-public class ChatController(GetTeacherDbContext db, IChatManager chatManager, IPrincipalClaimsQuerier principalClaims) : Controller
+[Route("/api/v1/[controller]")]
+public class ChatsController(GetTeacherDbContext getTeacherDbContext, IChatManager chatManager, IUserManager userManager) : Controller
 {
-    [Route("/api/v1/chats/create")]
-    [HttpPost]
-    public async Task<IActionResult> CreateChat([FromBody] ChatCreationModel chat)
+	private readonly GetTeacherDbContext getTeacherDbContext = getTeacherDbContext;
+	private readonly IChatManager chatManager = chatManager;
+	private readonly IUserManager userManager = userManager;
+
+	[HttpGet]
+	[Authorize]
+	public async Task<IActionResult> GetChats()
+	{
+		DbUser? user = await userManager.GetFromUser(User);
+		if (user is null)
+			return BadRequest("User not found");
+
+		ICollection<DbChat> chats = await getTeacherDbContext.Chats
+			.Where(chat => chat.Users.Any(u => u.Id == user.Id))
+			.ToListAsync();
+		return Ok(new GetChatsResponseModel { Chats = chats });
+	}
+	
+	[Authorize]
+	[HttpPost]
+	[Route("create")]
+    public async Task<IActionResult> CreateChat([FromBody] ChatCreateModelRequest chat)
     {
-        int? id = principalClaims.GetId(User);
-        if (id == null)
-        {
-            return BadRequest("not authenticated");
-        }
-        DbUser? dbUser = await db.Users.Where(u => u.Id == id).FirstOrDefaultAsync();
-        if (dbUser == null)
-        {
-            return BadRequest("not authenticated");
-        }
+		DbUser? user = await userManager.GetFromUser(User);
+        if (user is null)
+            return BadRequest("User not found");
 
-        // DbUser?[] users = await Task.WhenAll(chat.Users.Select(async userid => await db.Users.Where(u => u.Id == userid).FirstOrDefaultAsync()).ToList());
-        var users_task = (from userId in chat.Users select db.Users.Where(u => u.Id == userId).FirstOrDefaultAsync()).ToArray();
-        var users = await Task.WhenAll(users_task);
-        foreach (var user in users)
-        {
-            //checking for nulls in the array
-            if (user == null)
-            {
-                return BadRequest("user from user list not found");
-            }
-        }
+		ICollection<DbUser> participants = await getTeacherDbContext.Users.Where(u => chat.Users.Contains(u.Id)).ToListAsync();
+		if (chat.Users.Count != participants.Count)
+			return BadRequest("Not all participants found");
 
-        // the null checking happens up here
-        await chatManager.CreateChat(dbUser, users.Select(a => a!));
+        await chatManager.CreateChat(user, participants);
         return Ok(new { });
     }
 
-    [Route("/api/v1/chats/send-message/{chatId}")]
+    [Route("send-message/{chatId}")]
     [HttpPost]
+	[Authorize]
     public async Task<IActionResult> SendMessage(int chatId, [FromBody] MessageCreationModel messageModel)
     {
-        int? senderId = principalClaims.GetId(User);
-        if (senderId == null)
-        {
-            return BadRequest("Not authenticated");
-        }
+		DbUser? user = await userManager.GetFromUser(User);
+		if (user is null)
+			return BadRequest("User not found");
 
-        DbUser? sender = await db.Users.FirstOrDefaultAsync(u => u.Id == senderId);
-        if (sender == null)
-        {
-            return BadRequest("Not authenticated");
-        }
-
-        DbChat? chat = await db.Chats
-            .Include(c => c.Users)
+        DbChat? chat = await getTeacherDbContext.Chats
+				.Include(c => c.Users)
             .FirstOrDefaultAsync(c => c.Id == chatId);
-        if (chat == null)
-        {
+        if (chat is null)
             return NotFound("Chat not found");
-        }
 
-        if (!chat.Users.Any(u => u.Id == sender.Id))
-        {
+        if (!chat.Users.Any(u => u.Id == user.Id))
             return Forbid("You are not a participant in this chat");
-        }
 
         var message = new DbMessage
         {
             Content = messageModel.Content,
-            Sender = sender,
-            SenderId = sender.Id,
+            Sender = user,
+            SenderId = user.Id,
             DateTime = DateTime.UtcNow
         };
 
-        await chatManager.SendToChat(chat, sender, message);
-
+        await chatManager.SendToChat(chat, user, message);
         return Ok(new { MessageId = message.Id });
     }
 
-    [Route("/api/v1/chats/{chatId}")]
+    [Route("{chatId}")]
     [HttpGet]
+	[Authorize]
     public async Task<IActionResult> GetChat(int chatId)
     {
-        int? userId = principalClaims.GetId(User);
-        if (userId == null)
-        {
-            return BadRequest("Not authenticated");
-        }
+		DbUser? user = await userManager.GetFromUser(User);
+		if (user is null)
+			return BadRequest("User not found");
 
-        var chat = await db.Chats
-            .Include(c => c.Users)
-            .Include(c => c.Messages).ThenInclude(m => m.Sender)
+		var chat = await getTeacherDbContext.Chats
+				.Include(c => c.Users)
+				.Include(c => c.Messages)
+					.ThenInclude(m => m.Sender)
             .FirstOrDefaultAsync(c => c.Id == chatId);
 
-        if (chat == null)
-        {
+        if (chat is null)
             return NotFound("Chat not found");
-        }
 
-        if (!chat.Users.Any(u => u.Id == userId))
-        {
+        if (!chat.Users.Any(u => u.Id == user.Id))
             return Forbid("You are not a participant in this chat");
-        }
-
 
         return Ok(new
         {
@@ -126,25 +111,5 @@ public class ChatController(GetTeacherDbContext db, IChatManager chatManager, IP
                 SenderName = m.Sender.UserName,
             }).OrderBy(a => a.DateTime),
         });
-    }
-    [Route("/api/v1/chats")]
-    [HttpGet]
-    public async Task<IActionResult> GetChats()
-    {
-        int? userId = principalClaims.GetId(User);
-        if (userId == null)
-        {
-            return BadRequest("Not authenticated");
-        }
-        List<DbChat> cahtsTemp = db.Chats.Include(a => a.Users).ToList();
-        var chats = db.Chats.Include(c => c.Users)
-            .Where(chat => chat.Users.Any(u => u.Id == userId))
-            .Select(chat => new
-            {
-                chat.Id,
-                Users = chat.Users.Select(a => new { a.Id, Username = a.UserName }).ToList()
-            });
-        var actualChats = await chats.ToListAsync();
-        return Ok(new { chats = actualChats });
     }
 }

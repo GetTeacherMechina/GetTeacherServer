@@ -35,6 +35,5 @@ public class GetTeacherDbContext(DbContextOptions<GetTeacherDbContext> options) 
 			u => u.HasOne<DbUser>().WithMany().HasForeignKey("DbUserId"),
 			c => c.HasOne<DbChat>().WithMany().HasForeignKey("ChatId")
 		);
-
 	}
 }

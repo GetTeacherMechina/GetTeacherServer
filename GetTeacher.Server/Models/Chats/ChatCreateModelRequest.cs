@@ -1,6 +1,6 @@
 namespace GetTeacher.Server.Models.Chats;
 
-public class ChatCreationModel
+public class ChatCreateModelRequest
 {
     public required ICollection<int> Users { get; set; }
 }

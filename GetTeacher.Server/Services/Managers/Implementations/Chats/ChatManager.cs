@@ -1,42 +1,36 @@
+using GetTeacher.Server.Models.Chats;
 using GetTeacher.Server.Services.Database;
 using GetTeacher.Server.Services.Database.Models;
 using GetTeacher.Server.Services.Managers.Interfaces.Chats;
 using GetTeacher.Server.Services.Managers.Interfaces.Networking;
-using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace GetTeacher.Server.Services.Managers.Implementations.Chats;
 
 public class ChatManager(GetTeacherDbContext getTeacherDbContext, IWebSocketSystem webSocketSystem) : IChatManager
 {
-    public async Task SendToChat(DbChat chat, DbUser self, DbMessage message)
-    {
-        getTeacherDbContext.Messages.Add(message);
-        chat.Messages.Add(message);
+	public async Task CreateChat(DbUser user, ICollection<DbUser> participants)
+	{
+		await getTeacherDbContext.Chats.AddAsync(new DbChat
+		{
+			Users = [user, .. participants]
+		});
+		await getTeacherDbContext.SaveChangesAsync();
+	}
 
-        await getTeacherDbContext.SaveChangesAsync();
-        var tasks = (from user in chat.Users
-                     where user.Id != self.Id
-                     select webSocketSystem.SendAsync(user.Id, new
-                     {
-                         id = message.Id,
-                         senderId = message.SenderId,
-                         content = message.Content,
-                         dateTime = message.DateTime,
-                         senderName = message.Sender.UserName,
-                     }, "chat_message")).ToArray();
+	public async Task SendToChat(DbChat chat, DbUser self, DbMessage message)
+	{
+		chat.Messages.Add(message);
+		await getTeacherDbContext.SaveChangesAsync();
 
-        Task.WaitAll(tasks);
-
-    }
-
-    public async Task CreateChat(DbUser self, IEnumerable<DbUser> dbUsers)
-    {
-        await getTeacherDbContext.Chats.AddAsync(new()
-        {
-            Users = dbUsers.Append(self).ToList()
-        });
-
-        await getTeacherDbContext.SaveChangesAsync();
-
-    }
+		await Task.WhenAll(chat.Users.Select(u =>
+			webSocketSystem.SendAsync(u.Id, new SendMessageResponseModel
+			{
+				Id = message.Id,
+				SenderId = message.SenderId,
+				Content = message.Content,
+				SendTime = message.DateTime,
+				SenderName = message.Sender.UserName!,
+			}, "chat_message")
+		));
+	}
 }

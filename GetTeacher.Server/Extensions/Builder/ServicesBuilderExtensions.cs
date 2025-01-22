@@ -47,6 +47,7 @@ public static class ServicesBuilderExtensions
 		builder.Services.AddScoped<IUserCreditManager, UserCreditManager>();
 		builder.Services.AddScoped<IStudentCreditCharger, StudentCreditCharger>();
 		builder.Services.AddScoped<IPaymentIntentToCredits, LocalPaymentIntentToCredits>();
+		builder.Services.AddScoped<IChatManager, ChatManager>();
 
 		// Payment
 		builder.Services.AddScoped<IItemPriceQuerier, LocalItemPriceQuerier>();
@@ -59,10 +60,6 @@ public static class ServicesBuilderExtensions
 		builder.Services.AddScoped<IJwtAuthenticator, JwtAuthenticator>();
 		builder.Services.AddScoped<IWebSocketSystem, WebSocketSystem>();
 		builder.Services.AddSingleton<IPrincipalClaimsQuerier, PrincipalClaimsQuerier>();
-
-		// Chats
-		builder.Services.AddScoped<IChatManager, ChatManager>();
-
 
 		// Add the meeting matcher as a background service
 		builder.Services.AddSingleton<MeetingMatcherBackgroundService>();

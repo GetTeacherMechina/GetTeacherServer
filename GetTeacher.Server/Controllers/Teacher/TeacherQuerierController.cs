@@ -1,6 +1,5 @@
 using GetTeacher.Server.Services.Database;
 using GetTeacher.Server.Services.Database.Models;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,18 +14,18 @@ public class TeacherQuerierController(GetTeacherDbContext getTeacherDbContext) :
     [HttpGet]
     public async Task<IActionResult> GetAllTeachers()
     {
-        var teachers = await db.Teachers.Include(a=>a.DbUser).ToListAsync();
+        ICollection<DbTeacher> teachers = await db.Teachers.Include(a=>a.DbUser).ToListAsync();
 
         return Ok(new
         {
             teachers = teachers.Select((teacher, index) => new
             {
-                teacher.Bio,
                 teacher.Id,
                 teacher.DbUser.UserName,
+                teacher.Bio,
                 teacher.NumOfMeetings,
-                teacher.Rank,
                 teacher.NumOfRankers,
+                teacher.Rank,
             })
         });
     }
