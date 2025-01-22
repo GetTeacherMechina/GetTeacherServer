@@ -23,4 +23,19 @@ public class GetTeacherDbContext(DbContextOptions<GetTeacherDbContext> options) 
 		// TODO: Forward to a background service for efficient non-instant save
 		return base.SaveChangesAsync(cancellationToken);
 	}
+
+	protected override void OnModelCreating(ModelBuilder builder)
+	{
+		base.OnModelCreating(builder);
+
+		builder.Entity<DbChat>()
+		.HasMany(c => c.Users)
+		.WithMany(u => u.Chats)
+		.UsingEntity<Dictionary<string, object>>(
+			"ChatUserRelations",
+			u => u.HasOne<DbUser>().WithMany().HasForeignKey("DbUserId"),
+			c => c.HasOne<DbChat>().WithMany().HasForeignKey("ChatId")
+		);
+
+	}
 }

@@ -136,11 +136,15 @@ public class ChatController(GetTeacherDbContext db, IChatManager chatManager, IP
         {
             return BadRequest("Not authenticated");
         }
-        var chats = from chat in db.Chats
-                    where chat.Users.Any(u => u.Id == userId)
-                    select
-            new { chat.Id, Users = chat.Users.Select(a => new { Id = a.Id, Username = a.UserName }).ToList() };
-
-        return Ok(new { chats = await chats.ToListAsync() });
+        List<DbChat> cahtsTemp = db.Chats.Include(a => a.Users).ToList();
+        var chats = db.Chats.Include(c => c.Users)
+            .Where(chat => chat.Users.Any(u => u.Id == userId))
+            .Select(chat => new
+            {
+                chat.Id,
+                Users = chat.Users.Select(a => new { a.Id, Username = a.UserName }).ToList()
+            });
+        var actualChats = await chats.ToListAsync();
+        return Ok(new { chats = actualChats });
     }
 }
