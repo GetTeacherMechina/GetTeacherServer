@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GetTeacher.Server.Services.Managers.Implementations.UserManager;
 
-public class StudentManager(GetTeacherDbContext getTeacherDbContext, IPrincipalClaimsQuerier principalClaimsQuerier) : IStudentManager
+public class StudentManager(ILogger<IStudentManager> logger, GetTeacherDbContext getTeacherDbContext, IPrincipalClaimsQuerier principalClaimsQuerier) : IStudentManager
 {
 	private readonly GetTeacherDbContext getTeacherDbContext = getTeacherDbContext;
 	private readonly IPrincipalClaimsQuerier principalClaimsQuerier = principalClaimsQuerier;
@@ -30,7 +30,7 @@ public class StudentManager(GetTeacherDbContext getTeacherDbContext, IPrincipalC
 			.Include(u => u.FavoriteTeachers)
 				.ThenInclude(t => t.TeacherSubjects)
 			.Include(u => u.DbUser)
-
+			.Include(u => u.Grade)
 			.FirstOrDefaultAsync();
 	}
 
@@ -61,6 +61,7 @@ public class StudentManager(GetTeacherDbContext getTeacherDbContext, IPrincipalC
 
 		student.FavoriteTeachers.Add(teacher);
 		await getTeacherDbContext.SaveChangesAsync();
+		logger.LogInformation("Added [student:{studentName}] [teacher:{teacherName}] as favorite", student.DbUser.UserName, teacher.DbUser.UserName);
 	}
 
 	public async Task RemoveFavoriteTeacher(DbStudent student, DbTeacher teacher)
@@ -69,6 +70,12 @@ public class StudentManager(GetTeacherDbContext getTeacherDbContext, IPrincipalC
 			return;
 
 		student.FavoriteTeachers.Remove(teacher);
+		await getTeacherDbContext.SaveChangesAsync();
+	}
+
+	public async Task SetPriceVsQuality(DbStudent student, int priceVsQuality)
+	{
+		student.PriceVsQuality = priceVsQuality;
 		await getTeacherDbContext.SaveChangesAsync();
 	}
 }

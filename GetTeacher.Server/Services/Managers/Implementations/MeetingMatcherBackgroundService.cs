@@ -130,31 +130,30 @@ public class MeetingMatcherBackgroundService(IServiceProvider serviceProvider, I
 
 		while (foundTeacher is null && !studentEntry.StopMatchingCts.IsCancellationRequested)
 		{
+			DbTeacher? csGoMatchedTeacher = null;
 			await matchSemaphore.WaitAsync();
 			try
 			{
-				foundTeacher = await meetingMatcher.MatchStudentTeacher(studentEntry.Student, studentEntry.Subject, [.. teacherExclusions, .. csGoPhaseTeachers]);
-
-				if (foundTeacher is null)
+				csGoMatchedTeacher = await meetingMatcher.MatchStudentTeacher(studentEntry.Student, studentEntry.Subject, [.. teacherExclusions, .. csGoPhaseTeachers]);
+				if (csGoMatchedTeacher is null)
 				{
 					await Task.Delay(500);
 					continue;
 				}
 
-				csGoPhaseTeachers.Add(foundTeacher);
+				csGoPhaseTeachers.Add(csGoMatchedTeacher);
 			}
 			finally
 			{
 				matchSemaphore.Release();
 			}
 
-
-			if (await CsGoContract(studentEntry, foundTeacher))
-				break;
+			if (await CsGoContract(studentEntry, csGoMatchedTeacher))
+				foundTeacher = csGoMatchedTeacher;
 			else
 			{
-				teacherExclusions.Add(foundTeacher);
-				csGoPhaseTeachers.Remove(foundTeacher);
+				teacherExclusions.Add(csGoMatchedTeacher);
+				csGoPhaseTeachers.Remove(csGoMatchedTeacher);
 			}
 		}
 
@@ -171,10 +170,12 @@ public class MeetingMatcherBackgroundService(IServiceProvider serviceProvider, I
 		IWebSocketSystem webSocketSystem = serviceScope.ServiceProvider.GetRequiredService<IWebSocketSystem>();
 		ITeacherRankManager teacherRankManager = serviceScope.ServiceProvider.GetRequiredService<ITeacherRankManager>();
 
+		double teacherRank = await teacherRankManager.GetTeacherRank(teacher);
+
 		CsGoContractRequestModel csGoContractRequestModel = new CsGoContractRequestModel
 		{
 			TeacherBio = teacher.Bio,
-			TeacherRank = await teacherRankManager.GetTeacherRank(teacher),
+			TeacherRank = teacherRank,
 			MeetingResponseModel = new MeetingResponseModel { CompanionName = teacher.DbUser.UserName! }
 		};
 

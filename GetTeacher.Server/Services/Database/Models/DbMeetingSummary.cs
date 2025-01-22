@@ -11,5 +11,6 @@ public class DbMeetingSummary
 	public virtual DbMeeting Meeting { get; set; } = null!;
 
 	public int StarsCount { get; set; }
+
 	public DateTime CreatedAt { get; set; }
 }

@@ -18,10 +18,11 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.11" />
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="8.0.11" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.11" />
+    <PackageReference Include="Stripe.net" Version="47.2.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Services\Database\Migrations\" />
+    <Folder Include="Models\Payment\Items\Credits\" />
   </ItemGroup>
 
 </Project>

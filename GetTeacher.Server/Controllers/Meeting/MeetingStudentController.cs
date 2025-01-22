@@ -12,8 +12,9 @@ namespace GetTeacher.Server.Controllers.Meeting;
 
 [ApiController]
 [Route("api/v1/meeting/student")]
-public class MeetingStudentController(ISubjectManager subjectManager, IStudentReadyManager studentReadyManager, IUserStateTracker userStateTracker, GetTeacherDbContext getTeacherDbContext, IMeetingMatcherBackgroundService meetingMatcherBackgroundService, IPrincipalClaimsQuerier principalClaimsQuerier) : ControllerBase
+public class MeetingStudentController(IStudentManager  studentManager,ISubjectManager subjectManager, IStudentReadyManager studentReadyManager, IUserStateTracker userStateTracker, GetTeacherDbContext getTeacherDbContext, IMeetingMatcherBackgroundService meetingMatcherBackgroundService, IPrincipalClaimsQuerier principalClaimsQuerier) : ControllerBase
 {
+	private readonly IStudentManager studentManager = studentManager;
 	private readonly ISubjectManager subjectManager = subjectManager;
 	private readonly IStudentReadyManager studentReadyManager = studentReadyManager;
 	private readonly IUserStateTracker userStateTracker = userStateTracker;
@@ -26,17 +27,12 @@ public class MeetingStudentController(ISubjectManager subjectManager, IStudentRe
 	[Route("start")]
 	public async Task<IActionResult> StartSearching([FromBody] DbSubject subject)
 	{
-		int? userId = principalClaimsQuerier.GetId(User);
-		if (userId is null)
-			return BadRequest();
-
-		DbStudent? student = await getTeacherDbContext.Students
-			.Where(s => s.DbUser.Id == userId.Value)
-			.Include(s => s.DbUser)
-			.Include(s => s.Grade)
-			.FirstOrDefaultAsync();
+		DbStudent? student = await studentManager.GetFromUser(User);
 		if (student is null)
 			return BadRequest();
+
+        if (student.DbUser.Credits <= 0)
+            return BadRequest();
 
 		DbSubject? dbSubject = await subjectManager.GetFromName(subject.Name);
 		if (dbSubject is null)

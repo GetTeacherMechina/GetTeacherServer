@@ -4,11 +4,13 @@ using GetTeacher.Server.Services.Managers;
 using GetTeacher.Server.Services.Managers.Implementations;
 using GetTeacher.Server.Services.Managers.Implementations.EmailSender;
 using GetTeacher.Server.Services.Managers.Implementations.Networking;
+using GetTeacher.Server.Services.Managers.Implementations.Payment;
 using GetTeacher.Server.Services.Managers.Implementations.ReadyManager;
 using GetTeacher.Server.Services.Managers.Implementations.UserManager;
 using GetTeacher.Server.Services.Managers.Implementations.UserStateTracker;
 using GetTeacher.Server.Services.Managers.Interfaces;
 using GetTeacher.Server.Services.Managers.Interfaces.Networking;
+using GetTeacher.Server.Services.Managers.Interfaces.Payment;
 using GetTeacher.Server.Services.Managers.Interfaces.ReadyManager;
 using GetTeacher.Server.Services.Managers.Interfaces.UserManager;
 using GetTeacher.Server.Services.Managers.Interfaces.UserState;
@@ -27,6 +29,7 @@ public static class ServicesBuilderExtensions
 		builder.Services.AddScoped<IJwtGenerator, JwtGenerator>();
 		builder.Services.AddScoped<ITeacherManager, TeacherManager>();
 		builder.Services.AddScoped<IStudentManager, StudentManager>();
+		builder.Services.AddScoped<IUserManager, UserManager>();
 		builder.Services.AddScoped<ITeacherRankManager, TeacherRankManager>();
 		builder.Services.AddScoped<IUserStateTracker, UserStateTracker>();
 		builder.Services.AddScoped<ITeacherReadyManager, TeacherReadyManager>();
@@ -39,7 +42,14 @@ public static class ServicesBuilderExtensions
 		builder.Services.AddScoped<ISubjectManager, SubjectManager>();
 		builder.Services.AddScoped<IGradeManager, GradeManager>();
 		builder.Services.AddScoped<IMeetingManager, MeetingManager>();
+		builder.Services.AddScoped<IUserCreditManager, UserCreditManager>();
+		builder.Services.AddScoped<IStudentCreditCharger, StudentCreditCharger>();
+		builder.Services.AddScoped<IPaymentIntentToCredits, LocalPaymentIntentToCredits>();
 		
+		// Payment
+		builder.Services.AddScoped<IItemPriceQuerier, LocalItemPriceQuerier>();
+		builder.Services.AddScoped<IPaymentManager, StripePaymentManager>();
+
 		// Testers
 		builder.Services.AddScoped<DatabaseConnectionTester>();
 

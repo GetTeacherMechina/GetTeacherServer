@@ -17,6 +17,7 @@ public class DbStudent
 	public int DbUserId { get; set; }
 	public virtual DbUser DbUser { get; set; } = null!;
 
+	[Range(0, 100)] public required int PriceVsQuality { get; set; }
 	public virtual ICollection<DbTeacher> FavoriteTeachers { get; set; } = [];
 	public virtual ICollection<DbMeetingSummary> DbMeetingSummaries { get; set; } = [];
 }

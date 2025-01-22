@@ -13,13 +13,11 @@ public class TeacherReadyManager(ITeacherManager teacherManager) : ITeacherReady
 	// Using a low level construct id and names because comparing and popping entries by reference sucks
 	private static readonly ConcurrentDictionary<int, DbTeacher> readyTeachers = new ConcurrentDictionary<int, DbTeacher>();
 
-	public ICollection<DbTeacher> GetReadyTeachers(DbSubject subject, DbGrade grade)
+	public ICollection<DbTeacher> GetReadyTeachersForSubjectAndGrade(DbSubject subject, DbGrade grade)
 	{
-		return readyTeachers.Where(t =>
-			{
-				var subjects = teacherManager.GetAllTeacherSubjects(t.Value);
-				return subjects.Any(s => s.Subject.Name == subject.Name && s.Grade.Name == grade.Name);
-			})
+		return readyTeachers
+			.Where(t => teacherManager.GetAllTeacherSubjects(t.Value)
+						.Any(s => s.Subject.Name == subject.Name && s.Grade.Name == grade.Name))
 			.Select(t => t.Value)
 			.ToList();
 	}

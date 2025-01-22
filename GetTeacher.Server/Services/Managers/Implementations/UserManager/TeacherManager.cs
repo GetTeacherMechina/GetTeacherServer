@@ -24,8 +24,11 @@ public class TeacherManager(GetTeacherDbContext getTeacherDbContext, IPrincipalC
 	{
 		return await getTeacherDbContext.Teachers.Where(t =>
 			t.DbUser == new DbUser { Id = user.Id })
-				.Include(t => t.TeacherSubjects).ThenInclude(ts => ts.Subject)
-				.Include(t => t.TeacherSubjects).ThenInclude(ts => ts.Grade)
+				.Include(t => t.DbUser)
+				.Include(t => t.TeacherSubjects)
+					.ThenInclude(ts => ts.Subject)
+				.Include(t => t.TeacherSubjects)
+					.ThenInclude(ts => ts.Grade)
 			.FirstOrDefaultAsync();
 	}
 
@@ -65,5 +68,11 @@ public class TeacherManager(GetTeacherDbContext getTeacherDbContext, IPrincipalC
 	public ICollection<DbTeacherSubject> GetAllTeacherSubjects(DbTeacher teacher)
 	{
 		return teacher.TeacherSubjects;
+	}
+
+	public async Task SetCreditsTariff(DbTeacher teacher, double creditsPerMinute)
+	{
+		teacher.TariffPerMinute = creditsPerMinute;
+		await getTeacherDbContext.SaveChangesAsync();
 	}
 }
