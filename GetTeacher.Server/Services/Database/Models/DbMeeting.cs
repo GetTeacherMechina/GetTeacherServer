@@ -8,7 +8,11 @@ public class DbMeeting
 
 	public Guid Guid { get; set; }
 
+	public bool Ended { get; set; }
+
 	public DateTime StartTime { get; set; }
+
+	public DateTime EndTime { get; set; }
 
 	[ForeignKey(nameof(Teacher))]
 	public int TeacherId { get; set; }

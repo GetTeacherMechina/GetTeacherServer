@@ -1,14 +1,17 @@
 ﻿using GetTeacher.Server.Models.Meeting;
+using GetTeacher.Server.Services.Database.Models;
 using GetTeacher.Server.Services.Managers.Interfaces;
+using GetTeacher.Server.Services.Managers.Interfaces.Payment;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GetTeacher.Server.Controllers.Meeting;
 
-[Controller]
+[ApiController]
 [Route("/api/v1/meeting/info")]
-public class MeetingReviewController(IMeetingManager meetingManager) : Controller
+public class MeetingReviewController(IStudentCreditCharger studentCreditCharger , IMeetingManager meetingManager) : Controller
 {
+	private readonly IStudentCreditCharger studentCreditCharger = studentCreditCharger;
 	private readonly IMeetingManager meetingManager = meetingManager;
 
 	[HttpPost]
@@ -16,7 +19,16 @@ public class MeetingReviewController(IMeetingManager meetingManager) : Controlle
 	[Route("rate")]
 	public async Task<IActionResult> AddRating([FromBody] UpdateRankRequestModel model)
 	{
-		await meetingManager.AddRatingReview(model.Guid, model.Rating);
+		DbMeeting? meeting = await meetingManager.GetMeeting(model.Guid);
+		if (meeting is null)
+			return BadRequest();
+
+		await meetingManager.AddStarsReview(model.Guid, model.Rating);
+
+		// TODO: Move this to a more proper place
+		if (!await studentCreditCharger.ChargeStudent(meeting.Student, meeting))
+			return BadRequest();
+
 		return Ok(new { Message = "Successfully updated meeting summary" });
 	}
 }

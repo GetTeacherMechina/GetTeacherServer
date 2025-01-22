@@ -8,13 +8,15 @@ public interface IMeetingManager
 
 	Task RemoveMeeting(Guid meetingGuid);
 
-	Task<DbMeeting?> GetMeeting(Guid guid);
+	Task<DbMeeting?> GetMeeting(Guid meetingGuid);
 
-	Task<DbMeetingSummary?> GetMeetingSummary(Guid guid);
+	Task<DbMeetingSummary?> GetMeetingSummary(Guid meetingGuid);
 
-	Task AddRatingReview(Guid guid, int stars);
+	Task AddStarsReview(Guid meetingGuid, int stars);
 
 	Task<ICollection<DbMeeting>> GetAllStudentMeetings(DbStudent student);
 
 	Task<ICollection<DbMeeting>> GetAllTeacherMeetings(DbTeacher teacher);
+
+	Task<TimeSpan?> GetMeetingLength(Guid meetingGuid);
 }
