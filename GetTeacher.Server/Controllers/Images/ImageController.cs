@@ -29,7 +29,7 @@ public class ImagesController : ControllerBase
             await file.CopyToAsync(stream);
         }
 
-        var imageUrl = $"/uploads/{uniqueFileName}.png";
+        var imageUrl = $"/images/{uniqueFileName}.png";
 
         return Ok(new { Url = imageUrl });
     }
