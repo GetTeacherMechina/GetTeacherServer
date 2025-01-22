@@ -5,9 +5,12 @@ namespace GetTeacher.Server;
 
 public class Program
 {
+
+
 	public static void Main(string[] args)
 	{
 		var builder = WebApplication.CreateBuilder(args);
+
 
 		builder.Services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
 		builder.Services.AddControllers();
