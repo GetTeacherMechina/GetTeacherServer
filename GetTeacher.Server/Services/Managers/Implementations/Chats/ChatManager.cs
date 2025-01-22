@@ -18,11 +18,11 @@ public class ChatManager(GetTeacherDbContext getTeacherDbContext, IWebSocketSyst
                      where user.Id != self.Id
                      select webSocketSystem.SendAsync(user.Id, new
                      {
-                         message.Id,
-                         message.SenderId,
-                         message.Content,
-                         message.DateTime,
-                         SenderName = message.Sender.UserName,
+                         id = message.Id,
+                         senderId = message.SenderId,
+                         content = message.Content,
+                         dateTime = message.DateTime,
+                         senderName = message.Sender.UserName,
                      }, "chat_message")).ToArray();
 
         Task.WaitAll(tasks);
