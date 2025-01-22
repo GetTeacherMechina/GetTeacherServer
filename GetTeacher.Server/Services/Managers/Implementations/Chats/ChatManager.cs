@@ -31,7 +31,7 @@ public class ChatManager(GetTeacherDbContext getTeacherDbContext, IWebSocketSyst
 
     public async Task CreateChat(DbUser self, IEnumerable<DbUser> dbUsers)
     {
-        getTeacherDbContext.Chats.Add(new()
+        await getTeacherDbContext.Chats.AddAsync(new()
         {
             Users = dbUsers.Append(self).ToList()
         });
