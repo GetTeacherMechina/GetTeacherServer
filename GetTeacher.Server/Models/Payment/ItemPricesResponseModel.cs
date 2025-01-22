@@ -4,5 +4,5 @@ namespace GetTeacher.Server.Models.Payment;
 
 public class ItemPricesResponseModel
 {
-	public ICollection<PaymentItemDescriptor> CreditPrices { get; set; } = [];
+	public ICollection<PaymentItemDescriptor> ItemPrices { get; set; } = [];
 }

@@ -22,9 +22,6 @@ public class Program
 
 		app.UseCors();
 
-		//// Redirects http requests to https
-		//app.UseHttpsRedirection();
-
 		// Authentication pipeline stage happens BEFORE the authorization
 		app.UseAuthentication();
 		app.UseAuthorization();

@@ -23,7 +23,24 @@ public class CreditPaymentController(IPaymentIntentToCredits paymentIntentToCred
 	[HttpGet]
 	public async Task<IActionResult> GetCreditPrices()
 	{
-		return Ok(new ItemPricesResponseModel { CreditPrices = await itemPriceQuerier.GetCreditPricesInDollars() });
+		return Ok(new ItemPricesResponseModel { ItemPrices = await itemPriceQuerier.GetCreditPricesInDollars() });
+	}
+
+	[HttpPost]
+	[Authorize]
+	[Route("dev-buy")]
+	public async Task<IActionResult> BuyCreditsDev([FromBody] BuyItemRequestModel buyCreditsRequestModel)
+	{
+		DbUser? user = await userManager.GetFromUser(User);
+		if (user is null)
+			return BadRequest("User not found.");
+
+		PaymentItemDescriptor? paymentItemDescriptor = await itemPriceQuerier.GetItem(ItemType.Credits, buyCreditsRequestModel.Item.ItemId);
+		if (paymentItemDescriptor is null)
+			return BadRequest("No such item found.");
+
+		await userCreditManager.AddCreditsToUser(user, paymentItemDescriptor.Amount);
+		return Ok(new { });
 	}
 
 	[HttpPost("intent")]
@@ -34,7 +51,7 @@ public class CreditPaymentController(IPaymentIntentToCredits paymentIntentToCred
 		if (user is null)
 			return BadRequest("User not found.");
 
-		PaymentItemDescriptor? paymentItemDescriptor= await itemPriceQuerier.GetItem(ItemType.Credits, buyCreditsRequestModel.ItemId);
+		PaymentItemDescriptor? paymentItemDescriptor = await itemPriceQuerier.GetItem(ItemType.Credits, buyCreditsRequestModel.Item.ItemId);
 		if (paymentItemDescriptor is null)
 			return BadRequest("No such item found.");
 
