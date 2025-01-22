@@ -9,4 +9,6 @@ public class DbUser : IdentityUser<int>
 	public int ChatMessagesSent { get; set; }
 
 	public int ChatMessagesReceived { get; set; }
+
+	public virtual ICollection<DbChat> Chats { get; set; } = [];
 }
