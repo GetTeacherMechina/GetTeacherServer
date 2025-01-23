@@ -29,7 +29,6 @@ public class ImagesController : ControllerBase
 		return Ok(new { Url = imageUrl });
 	}
 
-	[Authorize]
 	[Route("{uid}")]
 	[HttpGet]
 	public IActionResult GetImage(string uid)
