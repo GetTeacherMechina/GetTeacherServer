@@ -34,7 +34,8 @@ public class ProfileController(IStudentReadyTeacherCountNotifier studentReadyTea
 			FullName = user.UserName!,
 			IsStudent = student is not null,
 			IsTeacher = teacher is not null,
-			Credits = user.Credits
+			Credits = user.Credits,
+			Id = user.Id,
 		});
 	}
 

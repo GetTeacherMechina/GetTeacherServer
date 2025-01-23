@@ -51,9 +51,10 @@ public class UserQuerierController(IUserManager userManager, GetTeacherDbContext
 		{
 			Users = users.Select(u => new
 			{
-				User = u.DbUser,
-				Student = u.DbStudent,
-				Teacher = u.DbTeacher,
+				u.DbUser.Id,
+				u.DbUser.UserName,
+				u.DbTeacher,
+				u.DbStudent,
 			})
 		});
 	}

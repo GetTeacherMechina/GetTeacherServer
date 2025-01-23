@@ -2,6 +2,8 @@
 
 public class ProfileResponseModel
 {
+	public int Id { get; set; }
+
 	public string Result { get; set; } = string.Empty;
 
 	public string Email { get; set; } = string.Empty;
