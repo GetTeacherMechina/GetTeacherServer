@@ -17,7 +17,7 @@ public class GoogleController(IJwtGenerator jwtGenerator,ILogger<GoogleControlle
 	private readonly UserManager<DbUser> userManager = userManager;
 	private readonly IConfiguration configuration = configuration;
 
-	[HttpPost("google")]
+	[HttpPost]
 	public async Task<IActionResult> ValidateGoogleToken([FromBody] GoogleTokenRequestModel request)
 	{
 		string? clientId = configuration["GoogleSettings:ClientId"];
