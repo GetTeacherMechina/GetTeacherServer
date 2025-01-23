@@ -76,4 +76,10 @@ public class TeacherManager(GetTeacherDbContext getTeacherDbContext, IPrincipalC
 		teacher.TariffPerMinute = creditsPerMinute;
 		await getTeacherDbContext.SaveChangesAsync();
 	}
+
+	public async Task SetBio(DbTeacher teacher, string bio)
+	{
+		teacher.Bio = bio;
+		await getTeacherDbContext.SaveChangesAsync();
+	}
 }

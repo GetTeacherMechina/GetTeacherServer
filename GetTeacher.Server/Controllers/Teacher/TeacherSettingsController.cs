@@ -22,7 +22,8 @@ public class TeacherSettingsController(ITeacherManager teacherManager) : Control
 
 		return Ok(new TeacherSettingsResponseModel
 		{
-			TariffPerMinute = teacher.TariffPerMinute
+			TariffPerMinute = teacher.TariffPerMinute,
+			Bio = teacher.Bio
 		});
 	}
 
@@ -36,6 +37,19 @@ public class TeacherSettingsController(ITeacherManager teacherManager) : Control
 			return BadRequest();
 
 		await teacherManager.SetCreditsTariff(teacher, setCreditsTariffRequestModel.CreditsTariffPerMinute);
-		return Ok();
+		return Ok(new { });
+	}
+
+	[HttpPost]
+	[Authorize]
+	[Route("bio")]
+	public async Task<IActionResult> SetCreditsTariff([FromBody] SetBioRequestModel setCreditsTariffRequestModel)
+	{
+		DbTeacher? teacher = await teacherManager.GetFromUser(User);
+		if (teacher is null)
+			return BadRequest();
+
+		await teacherManager.SetBio(teacher, setCreditsTariffRequestModel.Bio);
+		return Ok(new { });
 	}
 }

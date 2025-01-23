@@ -20,4 +20,6 @@ public interface ITeacherManager
 	public Task RemoveSubjectFromTeacher(DbTeacherSubject subject, DbTeacher teacher);
 
 	public Task SetCreditsTariff(DbTeacher teacher, double creditsPerMinute);
+
+	public Task SetBio(DbTeacher teacher, string bio);
 }
