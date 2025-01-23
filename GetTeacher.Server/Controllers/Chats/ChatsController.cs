@@ -25,10 +25,17 @@ public class ChatsController(GetTeacherDbContext getTeacherDbContext, IChatManag
         if (user is null)
             return BadRequest("User not found");
 
-        ICollection<DbChat> chats = await getTeacherDbContext.Chats
-            .Where(chat => chat.Users.Any(u => u.Id == user.Id))
+        var chats = await getTeacherDbContext.Chats
+            .Where(chat => chat.Users.Any(u => u.Id == user.Id)).Include(c => c.Users)
             .ToListAsync();
-        return Ok(new GetChatsResponseModel { Chats = chats });
+        return Ok(new
+        {
+            Chats = chats.Select(chat => new
+            {
+                chat.Id,
+                Users = chat.Users.Select(u => u.UserName).ToList(),
+            }).ToList()
+        });
     }
 
     [Authorize]
