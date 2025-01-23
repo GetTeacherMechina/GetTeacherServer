@@ -22,8 +22,9 @@ public class TeacherManager(GetTeacherDbContext getTeacherDbContext, IPrincipalC
 
 	public async Task<DbTeacher?> GetFromUser(DbUser user)
 	{
-		return await getTeacherDbContext.Teachers.Where(t =>
-			t.DbUser == new DbUser { Id = user.Id })
+		var teacher = await getTeacherDbContext.Teachers.ToListAsync();
+		return await getTeacherDbContext.Teachers
+			.Where(t => t.DbUser == new DbUser { Id = user.Id })
 				.Include(t => t.DbUser)
 				.Include(t => t.TeacherSubjects)
 					.ThenInclude(ts => ts.Subject)
