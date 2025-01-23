@@ -174,6 +174,7 @@ public class MeetingMatcherBackgroundService(IServiceProvider serviceProvider, I
 
 		CsGoContractRequestModel csGoContractRequestModel = new CsGoContractRequestModel
 		{
+			IsFavorite = studentEntry.Student.FavoriteTeachers.Where(f => f.Id == teacher.Id).Any(),
 			TeacherBio = teacher.Bio,
 			TeacherRank = teacherRank,
 			MeetingResponseModel = new MeetingResponseModel { CompanionName = teacher.DbUser.UserName! }
