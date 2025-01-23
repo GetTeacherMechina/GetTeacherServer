@@ -31,7 +31,7 @@ public class JwtGenerator(ILogger<JwtGenerator> logger, IConfiguration configura
 		string? key = configuration["JwtSettings:Key"];
 		string? issuer = configuration["JwtSettings:Issuer"];
 		string? audience = configuration["JwtSettings:Audience"];
-		if (key == null || issuer == null || audience == null)
+		if (key is null || issuer is null || audience is null)
 		{
 			// Something wrong in the configuration, JwtSettings is not set up correctly
 			logger.LogCritical("JwtSettings are not set up correctly in the configuration");

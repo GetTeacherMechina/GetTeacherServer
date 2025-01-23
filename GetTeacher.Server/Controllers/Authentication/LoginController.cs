@@ -4,19 +4,18 @@ using GetTeacher.Server.Services.Managers.Interfaces;
 using GetTeacher.Server.Services.Managers.Interfaces.Networking;
 using GetTeacher.Server.Services.Managers.Interfaces.UserState;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GetTeacher.Server.Controllers.Authentication;
 
 [ApiController]
 [Route("api/v1/auth/[controller]")]
-public class LoginController(ITwoFactorAuthenticationManager twoFactorAuthenticationManager, IWebSocketSystem webSocketSystem, IEmailSender emailSender, UserManager<DbUser> userManager, IUserStateTracker userStateTracker, IJwtGenerator jwtTokenGenerator) : ControllerBase
+public class LoginController(ITwoFactorAuthenticationManager twoFactorAuthenticationManager, IWebSocketSystem webSocketSystem, UserManager<DbUser> userManager, IUserStateTracker userStateTracker, IJwtGenerator jwtGenerator) : ControllerBase
 {
 	private readonly ITwoFactorAuthenticationManager twoFactorAuthenticationManager = twoFactorAuthenticationManager;
 	private readonly IWebSocketSystem webSocketSystem = webSocketSystem;
 	private readonly UserManager<DbUser> userManager = userManager;
-	private readonly IJwtGenerator jwtTokenGenerator = jwtTokenGenerator;
+	private readonly IJwtGenerator jwtTokenGenerator = jwtGenerator;
 
 	[HttpPost]
 	public async Task<IActionResult> Login([FromBody] LoginRequestModel loginModel)
