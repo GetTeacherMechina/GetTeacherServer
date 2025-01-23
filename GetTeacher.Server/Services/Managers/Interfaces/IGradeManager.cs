@@ -7,4 +7,6 @@ public interface IGradeManager
 	public Task<ICollection<DbGrade>> GetAllGrades();
 
 	public Task AddGrade(DbGrade grade);
+
+	public Task<DbGrade?> GetFromName(string name);
 }

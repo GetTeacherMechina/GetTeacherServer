@@ -25,5 +25,11 @@ public class GradeManager(ILogger<IGradeManager> logger, GetTeacherDbContext get
 
 		getTeacherDbContext.Grades.Add(grade);
 		await getTeacherDbContext.SaveChangesAsync();
+
+	}
+
+	public async Task<DbGrade?> GetFromName(string name)
+	{
+		return await getTeacherDbContext.Grades.Where(s => s.Name == name).FirstOrDefaultAsync();
 	}
 }

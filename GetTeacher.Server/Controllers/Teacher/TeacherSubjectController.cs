@@ -49,6 +49,9 @@ public class TeacherSubjectController(ITeacherManager teacherManager, ISubjectMa
 		Task addGradeTask = gradeManager.AddGrade(teacherSubject.Grade);
 		await Task.WhenAll(addSubjectTask, addGradeTask);
 
+		teacherSubject.Subject = (await subjectManager.GetFromName(teacherSubject.Subject.Name))!;
+		teacherSubject.Grade = (await gradeManager.GetFromName(teacherSubject.Grade.Name))!;
+
 		await teacherManager.AddSubjectToTeacher(teacherSubject, teacher);
 
 		return Ok(new { });
