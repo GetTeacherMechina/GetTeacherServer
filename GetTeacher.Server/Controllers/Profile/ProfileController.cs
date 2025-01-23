@@ -56,7 +56,7 @@ public class ProfileController(IUserManager userManager, ITeacherManager teacher
 
 		return Ok(new
 		{
-			Grade = student.Grade
+			grade = student.Grade
 		});
 	}
 }
