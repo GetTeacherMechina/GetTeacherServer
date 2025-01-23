@@ -3,4 +3,6 @@
 public class TeacherSettingsResponseModel
 {
 	public double TariffPerMinute { get; set; }
+
+	public string Bio { get; set; } = "";
 }
