@@ -24,11 +24,11 @@ public class GetTeacherDbContext(DbContextOptions<GetTeacherDbContext> options) 
 		return base.SaveChangesAsync(cancellationToken);
 	}
 
-	protected override void OnModelCreating(ModelBuilder builder)
+	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
-		base.OnModelCreating(builder);
+		base.OnModelCreating(modelBuilder);
 
-		builder.Entity<DbChat>()
+		modelBuilder.Entity<DbChat>()
 			.HasMany(c => c.Users)
 			.WithMany(u => u.Chats)
 			.UsingEntity<Dictionary<string, object>>(
@@ -37,7 +37,7 @@ public class GetTeacherDbContext(DbContextOptions<GetTeacherDbContext> options) 
 				c => c.HasOne<DbChat>().WithMany().HasForeignKey("ChatId")
 			);
 
-		builder.Entity<DbStudent>()
+		modelBuilder.Entity<DbStudent>()
 			.HasMany(s => s.FavoriteTeachers)
 			.WithMany(t => t.FavoritedByStudents)
 			.UsingEntity<Dictionary<string, object>>(

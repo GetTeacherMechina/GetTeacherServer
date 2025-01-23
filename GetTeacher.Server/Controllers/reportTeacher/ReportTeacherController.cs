@@ -6,7 +6,7 @@ using GetTeacher.Server.Services.Managers.Interfaces.UserManager;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace GetTeacher.Server.Controllers.reportTeacher;
+namespace GetTeacher.Server.Controllers.ReportTeacher;
 
 [ApiController]
 [Route("/api/v1/report-teacher-controller")]
