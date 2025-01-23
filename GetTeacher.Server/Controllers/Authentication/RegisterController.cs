@@ -1,6 +1,7 @@
 ﻿using GetTeacher.Server.Models.Authentication.Register;
 using GetTeacher.Server.Services.Database;
 using GetTeacher.Server.Services.Database.Models;
+using GetTeacher.Server.Services.Managers.Implementations;
 using GetTeacher.Server.Services.Managers.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -10,12 +11,14 @@ namespace GetTeacher.Server.Controllers.Authentication;
 
 [ApiController]
 [Route("api/v1/auth/[controller]")]
-public class RegisterController(ITwoFactorAuthenticationManager twoFactorAuthenticationManager, ITokenStore tokenStore, UserManager<DbUser> userManager, GetTeacherDbContext getTeacherDbContext) : ControllerBase
+public class RegisterController(IGradeManager gradeManager, ITwoFactorAuthenticationManager twoFactorAuthenticationManager, ITokenStore tokenStore, UserManager<DbUser> userManager, GetTeacherDbContext getTeacherDbContext) : ControllerBase
 {
 	private readonly ITwoFactorAuthenticationManager twoFactorAuthenticationManager = twoFactorAuthenticationManager;
 	private readonly ITokenStore tokenStore = tokenStore;
 	private readonly UserManager<DbUser> userManager = userManager;
 	private readonly GetTeacherDbContext getTeacherDbContext = getTeacherDbContext;
+
+	private readonly IGradeManager gradeManager = gradeManager;
 
 	private async Task AddTeacher(DbUser user, TeacherRequestModel model)
 	{
@@ -30,7 +33,7 @@ public class RegisterController(ITwoFactorAuthenticationManager twoFactorAuthent
 		if (grade is null)
 		{
 			grade = new DbGrade { Name = studentRequestModel.Grade };
-			getTeacherDbContext.Grades.Add(grade);
+			await gradeManager.AddGrade(grade);
 			await getTeacherDbContext.SaveChangesAsync();
 		}
 

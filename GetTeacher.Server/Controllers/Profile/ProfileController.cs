@@ -56,7 +56,7 @@ public class ProfileController(IStudentReadyTeacherCountNotifier studentReadyTea
 		await studentReadyTeacherCountNotifier.NotifyStudentsReadyTeachers();
 		return Ok(new
 		{
-			student.Grade
+			grade = student.Grade
 		});
 	}
 }
