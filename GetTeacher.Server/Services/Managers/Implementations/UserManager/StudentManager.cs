@@ -60,6 +60,7 @@ public class StudentManager(ILogger<IStudentManager> logger, GetTeacherDbContext
 			return;
 
 		student.FavoriteTeachers.Add(teacher);
+		teacher.FavoritedByStudents.Add(student);
 		await getTeacherDbContext.SaveChangesAsync();
 		logger.LogInformation("Added [student:{studentName}] [teacher:{teacherName}] as favorite", student.DbUser.UserName, teacher.DbUser.UserName);
 	}
@@ -70,6 +71,7 @@ public class StudentManager(ILogger<IStudentManager> logger, GetTeacherDbContext
 			return;
 
 		student.FavoriteTeachers.Remove(teacher);
+		teacher.FavoritedByStudents.Remove(student);
 		await getTeacherDbContext.SaveChangesAsync();
 	}
 

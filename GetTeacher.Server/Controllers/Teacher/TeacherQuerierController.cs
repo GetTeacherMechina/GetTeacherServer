@@ -5,28 +5,25 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GetTeacher.Server.Controllers.Teacher;
 
-[Controller]
+[ApiController]
 [Route("/api/v1/teachers")]
 public class TeacherQuerierController(GetTeacherDbContext getTeacherDbContext) : ControllerBase
 {
-    private readonly GetTeacherDbContext db = getTeacherDbContext;
+    private readonly GetTeacherDbContext getTeacherDbContext = getTeacherDbContext;
 
     [HttpGet]
     public async Task<IActionResult> GetAllTeachers()
     {
-        ICollection<DbTeacher> teachers = await db.Teachers.Include(a=>a.DbUser).ToListAsync();
+		ICollection<DbTeacher> teachers = await getTeacherDbContext.Teachers.Where(t => t != null).ToListAsync();
 
-        return Ok(new
+		return Ok(new
         {
-            teachers = teachers.Select((teacher, index) => new
-            {
-                teacher.Id,
-                teacher.DbUser.UserName,
-                teacher.Bio,
-                teacher.NumOfMeetings,
-                teacher.NumOfRankers,
-                teacher.Rank,
-            })
-        });
+            Teachers = teachers.Select(t =>
+			new
+			{
+				UserId = t.DbUserId,
+				t,
+			})
+		});
     }
 }
