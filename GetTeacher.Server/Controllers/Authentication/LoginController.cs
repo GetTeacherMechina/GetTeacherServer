@@ -15,7 +15,6 @@ public class LoginController(ITwoFactorAuthenticationManager twoFactorAuthentica
 {
 	private readonly ITwoFactorAuthenticationManager twoFactorAuthenticationManager = twoFactorAuthenticationManager;
 	private readonly IWebSocketSystem webSocketSystem = webSocketSystem;
-	private readonly IEmailSender emailSender = emailSender;
 	private readonly UserManager<DbUser> userManager = userManager;
 	private readonly IJwtGenerator jwtTokenGenerator = jwtTokenGenerator;
 

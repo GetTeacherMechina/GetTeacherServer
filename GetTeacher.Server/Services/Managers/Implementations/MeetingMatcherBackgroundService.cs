@@ -98,6 +98,7 @@ public class MeetingMatcherBackgroundService(IServiceProvider serviceProvider, I
 		// Notify student and teacher :)
 		MeetingResponseModel teacherMeetingResponseModel = new MeetingResponseModel { MeetingGuid = meetingGuid, CompanionName = studentEntry.Student.DbUser.UserName! };
 		Task<bool> studentSendTask = webSocketSystem.SendAsync(studentEntry.Student.DbUserId, teacherMeetingResponseModel, "MeetingStartNotification");
+
 		await Task.Delay(500);
 
 		MeetingResponseModel studentMeetingResponseModel = new MeetingResponseModel { MeetingGuid = meetingGuid, CompanionName = teacher.DbUser.UserName! };

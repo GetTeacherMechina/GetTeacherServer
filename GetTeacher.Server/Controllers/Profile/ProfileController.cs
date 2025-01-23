@@ -1,5 +1,6 @@
 ﻿using GetTeacher.Server.Models.Profile;
 using GetTeacher.Server.Services.Database.Models;
+using GetTeacher.Server.Services.Managers.Interfaces;
 using GetTeacher.Server.Services.Managers.Interfaces.UserManager;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -8,8 +9,9 @@ namespace GetTeacher.Server.Controllers.Profile;
 
 [ApiController]
 [Route("api/v1/profile")]
-public class ProfileController(IUserManager userManager, ITeacherManager teacherManager, IStudentManager studentManager) : ControllerBase
+public class ProfileController(IStudentReadyTeacherCountNotifier studentReadyTeacherCountNotifier, IUserManager userManager, ITeacherManager teacherManager, IStudentManager studentManager) : ControllerBase
 {
+	private readonly IStudentReadyTeacherCountNotifier studentReadyTeacherCountNotifier = studentReadyTeacherCountNotifier;
 	private readonly IUserManager userManager = userManager;
 	private readonly ITeacherManager teacherManager = teacherManager;
 	private readonly IStudentManager studentManager = studentManager;
@@ -42,7 +44,6 @@ public class ProfileController(IUserManager userManager, ITeacherManager teacher
 	[Route("student")]
 	public async Task<IActionResult> StudentProfile()
 	{
-
 		DbUser? user = await userManager.GetFromUser(User);
 		if (user is null)
 			return BadRequest();
@@ -50,13 +51,12 @@ public class ProfileController(IUserManager userManager, ITeacherManager teacher
 		DbStudent? student = await studentManager.GetFromUser(user);
 
 		if (student is null)
-		{
 			return BadRequest();
-		}
 
+		await studentReadyTeacherCountNotifier.NotifyStudentsReadyTeachers();
 		return Ok(new
 		{
-			Grade = student.Grade
+			student.Grade
 		});
 	}
 }
