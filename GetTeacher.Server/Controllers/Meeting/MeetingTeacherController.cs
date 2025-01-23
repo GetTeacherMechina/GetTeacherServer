@@ -1,5 +1,6 @@
 ﻿using GetTeacher.Server.Services.Database;
 using GetTeacher.Server.Services.Database.Models;
+using GetTeacher.Server.Services.Managers.Interfaces;
 using GetTeacher.Server.Services.Managers.Interfaces.ReadyManager;
 using GetTeacher.Server.Services.Managers.Interfaces.UserManager;
 using GetTeacher.Server.Services.Managers.Interfaces.UserState;
@@ -11,8 +12,9 @@ namespace GetTeacher.Server.Controllers.Meeting;
 
 [ApiController]
 [Route("api/v1/meeting/teacher")]
-public class MeetingTeacherController(IUserStateTracker userStateTracker, GetTeacherDbContext getTeacherDbContext, IPrincipalClaimsQuerier principalClaimsQuerier, ITeacherReadyManager teacherReadyManager) : ControllerBase
+public class MeetingTeacherController(IStudentReadyTeacherCountNotifier studentReadyTeacherCountNotifier, IUserStateTracker userStateTracker, GetTeacherDbContext getTeacherDbContext, IPrincipalClaimsQuerier principalClaimsQuerier, ITeacherReadyManager teacherReadyManager) : ControllerBase
 {
+	private readonly IStudentReadyTeacherCountNotifier studentReadyTeacherCountNotifier = studentReadyTeacherCountNotifier;
 	private readonly IUserStateTracker userStateTracker = userStateTracker;
 	private readonly GetTeacherDbContext getTeacherDbContext = getTeacherDbContext;
 	private readonly IPrincipalClaimsQuerier principalClaimsQuerier = principalClaimsQuerier;
@@ -41,6 +43,7 @@ public class MeetingTeacherController(IUserStateTracker userStateTracker, GetTea
 
 		userStateTracker.AddDisconnectAction(teacher, (i) => teacherReadyManager.NotReadyToTeach(teacher));
 		teacherReadyManager.ReadyToTeachSubject(teacher);
+		await studentReadyTeacherCountNotifier.NotifyStudentsReadyTeachers();
 		return Ok(new { });
 	}
 
@@ -59,6 +62,7 @@ public class MeetingTeacherController(IUserStateTracker userStateTracker, GetTea
 
 		userStateTracker.ClearDisconnectActions(teacher);
 		teacherReadyManager.NotReadyToTeach(teacher);
+		await studentReadyTeacherCountNotifier.NotifyStudentsReadyTeachers();
 		return Ok(new { });
 	}
 }
