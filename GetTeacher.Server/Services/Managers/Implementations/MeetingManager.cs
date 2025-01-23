@@ -1,6 +1,5 @@
 ﻿using GetTeacher.Server.Services.Database;
 using GetTeacher.Server.Services.Database.Models;
-using GetTeacher.Server.Services.Managers.Implementations.Payment;
 using GetTeacher.Server.Services.Managers.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -73,9 +72,10 @@ public class MeetingManager(ILogger<IMeetingManager> logger, GetTeacherDbContext
 		return await getTeacherDbContext.Meetings
 			.Where(m => m.Guid == meetingGuid)
 				.Include(m => m.MeetingSummary)
-				.Include(m => m.Teacher)
 				.Include(m => m.Subject)
 				.Include(m => m.Student)
+					.ThenInclude(s => s.DbUser)
+				.Include(m => m.Teacher)
 					.ThenInclude(s => s.DbUser)
 			.FirstOrDefaultAsync();
 	}

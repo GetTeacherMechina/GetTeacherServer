@@ -10,7 +10,7 @@ namespace GetTeacher.Server.Controllers.Authentication;
 
 [ApiController]
 [Route("/api/v1/auth/[controller]")]
-public class GoogleController(IJwtGenerator jwtGenerator,ILogger<GoogleController> logger, UserManager<DbUser> userManager, IConfiguration configuration) : ControllerBase
+public class GoogleController(IJwtGenerator jwtGenerator, ILogger<GoogleController> logger, UserManager<DbUser> userManager, IConfiguration configuration) : ControllerBase
 {
 	private readonly IJwtGenerator jwtGenerator = jwtGenerator;
 	private readonly ILogger<GoogleController> logger = logger;

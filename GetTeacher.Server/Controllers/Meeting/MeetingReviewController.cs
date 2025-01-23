@@ -1,7 +1,6 @@
 ﻿using GetTeacher.Server.Models.Meeting;
 using GetTeacher.Server.Services.Database.Models;
 using GetTeacher.Server.Services.Managers.Interfaces;
-using GetTeacher.Server.Services.Managers.Interfaces.Payment;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

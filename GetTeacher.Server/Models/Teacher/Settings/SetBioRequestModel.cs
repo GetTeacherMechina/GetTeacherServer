@@ -1,4 +1,4 @@
 public class SetBioRequestModel
 {
-    public string Bio { get; set; }
+	public string Bio { get; set; }
 }

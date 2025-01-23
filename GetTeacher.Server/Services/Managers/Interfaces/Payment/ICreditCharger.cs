@@ -2,7 +2,7 @@
 
 namespace GetTeacher.Server.Services.Managers.Interfaces.Payment;
 
-public interface IStudentCreditCharger
+public interface ICreditCharger
 {
-	Task<bool> ChargeStudent(DbStudent student, DbMeeting meeting);
+	Task<bool> MeetingTransaction(DbStudent student, DbTeacher teacher, DbMeeting meeting);
 }

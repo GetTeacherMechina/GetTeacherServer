@@ -1,7 +1,6 @@
 ﻿using GetTeacher.Server.Models.Authentication.Register;
 using GetTeacher.Server.Services.Database;
 using GetTeacher.Server.Services.Database.Models;
-using GetTeacher.Server.Services.Managers.Implementations;
 using GetTeacher.Server.Services.Managers.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;

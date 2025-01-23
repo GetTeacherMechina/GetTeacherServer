@@ -10,9 +10,9 @@ namespace GetTeacher.Server.Controllers.Meeting;
 
 [ApiController]
 [Route("/api/v1/meeting")]
-public class MeetingEndController(IStudentCreditCharger studentCreditCharger, IMeetingManager meetingManager, IWebSocketSystem webSocketSystem) : ControllerBase
+public class MeetingEndController(ICreditCharger studentCreditCharger, IMeetingManager meetingManager, IWebSocketSystem webSocketSystem) : ControllerBase
 {
-	private readonly IStudentCreditCharger studentCreditCharger = studentCreditCharger;
+	private readonly ICreditCharger creditCharger = studentCreditCharger;
 	private readonly IMeetingManager meetingManager = meetingManager;
 	private readonly IWebSocketSystem webSocketSystem = webSocketSystem;
 
@@ -34,7 +34,7 @@ public class MeetingEndController(IStudentCreditCharger studentCreditCharger, IM
 		Task teacherEndMeetingSendTask = webSocketSystem.SendAsync(meeting.Teacher.DbUserId, new EndMeetingResponseModel { Status = "EndMeeting" }, "EndMeeting");
 		await Task.WhenAll(studentEndMeetingSendTask, teacherEndMeetingSendTask);
 
-		if (!await studentCreditCharger.ChargeStudent(meeting.Student, meeting))
+		if (!await creditCharger.MeetingTransaction(meeting.Student, meeting.Teacher, meeting))
 			return BadRequest();
 
 		return Ok(new { Status = "Ended meeting" });
