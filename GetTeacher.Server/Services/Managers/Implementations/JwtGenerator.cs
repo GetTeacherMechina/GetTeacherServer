@@ -23,7 +23,7 @@ public class JwtGenerator(ILogger<JwtGenerator> logger, IConfiguration configura
 			new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
 		];
 
-		return GenerateToken(claims, TimeSpan.FromMinutes(60));
+		return GenerateToken(claims, TimeSpan.FromDays(1));
 	}
 
 	private string? GenerateToken(IEnumerable<Claim> claims, TimeSpan tokenLifetime)

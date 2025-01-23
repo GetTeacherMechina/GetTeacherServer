@@ -19,4 +19,6 @@ public interface IMeetingManager
 	Task<ICollection<DbMeeting>> GetAllTeacherMeetings(DbTeacher teacher);
 
 	Task<TimeSpan?> GetMeetingLength(Guid meetingGuid);
+
+	Task EndMeeting(Guid meetingGuid);
 }

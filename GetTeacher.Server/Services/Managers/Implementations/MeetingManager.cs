@@ -1,5 +1,6 @@
 ﻿using GetTeacher.Server.Services.Database;
 using GetTeacher.Server.Services.Database.Models;
+using GetTeacher.Server.Services.Managers.Implementations.Payment;
 using GetTeacher.Server.Services.Managers.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -62,7 +63,6 @@ public class MeetingManager(ILogger<IMeetingManager> logger, GetTeacherDbContext
 		};
 
 		meeting.MeetingSummary = summary;
-		meeting.EndTime = DateTime.UtcNow;
 
 		await getTeacherDbContext.MeetingSummaries.AddAsync(summary);
 		await getTeacherDbContext.SaveChangesAsync();
@@ -111,12 +111,23 @@ public class MeetingManager(ILogger<IMeetingManager> logger, GetTeacherDbContext
 	public async Task<TimeSpan?> GetMeetingLength(Guid meetingGuid)
 	{
 		DbMeeting? meeting = await GetMeeting(meetingGuid);
-		if (meeting is null || meeting.MeetingSummary is null)
+		if (meeting is null || !meeting.Ended)
 		{
 			logger.LogWarning("Meeting was not found.");
 			return null;
 		}
 
 		return meeting.EndTime - meeting.StartTime;
+	}
+
+	public async Task EndMeeting(Guid meetingGuid)
+	{
+		DbMeeting? meeting = await GetMeeting(meetingGuid);
+		if (meeting is null)
+			return;
+
+		meeting.Ended = true;
+		meeting.EndTime = DateTime.UtcNow;
+		await getTeacherDbContext.SaveChangesAsync();
 	}
 }

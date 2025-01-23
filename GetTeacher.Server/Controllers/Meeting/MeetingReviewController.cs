@@ -9,9 +9,8 @@ namespace GetTeacher.Server.Controllers.Meeting;
 
 [ApiController]
 [Route("/api/v1/meeting/info")]
-public class MeetingReviewController(IStudentCreditCharger studentCreditCharger, IMeetingManager meetingManager) : Controller
+public class MeetingReviewController(IMeetingManager meetingManager) : Controller
 {
-	private readonly IStudentCreditCharger studentCreditCharger = studentCreditCharger;
 	private readonly IMeetingManager meetingManager = meetingManager;
 
 	[HttpPost]
@@ -24,11 +23,6 @@ public class MeetingReviewController(IStudentCreditCharger studentCreditCharger,
 			return BadRequest();
 
 		await meetingManager.AddStarsReview(model.Guid, model.Rating);
-
-		// TODO: Move this to a more proper place
-		if (!await studentCreditCharger.ChargeStudent(meeting.Student, meeting))
-			return BadRequest();
-
 		return Ok(new { Message = "Successfully updated meeting summary" });
 	}
 }
