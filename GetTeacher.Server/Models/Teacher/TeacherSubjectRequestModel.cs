@@ -1,6 +1,4 @@
-﻿using GetTeacher.Server.Services.Database.Models;
-
-namespace GetTeacher.Server.Models.Teacher;
+﻿namespace GetTeacher.Server.Models.Teacher;
 
 public class TeacherSubjectRequestModel
 {

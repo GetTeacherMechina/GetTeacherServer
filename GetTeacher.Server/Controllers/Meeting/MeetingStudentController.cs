@@ -12,7 +12,7 @@ namespace GetTeacher.Server.Controllers.Meeting;
 
 [ApiController]
 [Route("api/v1/meeting/student")]
-public class MeetingStudentController(IStudentManager  studentManager,ISubjectManager subjectManager, IStudentReadyManager studentReadyManager, IUserStateTracker userStateTracker, GetTeacherDbContext getTeacherDbContext, IMeetingMatcherBackgroundService meetingMatcherBackgroundService, IPrincipalClaimsQuerier principalClaimsQuerier) : ControllerBase
+public class MeetingStudentController(IStudentManager studentManager, ISubjectManager subjectManager, IStudentReadyManager studentReadyManager, IUserStateTracker userStateTracker, GetTeacherDbContext getTeacherDbContext, IMeetingMatcherBackgroundService meetingMatcherBackgroundService, IPrincipalClaimsQuerier principalClaimsQuerier) : ControllerBase
 {
 	private readonly IStudentManager studentManager = studentManager;
 	private readonly ISubjectManager subjectManager = subjectManager;
@@ -31,8 +31,8 @@ public class MeetingStudentController(IStudentManager  studentManager,ISubjectMa
 		if (student is null)
 			return BadRequest();
 
-        // if (student.DbUser.Credits <= 0)
-        //     return BadRequest();
+		// if (student.DbUser.Credits <= 0)
+		//     return BadRequest();
 
 		DbSubject? dbSubject = await subjectManager.GetFromName(subject.Name);
 		if (dbSubject is null)

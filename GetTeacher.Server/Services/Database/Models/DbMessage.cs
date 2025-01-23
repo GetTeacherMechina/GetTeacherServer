@@ -5,16 +5,16 @@ namespace GetTeacher.Server.Services.Database.Models;
 
 public class DbMessage
 {
-    public int Id { get; set; }
+	public int Id { get; set; }
 
 
-    [ForeignKey(nameof(Sender))]
+	[ForeignKey(nameof(Sender))]
 
-    public required int SenderId { get; set; }
-    public required virtual DbUser Sender { get; set; } = null!;
+	public required int SenderId { get; set; }
+	public required virtual DbUser Sender { get; set; } = null!;
 
-    public DateTime DateTime { get; set; }
+	public DateTime DateTime { get; set; }
 
-    public required string Content { get; set; }
+	public required string Content { get; set; }
 
 }

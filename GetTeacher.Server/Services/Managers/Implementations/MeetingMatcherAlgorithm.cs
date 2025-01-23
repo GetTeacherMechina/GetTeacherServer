@@ -14,29 +14,29 @@ public class MeetingMatcherAlgorithm(ILogger<IMeetingMatcherAlgorithm> logger, I
 	private readonly IUserStateTracker userStateChecker = userStateChecker;
 
 	private static ICollection<DbTeacher> SortByRankPriceCommunityScore(ICollection<DbTeacher> teachers, DbStudent student)
-    {
-        double maxRank = teachers.Count == 0 ? 0 : Math.Max(teachers.Max(t => t.Rank), 1);
-        double maxPrice = teachers.Count == 0 ? 0 : Math.Max(teachers.Max(t => t.TariffPerMinute), 1);
-        double maxCommunityScore = teachers.Count == 0 ? 0 : Math.Max(teachers.Max(t => t.DbUser.ChatMessagesSent + t.DbUser.ChatMessagesReceived), 1);
+	{
+		double maxRank = teachers.Count == 0 ? 0 : Math.Max(teachers.Max(t => t.Rank), 1);
+		double maxPrice = teachers.Count == 0 ? 0 : Math.Max(teachers.Max(t => t.TariffPerMinute), 1);
+		double maxCommunityScore = teachers.Count == 0 ? 0 : Math.Max(teachers.Max(t => t.DbUser.ChatMessagesSent + t.DbUser.ChatMessagesReceived), 1);
 
-        double communityWeightFraction = 0.1;
-        double communityWeight = (student.PriceVsQuality / 100.0) * communityWeightFraction;
-        double rankWeight = (student.PriceVsQuality / 100.0) * (1 - communityWeightFraction);
-        double priceWeight = 1.0 - rankWeight - communityWeight;
+		double communityWeightFraction = 0.1;
+		double communityWeight = (student.PriceVsQuality / 100.0) * communityWeightFraction;
+		double rankWeight = (student.PriceVsQuality / 100.0) * (1 - communityWeightFraction);
+		double priceWeight = 1.0 - rankWeight - communityWeight;
 
-        return teachers.Select(t => new
-        {
-            Teacher = t,
-            Score = rankWeight * (t.Rank / maxRank)
-                  - priceWeight * (t.TariffPerMinute / maxPrice)
-                  + communityWeight * ((t.DbUser.ChatMessagesSent + t.DbUser.ChatMessagesReceived) / maxCommunityScore)
-        })
-        .OrderByDescending(result => result.Score)
-        .Select(result => result.Teacher)
-        .ToList();
-    }
+		return teachers.Select(t => new
+		{
+			Teacher = t,
+			Score = rankWeight * (t.Rank / maxRank)
+				  - priceWeight * (t.TariffPerMinute / maxPrice)
+				  + communityWeight * ((t.DbUser.ChatMessagesSent + t.DbUser.ChatMessagesReceived) / maxCommunityScore)
+		})
+		.OrderByDescending(result => result.Score)
+		.Select(result => result.Teacher)
+		.ToList();
+	}
 
-    public async Task<DbTeacher?> MatchStudentTeacher(DbStudent student, DbSubject subject, ICollection<DbTeacher> teacherExclusion)
+	public async Task<DbTeacher?> MatchStudentTeacher(DbStudent student, DbSubject subject, ICollection<DbTeacher> teacherExclusion)
 	{
 		HashSet<int> readyTeacherIds = teacherReadyManager
 			.GetReadyTeachersForSubjectAndGrade(subject, student.Grade)

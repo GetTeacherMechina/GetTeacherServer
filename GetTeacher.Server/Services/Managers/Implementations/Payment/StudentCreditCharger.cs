@@ -4,7 +4,7 @@ using GetTeacher.Server.Services.Managers.Interfaces.Payment;
 
 namespace GetTeacher.Server.Services.Managers.Implementations.Payment;
 
-public class StudentCreditCharger(IUserCreditManager userCreditManager,IMeetingManager meetingManager) : IStudentCreditCharger
+public class StudentCreditCharger(IUserCreditManager userCreditManager, IMeetingManager meetingManager) : IStudentCreditCharger
 {
 	private readonly IUserCreditManager userCreditManager = userCreditManager;
 	private readonly IMeetingManager meetingManager = meetingManager;

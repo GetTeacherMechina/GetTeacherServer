@@ -1,7 +1,5 @@
-﻿using GetTeacher.Server.Models.Student.Settings;
-using GetTeacher.Server.Models.Teacher.Settings;
+﻿using GetTeacher.Server.Models.Teacher.Settings;
 using GetTeacher.Server.Services.Database.Models;
-using GetTeacher.Server.Services.Managers.Implementations.UserManager;
 using GetTeacher.Server.Services.Managers.Interfaces.UserManager;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -36,7 +34,7 @@ public class TeacherSettingsController(ITeacherManager teacherManager) : Control
 		DbTeacher? teacher = await teacherManager.GetFromUser(User);
 		if (teacher is null)
 			return BadRequest();
-		
+
 		await teacherManager.SetCreditsTariff(teacher, setCreditsTariffRequestModel.CreditsTariffPerMinute);
 		return Ok();
 	}

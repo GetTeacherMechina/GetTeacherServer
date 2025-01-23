@@ -1,6 +1,4 @@
-﻿using System.Linq;
-using GetTeacher.Server.Services.Database;
-using GetTeacher.Server.Services.Database.Models;
+﻿using GetTeacher.Server.Services.Database;
 using GetTeacher.Server.Services.Managers.Interfaces;
 using GetTeacher.Server.Services.Managers.Interfaces.Networking;
 using GetTeacher.Server.Services.Managers.Interfaces.ReadyManager;

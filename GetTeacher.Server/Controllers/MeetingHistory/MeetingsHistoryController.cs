@@ -8,7 +8,7 @@ namespace GetTeacher.Server.Controllers.MeetingHistory;
 
 [ApiController]
 [Route("/api/v1/[controller]")]
-public class MeetingsHistoryController(IMeetingManager meetingManager, ITeacherManager teacherManager,IStudentManager studentManager) : ControllerBase
+public class MeetingsHistoryController(IMeetingManager meetingManager, ITeacherManager teacherManager, IStudentManager studentManager) : ControllerBase
 {
 	private readonly IMeetingManager meetingManager = meetingManager;
 	private readonly ITeacherManager teacherManager = teacherManager;

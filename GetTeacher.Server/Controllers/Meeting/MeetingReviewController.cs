@@ -9,7 +9,7 @@ namespace GetTeacher.Server.Controllers.Meeting;
 
 [ApiController]
 [Route("/api/v1/meeting/info")]
-public class MeetingReviewController(IStudentCreditCharger studentCreditCharger , IMeetingManager meetingManager) : Controller
+public class MeetingReviewController(IStudentCreditCharger studentCreditCharger, IMeetingManager meetingManager) : Controller
 {
 	private readonly IStudentCreditCharger studentCreditCharger = studentCreditCharger;
 	private readonly IMeetingManager meetingManager = meetingManager;

@@ -11,7 +11,7 @@ public class Program
 
 		builder.Services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
 		builder.Services.AddControllers();
-		
+
 		builder.AddCorsPolicy();
 
 		// Custom services via extension methods

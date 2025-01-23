@@ -56,7 +56,7 @@ public class StripePaymentManager(IPaymentIntentToCredits paymentIntentToCredits
 		while (true)
 		{
 			PaymentIntent paymentIntent = await paymentIntentService.GetAsync(paymentIntentId);
-			
+
 			if (paymentIntent.Status == "succeeded")
 			{
 				Console.WriteLine("Payment succeeded!");

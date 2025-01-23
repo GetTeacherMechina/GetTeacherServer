@@ -1,7 +1,5 @@
-using System.Linq;
 using GetTeacher.Server.Services.Database;
 using GetTeacher.Server.Services.Database.Models;
-using GetTeacher.Server.Services.Managers.Implementations.UserManager;
 using GetTeacher.Server.Services.Managers.Interfaces.UserManager;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

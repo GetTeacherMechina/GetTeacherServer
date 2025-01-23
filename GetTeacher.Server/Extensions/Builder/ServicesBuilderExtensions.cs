@@ -49,7 +49,7 @@ public static class ServicesBuilderExtensions
 		builder.Services.AddScoped<IPaymentIntentToCredits, LocalPaymentIntentToCredits>();
 		builder.Services.AddScoped<IChatManager, ChatManager>();
 		builder.Services.AddScoped<IStudentReadyTeacherCountNotifier, StudentReadyTeacherCountNotifier>();
-		
+
 		// Payment
 		builder.Services.AddScoped<IItemPriceQuerier, LocalItemPriceQuerier>();
 		builder.Services.AddScoped<IPaymentManager, StripePaymentManager>();

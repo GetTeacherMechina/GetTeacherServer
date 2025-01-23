@@ -55,7 +55,7 @@ public class WebSocketSystem(ILogger<IWebSocketSystem> logger, IUserStateTracker
 		string? originalJsonStr = JsonSerializer.Serialize(message);
 		if (originalJsonStr is null)
 			return false;
-		
+
 		JsonNode? jsonNode = JsonNode.Parse(originalJsonStr);
 		if (jsonNode is null)
 			return false;
