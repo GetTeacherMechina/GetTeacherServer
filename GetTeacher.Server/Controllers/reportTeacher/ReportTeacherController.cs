@@ -28,7 +28,7 @@ public class ReportTeacherController(GetTeacherDbContext getTeacherDbContext, IM
 		if (meeting is null)
 			return BadRequest("Meeting not found");
 
-		meeting.Teacher.Reports.Add(request.ReportContent);
+		meeting.Teacher.Reports.Add(new DbReport { Reporter = student, Content = request.ReportContent });
 		await getTeacherDbContext.SaveChangesAsync();
 		return Ok(new { });
 	}
