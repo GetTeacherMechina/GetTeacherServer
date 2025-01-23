@@ -2,5 +2,5 @@
 
 public class EndMeetingRequestModel
 {
-	public Guid MeetingGuid { get; set; }
+	public required Guid MeetingGuid { get; set; }
 }
