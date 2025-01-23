@@ -6,9 +6,9 @@ namespace GetTeacher.Server.Controllers.Profile;
 
 [Controller]
 [Route("/api/v1/reset-password/code-check")]
-public class CodeCheckController(IResetPasswordTokenStore resetPasswordCodeManager) : ControllerBase
+public class CodeCheckController(ITokenStore resetPasswordCodeManager) : ControllerBase
 {
-	private readonly IResetPasswordTokenStore resetPasswordCodeManager = resetPasswordCodeManager;
+	private readonly ITokenStore resetPasswordCodeManager = resetPasswordCodeManager;
 
 	[HttpPost]
 	public IActionResult CodeCheck([FromBody] CodeCheckModel codeCheckModel)

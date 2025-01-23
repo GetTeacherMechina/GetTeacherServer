@@ -1,6 +1,6 @@
 ﻿namespace GetTeacher.Server.Services.Managers.Interfaces;
 
-public interface IResetPasswordTokenStore
+public interface ITokenStore
 {
 	public string CreateCodeForToken(string token);
 

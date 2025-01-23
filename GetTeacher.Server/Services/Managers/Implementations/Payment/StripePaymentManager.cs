@@ -3,7 +3,7 @@ using Stripe;
 
 namespace GetTeacher.Server.Services.Managers.Implementations.Payment;
 
-public class StripePaymentManager(IPaymentIntentToCredits paymentIntentToCredits, ILogger<IPaymentManager> logger, IConfiguration configuration) : IPaymentManager
+public class StripePaymentManager(ILogger<IPaymentManager> logger, IConfiguration configuration) : IPaymentManager
 {
 	private readonly ILogger<IPaymentManager> logger = logger;
 	private readonly IConfiguration configuration = configuration;

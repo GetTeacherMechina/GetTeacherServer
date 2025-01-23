@@ -1,6 +1,7 @@
 ﻿using GetTeacher.Server.Models.Authentication.Register;
 using GetTeacher.Server.Services.Database;
 using GetTeacher.Server.Services.Database.Models;
+using GetTeacher.Server.Services.Managers.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -9,8 +10,10 @@ namespace GetTeacher.Server.Controllers.Authentication;
 
 [ApiController]
 [Route("api/v1/auth/[controller]")]
-public class RegisterController(UserManager<DbUser> userManager, GetTeacherDbContext getTeacherDbContext) : ControllerBase
+public class RegisterController(ITwoFactorAuthenticationManager twoFactorAuthenticationManager, ITokenStore tokenStore, UserManager<DbUser> userManager, GetTeacherDbContext getTeacherDbContext) : ControllerBase
 {
+	private readonly ITwoFactorAuthenticationManager twoFactorAuthenticationManager = twoFactorAuthenticationManager;
+	private readonly ITokenStore tokenStore = tokenStore;
 	private readonly UserManager<DbUser> userManager = userManager;
 	private readonly GetTeacherDbContext getTeacherDbContext = getTeacherDbContext;
 
@@ -59,12 +62,28 @@ public class RegisterController(UserManager<DbUser> userManager, GetTeacherDbCon
 			if (registerModel.Student is not null)
 				await AddStudent(user, registerModel.Student);
 
-			return Ok(new { Message = "Registration successful" });
+			await twoFactorAuthenticationManager.CreateAndSend2FaCode(user);
+			return Ok(new { Message = "2FA needed" });
 		}
 
 		foreach (var error in result.Errors)
 			ModelState.AddModelError(error.Code, error.Description);
 
 		return BadRequest(ModelState);
+	}
+
+	[HttpPost]
+	[Route("2fa")]
+	public async Task<IActionResult> VerifyEmail2FA([FromBody] VerifyEmail2FaRequestModel verifyEmail2FaRequestModel)
+	{
+		DbUser? user = await userManager.FindByEmailAsync(verifyEmail2FaRequestModel.Email);
+		if (user is null)
+			return NotFound("User not found");
+
+		bool success = await twoFactorAuthenticationManager.Confirm2FaCode(user, verifyEmail2FaRequestModel.Code);
+		if (success)
+			return Ok(new { Status = "Success" });
+
+		return Ok(new { Status = "Invalid code" });
 	}
 }

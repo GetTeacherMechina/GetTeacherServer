@@ -25,6 +25,7 @@ public static class IdentityBuilderExtensions
 		builder.Services
 			.AddIdentityCore<DbUser>(options =>
 			{
+				options.SignIn.RequireConfirmedAccount = true;
 				options.User.AllowedUserNameCharacters = allowedUserNameCharacters;
 				options.User.RequireUniqueEmail = true;
 			}).AddEntityFrameworkStores<GetTeacherDbContext>()

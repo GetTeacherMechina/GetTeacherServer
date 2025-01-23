@@ -2,7 +2,7 @@
 
 namespace GetTeacher.Server.Services.Managers.Implementations;
 
-public class LocalResetPasswordTokenStore(ICodeGenerator codeGenerator) : IResetPasswordTokenStore
+public class LocalTokenStore(ICodeGenerator codeGenerator) : ITokenStore
 {
 	private static readonly Dictionary<string, string> codeToToken = [];
 	private readonly ICodeGenerator codeGenerator = codeGenerator;

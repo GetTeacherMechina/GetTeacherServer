@@ -9,11 +9,11 @@ namespace GetTeacher.Server.Controllers.Authentication;
 
 [Controller]
 [Route("/api/v1/auth/reset-password")]
-public class ResetPasswordController(UserManager<DbUser> userManager, IEmailSender emailSender, IResetPasswordTokenStore resetPasswordTokenStore) : ControllerBase
+public class ResetPasswordController(UserManager<DbUser> userManager, IEmailSender emailSender, ITokenStore tokenStore) : ControllerBase
 {
 	private readonly UserManager<DbUser> userManager = userManager;
 	private readonly IEmailSender emailSender = emailSender;
-	private readonly IResetPasswordTokenStore resetPasswordTokenStore = resetPasswordTokenStore;
+	private readonly ITokenStore resetPasswordTokenStore = tokenStore;
 
 	[HttpPost]
 	[Route("forgot")]

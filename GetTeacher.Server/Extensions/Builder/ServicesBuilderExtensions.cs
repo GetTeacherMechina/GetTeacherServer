@@ -36,7 +36,7 @@ public static class ServicesBuilderExtensions
 		builder.Services.AddScoped<IUserStateTracker, UserStateTracker>();
 		builder.Services.AddScoped<ITeacherReadyManager, TeacherReadyManager>();
 		builder.Services.AddScoped<IStudentReadyManager, StudentReadyManager>();
-		builder.Services.AddScoped<IResetPasswordTokenStore, LocalResetPasswordTokenStore>();
+		builder.Services.AddScoped<ITokenStore, LocalTokenStore>();
 		builder.Services.AddScoped<IMeetingMatcherAlgorithm, MeetingMatcherAlgorithm>();
 		builder.Services.AddScoped<IEmailSender, EmailSender>();
 		builder.Services.AddScoped<ICodeGenerator, CodeGenerator>();
@@ -49,6 +49,7 @@ public static class ServicesBuilderExtensions
 		builder.Services.AddScoped<IPaymentIntentToCredits, LocalPaymentIntentToCredits>();
 		builder.Services.AddScoped<IChatManager, ChatManager>();
 		builder.Services.AddScoped<IStudentReadyTeacherCountNotifier, StudentReadyTeacherCountNotifier>();
+		builder.Services.AddScoped<ITwoFactorAuthenticationManager, TwoFactorAuthenticationManager>();
 
 		// Payment
 		builder.Services.AddScoped<IItemPriceQuerier, LocalItemPriceQuerier>();
