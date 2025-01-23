@@ -20,6 +20,12 @@ public class ChatManager(GetTeacherDbContext getTeacherDbContext, IWebSocketSyst
 	public async Task SendToChat(DbChat chat, DbUser self, DbMessage message)
 	{
 		chat.Messages.Add(message);
+
+		self.ChatMessagesSent++;
+		foreach (DbUser user in chat.Users)
+			if (self.Id != user.Id)
+				user.ChatMessagesReceived++;
+
 		await getTeacherDbContext.SaveChangesAsync();
 
 		await Task.WhenAll(chat.Users.Select(u =>
