@@ -25,4 +25,6 @@ public class DbTeacher
 	public ICollection<string> Reports { get; set; } = [];
 
 	public virtual ICollection<DbTeacherSubject> TeacherSubjects { get; set; } = [];
+
+	public virtual ICollection<DbStudent> FavoritedByStudents { get; set; } = [];
 }

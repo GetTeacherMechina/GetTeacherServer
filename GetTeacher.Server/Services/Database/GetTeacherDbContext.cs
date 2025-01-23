@@ -1,4 +1,5 @@
-﻿using GetTeacher.Server.Services.Database.Models;
+﻿using System.Reflection.Emit;
+using GetTeacher.Server.Services.Database.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -28,12 +29,21 @@ public class GetTeacherDbContext(DbContextOptions<GetTeacherDbContext> options) 
 		base.OnModelCreating(builder);
 
 		builder.Entity<DbChat>()
-		.HasMany(c => c.Users)
-		.WithMany(u => u.Chats)
-		.UsingEntity<Dictionary<string, object>>(
-			"ChatUserRelations",
-			u => u.HasOne<DbUser>().WithMany().HasForeignKey("DbUserId"),
-			c => c.HasOne<DbChat>().WithMany().HasForeignKey("ChatId")
-		);
+			.HasMany(c => c.Users)
+			.WithMany(u => u.Chats)
+			.UsingEntity<Dictionary<string, object>>(
+				"ChatUserRelations",
+				u => u.HasOne<DbUser>().WithMany().HasForeignKey("DbUserId"),
+				c => c.HasOne<DbChat>().WithMany().HasForeignKey("ChatId")
+			);
+
+		builder.Entity<DbStudent>()
+			.HasMany(s => s.FavoriteTeachers)
+			.WithMany(t => t.FavoritedByStudents)
+			.UsingEntity<Dictionary<string, object>>(
+				"StudentTeacherFavorites",
+				u => u.HasOne<DbTeacher>().WithMany().HasForeignKey("TeacherId"),
+				c => c.HasOne<DbStudent>().WithMany().HasForeignKey("StudentId")
+			);
 	}
 }
