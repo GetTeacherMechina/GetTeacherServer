@@ -178,6 +178,7 @@ public class MeetingMatcherBackgroundService(IServiceProvider serviceProvider, I
 			IsFavorite = studentEntry.Student.FavoriteTeachers.Where(f => f.Id == teacher.Id).Any(),
 			TeacherBio = teacher.Bio,
 			TeacherRank = teacherRank,
+			TeacherTariffPerMinute = teacher.TariffPerMinute,
 			MeetingResponseModel = new MeetingResponseModel { CompanionName = teacher.DbUser.UserName! }
 		};
 

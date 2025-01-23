@@ -46,7 +46,7 @@ public class MeetingMatcherAlgorithm(ILogger<IMeetingMatcherAlgorithm> logger, I
 		ICollection<DbTeacher> teachers = await teacherManager.GetTeachersBySubjectAndGrade(subject, student.Grade);
 		ICollection<DbTeacher> favoriteTeachers = student.FavoriteTeachers;
 
-		teachers = [.. teachers.Except(favoriteTeachers).OrderByDescending(t => t.Rank)];
+		teachers = [.. teachers.Where(t => !favoriteTeachers.Where(f => f.Id == t.Id).Any()).OrderByDescending(t => t.Rank)];
 		favoriteTeachers = [.. favoriteTeachers.OrderByDescending(t => t.Rank)];
 
 		teachers = SortByRankPriceCommunityScore(teachers, student);

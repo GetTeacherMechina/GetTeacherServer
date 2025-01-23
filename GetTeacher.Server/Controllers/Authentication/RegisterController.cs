@@ -65,7 +65,8 @@ public class RegisterController(IGradeManager gradeManager, ITwoFactorAuthentica
 			if (registerModel.Student is not null)
 				await AddStudent(user, registerModel.Student);
 
-			await twoFactorAuthenticationManager.CreateAndSend2FaCode(user);
+			// TODO:
+			// await twoFactorAuthenticationManager.CreateAndSend2FaCode(user);
 			return Ok(new { Message = "2FA needed" });
 		}
 

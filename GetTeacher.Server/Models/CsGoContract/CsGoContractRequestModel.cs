@@ -10,5 +10,7 @@ public class CsGoContractRequestModel
 
 	public double TeacherRank { get; set; }
 
+	public double TeacherTariffPerMinute { get; set; }
+
 	public required MeetingResponseModel MeetingResponseModel { get; set; }
 }
