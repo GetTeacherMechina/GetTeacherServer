@@ -3,7 +3,7 @@
 LocalDevelopmentDb.db
 LocalDevelopmentDb.db-shm
 LocalDevelopmentDb.db-wal
-
+wwwroot/uploads/*
 # Database migrations, we're not professional enough to care about history
 GetTeacher.Server/Services/Database/Migrations/
 
