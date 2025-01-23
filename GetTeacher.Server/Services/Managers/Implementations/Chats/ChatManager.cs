@@ -28,7 +28,7 @@ public class ChatManager(GetTeacherDbContext getTeacherDbContext, IWebSocketSyst
 
         await getTeacherDbContext.SaveChangesAsync();
 
-        var res = await Task.WhenAll(chat.Users.Where(u => u.Id != self.Id).Select(u =>
+        await Task.WhenAll(chat.Users.Where(u => u.Id != self.Id).Select(u =>
             webSocketSystem.SendAsync(u.Id, new
             {
                 id = -1,
@@ -38,7 +38,5 @@ public class ChatManager(GetTeacherDbContext getTeacherDbContext, IWebSocketSyst
                 senderName = message.Sender.UserName!,
             }, "chat_message")
         ).ToList());
-
-        return;
     }
 }
