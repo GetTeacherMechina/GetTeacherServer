@@ -37,22 +37,25 @@ public class TeacherSubjectController(ITeacherManager teacherManager, ISubjectMa
 		DbTeacher? teacher = await teacherManager.GetFromUser(User);
 		if (teacher is null)
 			return BadRequest(new { });
-
-		DbTeacherSubject teacherSubject = new DbTeacherSubject
+		foreach (TeacherSubject item in request.TeacherSubjects)
 		{
-			Subject = new DbSubject { Name = request.Subject },
-			Grade = new DbGrade { Name = request.Grade }
-		};
 
-		Task addSubjectTask = subjectManager.AddSubject(teacherSubject.Subject);
+			DbTeacherSubject teacherSubject = new DbTeacherSubject
+			{
+				Subject = new DbSubject { Name = item.Subject },
+				Grade = new DbGrade { Name = item.Grade }
+			};
 
-		Task addGradeTask = gradeManager.AddGrade(teacherSubject.Grade);
-		await Task.WhenAll(addSubjectTask, addGradeTask);
+			Task addSubjectTask = subjectManager.AddSubject(teacherSubject.Subject);
 
-		teacherSubject.Subject = (await subjectManager.GetFromName(teacherSubject.Subject.Name))!;
-		teacherSubject.Grade = (await gradeManager.GetFromName(teacherSubject.Grade.Name))!;
+			Task addGradeTask = gradeManager.AddGrade(teacherSubject.Grade);
+			await Task.WhenAll(addSubjectTask, addGradeTask);
 
-		await teacherManager.AddSubjectToTeacher(teacherSubject, teacher);
+			teacherSubject.Subject = (await subjectManager.GetFromName(teacherSubject.Subject.Name))!;
+			teacherSubject.Grade = (await gradeManager.GetFromName(teacherSubject.Grade.Name))!;
+
+			await teacherManager.AddSubjectToTeacher(teacherSubject, teacher);
+		}
 
 		return Ok(new { });
 	}
@@ -60,7 +63,7 @@ public class TeacherSubjectController(ITeacherManager teacherManager, ISubjectMa
 	[HttpPost]
 	[Authorize]
 	[Route("remove")]
-	public async Task<IActionResult> RemoveSubject([FromBody] TeacherSubjectRequestModel request)
+	public async Task<IActionResult> RemoveSubject([FromBody] TeacherSubject request)
 	{
 		DbTeacher? teacher = await teacherManager.GetFromUser(User);
 		if (teacher is null)
