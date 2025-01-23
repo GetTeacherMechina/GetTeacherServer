@@ -14,7 +14,7 @@ public class StudentReadyTeacherCountNotifier(GetTeacherDbContext getTeacherDbCo
 	public async Task NotifyStudentsReadyTeachers()
 	{
 		ICollection<SubjectReadyTeachersDescriptor> readyTeachersDescriptors = await teacherReadyManager.GetReadyTeachersDescriptors();
-		ICollection<Task<bool>> studentUserIds = [.. getTeacherDbContext.Students.Select(s => webSocketSystem.SendAsync(s.DbUserId, readyTeachersDescriptors, "ReadyTeachersUpdate"))];
+		ICollection<Task<bool>> studentUserIds = [.. getTeacherDbContext.Students.Select(s => webSocketSystem.SendAsync(s.DbUserId, new { readyTeachers = readyTeachersDescriptors }, "ReadyTeachersUpdate"))];
 		await Task.WhenAll([.. studentUserIds]);
 	}
 }

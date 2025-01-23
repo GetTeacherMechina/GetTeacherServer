@@ -35,4 +35,28 @@ public class ProfileController(IUserManager userManager, ITeacherManager teacher
 			Credits = user.Credits
 		});
 	}
+
+
+	[HttpGet]
+	[Authorize]
+	[Route("student")]
+	public async Task<IActionResult> StudentProfile()
+	{
+
+		DbUser? user = await userManager.GetFromUser(User);
+		if (user is null)
+			return BadRequest();
+
+		DbStudent? student = await studentManager.GetFromUser(user);
+
+		if (student is null)
+		{
+			return BadRequest();
+		}
+
+		return Ok(new
+		{
+			Grade = student.Grade
+		});
+	}
 }
