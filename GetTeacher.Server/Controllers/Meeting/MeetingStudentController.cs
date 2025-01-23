@@ -31,8 +31,8 @@ public class MeetingStudentController(IStudentManager  studentManager,ISubjectMa
 		if (student is null)
 			return BadRequest();
 
-        if (student.DbUser.Credits <= 0)
-            return BadRequest();
+        // if (student.DbUser.Credits <= 0)
+        //     return BadRequest();
 
 		DbSubject? dbSubject = await subjectManager.GetFromName(subject.Name);
 		if (dbSubject is null)

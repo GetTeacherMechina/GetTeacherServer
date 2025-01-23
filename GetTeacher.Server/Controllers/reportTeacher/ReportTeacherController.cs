@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace GetTeacher.Server.Controllers.ReportTeacher;
 
 [ApiController]
-[Route("/api/v1/report-teacher-controller")]
+[Route("/api/v1/report-teacher")]
 public class ReportTeacherController(GetTeacherDbContext getTeacherDbContext, IMeetingManager meetingManager, IStudentManager studentManager) : ControllerBase
 {
 	private readonly GetTeacherDbContext getTeacherDbContext = getTeacherDbContext;
@@ -18,7 +18,7 @@ public class ReportTeacherController(GetTeacherDbContext getTeacherDbContext, IM
 
 	[HttpPost]
 	[Authorize]
-	public async Task<IActionResult> ReportTeacher([FromBody] ReportTeacherRequestModel request) 
+	public async Task<IActionResult> ReportTeacher([FromBody] ReportTeacherRequestModel request)
 	{
 		DbStudent? student = await studentManager.GetFromUser(User);
 		if (student is null)

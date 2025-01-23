@@ -408,3 +408,5 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+GetTeacher.Server/wwwroot/uploads/*.png

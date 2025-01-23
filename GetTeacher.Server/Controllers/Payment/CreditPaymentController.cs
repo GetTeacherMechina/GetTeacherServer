@@ -11,7 +11,7 @@ namespace GetTeacher.Server.Controllers.Payment;
 
 [ApiController]
 [Route("/api/v1/payment/credits")]
-public class CreditPaymentController(IPaymentIntentToCredits paymentIntentToCredits, IWebSocketSystem webSocketSystem, IUserCreditManager userCreditManager, IUserManager userManager,IPaymentManager paymentManager, IItemPriceQuerier  itemPriceQuerier) : ControllerBase
+public class CreditPaymentController(IPaymentIntentToCredits paymentIntentToCredits, IWebSocketSystem webSocketSystem, IUserCreditManager userCreditManager, IUserManager userManager, IPaymentManager paymentManager, IItemPriceQuerier itemPriceQuerier) : ControllerBase
 {
 	private readonly IPaymentIntentToCredits paymentIntentToCredits = paymentIntentToCredits;
 	private readonly IWebSocketSystem webSocketSystem = webSocketSystem;
@@ -40,7 +40,7 @@ public class CreditPaymentController(IPaymentIntentToCredits paymentIntentToCred
 			return BadRequest("No such item found.");
 
 		await userCreditManager.AddCreditsToUser(user, paymentItemDescriptor.Amount);
-		return Ok(new { });
+		return Ok(new { Status = "Success" });
 	}
 
 	[HttpPost("intent")]
